@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" debug="false">
+
+  <!-- Target directory for logging output -->
+  <property name="LOGS_DIR" value="build/logs" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%40.40logger{40}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${LOGS_DIR}/omero-auth-test.log</file>
+    <encoder>
+        <pattern>%d %-5level [%thread] %logger{0}: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!--                      -->
+  <!-- Root logger          -->
+  <!--                      -->
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+  <!--                      -->
+  <!-- Internal loggers     -->
+  <!--                      -->
+  <logger name="org.imagopole" level="debug"/>
+
+  <!--                      -->
+  <!-- Dependencies loggers -->
+  <!--                      -->
+  <logger name="ome" level="info"/>
+  <logger name="ome.system.PreferenceContext" level="info"/>
+  <logger name="ome.formats" level="debug"/>
+  <logger name="omero" level="debug"/>
+  <logger name="omeis" level="debug"/>
+  <logger name="OMERO" level="debug"/>
+
+  <logger name="org.apache" level="warn"/>
+  <logger name="org.jgroups" level="warn"/>
+  <logger name="org.quartz" level="warn"/>
+  <logger name="org.hibernate" level="warn"/>
+  <logger name="org.springframework" level="info"/>
+  <logger name="org.springframework.beans" level="info"/>
+  <logger name="net.sf.ehcache" level="info"/>
+  <logger name="loci" level="info"/>
+  <logger name="bitronix" level="info"/>
+
+</configuration>

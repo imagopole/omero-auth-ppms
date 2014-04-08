@@ -1,0 +1,59 @@
+= OMERO PPMS Auth Server Extension Configuration
+Imagopole
+:fluent_hc_executor_url: https://github.com/apache/httpclient/blob/4.3.3/fluent-hc/src/main/java/org/apache/http/client/fluent/Executor.java#L94-L97
+:source-highlighter: coderay
+:toc:
+
+
+WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as not all combinations
+         would be desirable or mutually compatible!
+
+== Quickref
+
+=== OMERO auth extension
+
+[width="100%", options="header"]
+|===================================================================================================
+|Setting                            |Format               |Description
+|+omero.ppms.config+                |true,false           |
+|+omero.ppms.sync_on_login+         |true,false           |
+|+omero.ppms.new_user_group+        |:bean: or string     |
+|+omero.ppms.include_facilities+    |1,2,3                |
+|+omero.ppms.include_system_types+  |confocal,biphoton    |
+|+omero.ppms.add_user_groups+       |Default,Shared       |
+|+omero.ppms.ldap_dn_seed+          |true,false           |
+|+omero.ppms.ldap_dn_format+        |uid={},ou=Lab,dc=org |
+|===================================================================================================
+
+=== PPMS HTTP client
+
+[width="100%", options="header"]
+|===================================================================================================
+|Setting                            |Format           |Description
+|+omero.ppms.endpoint+              |https://api.tld/ |
+|+omero.ppms.api_key+               |string           |
+|+omero.ppms.proxy_host+            |localhost        |
+|+omero.ppms.proxy_port+            |8080             |
+|+omero.ppms.connect_timeout+       |3000             |
+|+omero.ppms.socket_timeout+        |1000             |
+|===================================================================================================
+
+NOTE: The underlying fluent HttpClient uses an +org.apache.http.impl.conn.PoolingHttpClientConnectionManager+
+      by default, with a maximum of 100 connections per route and 200 maximum total number of connections.
+      See {fluent_hc_executor_url}.
+
+=== Logging
+
+[source,xml]
+.logback.xml
+----
+<!-- OMERO auth extension -->
+<logger name="org.imagopole.omero.auth" level="info"/>
+
+<!-- PPMS HTTP client -->
+<logger name="org.imagopole.ppms" level="info"/>
+
+<!-- Apache Commons HTTP client -->
+<logger name="org.apache.http.client.fluent" level="info"/>
+<logger name="org.apache.http.impl.client" level="info"/>
+----

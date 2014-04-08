@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Spring context used to piggyback on the OMERO server startup sequence.
+# Allows to perform dependency injection for the PPMS auth extension at server initialization time.
+#
+# See:
+#   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/beanRefContext.xml#L39
+#   - http://www.openmicroscopy.org/site/support/omero5/developers/Server/ExtendingOmero.html#services
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+  <description>OMERO-PPMS authentication and authorization server extension module</description>
+
+  <!--
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Configuration parameters defined with 'bin/omero config'
+
+    The OMERO server configuration is passed as system properties in the Ice startup as long as
+    the keys belong to the 'omero' namespace, hence all properties being prefixed/renamed to 'omero.ppms.xxx'.
+    See https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/blitz/src/ome/services/blitz/Entry.java#L187-L190
+
+    This also avoids dealing with multiple (and potentially conflicting) PropertyPlaceHolderConfigurers being
+    configured in the core OmeroContext and this service extension's context.
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+
+  <!-- PUMAPI (ie. ppms-http-client) configuration settings
+       For consistency, all properties defined under keys 'pumapi.xxx' have been moved to 'omero.ppms.xxx'.
+  -->
+  <bean id="pumapiOmeroConfiguration" class="org.imagopole.ppms.api.config.PumapiConfig">
+       <property name="endpoint"       value="#{ systemProperties[  'omero.ppms.endpoint'         ] }"/>
+       <property name="apiKey"         value="#{ systemProperties[  'omero.ppms.api_key'          ] }"/>
+       <property name="proxyHost"      value="#{ systemProperties[  'omero.ppms.proxy_host'       ] }"/>
+       <property name="proxyPort"      value="#{ systemProperties[  'omero.ppms.proxy_port'       ] }"/>
+       <property name="connectTimeout" value="#{ systemProperties[  'omero.ppms.connect_timeout'  ] }"/>
+       <property name="socketTimeout"  value="#{ systemProperties[  'omero.ppms.socket_timeout'   ] }"/>
+  </bean>
+
+  <!-- OMERO-PPMS external authentication module configuration
+   -->
+  <bean id="ppmsOmeroConfiguration" name="externalAuthConfiguration"
+        class="org.imagopole.omero.auth.impl.DefaultExternalAuthConfig">
+      <constructor-arg name="enabled"      value="#{ systemProperties[ 'omero.ppms.config'          ] }"/>
+      <constructor-arg name="syncOnLogin"  value="#{ systemProperties[ 'omero.ppms.sync_on_login'   ] }"/>
+      <constructor-arg name="newUserGroup" value="#{ systemProperties[ 'omero.ppms.new_user_group'  ] }" />
+
+      <!-- Additional config parameters for the external data replication logic -->
+      <constructor-arg name="configMap">
+        <util:map>
+
+          <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               PPMS-specific keys/values
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+          <!-- PPMS facilities whitelist: comma separated list of PPMS core facilities identifiers
+               which the instruments should belong to -->
+          <entry key="omero.ppms.systems.include_facilities"
+                 value="#{ systemProperties[ 'omero.ppms.include_facilities' ] }"/>
+
+          <!-- PPMS system types whitelist: comma separated list of PPMS system types names
+               which the instruments should belong to -->
+          <entry key="omero.ppms.systems.include_types"
+                 value="#{ systemProperties[ 'omero.ppms.include_system_types' ] }"/>
+
+          <entry key="omero.ppms.ldap_dn_format"
+                 value="#{ systemProperties[ 'omero.ppms.ldap_dn_format' ] }"/>
+
+          <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               ListToGroupsBean specific keys/values
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+          <!-- Predefined group names list: multivalued counterpart to 'omero.ldap.new_user_group'
+               but to be used in combination with :bean:listToGroupsBean.
+               Note: groups.exclude_names rules still apply. -->
+          <entry key="omero.external_auth.groups.csv_list"
+                 value="#{ systemProperties[ 'omero.ppms.add_user_groups' ] }"/>
+
+          <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               External auth common keys/values : see DefaultExternalAuthConfig$ConfigKeys
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+          <!--  -->
+          <entry key="omero.external_auth.ldap.seed_dn"
+                 value="#{ systemProperties[ 'omero.ppms.ldap_dn_seed' ] }"/>
+
+          <!-- Flag for strict behaviour for group creation -->
+          <entry key="omero.external_auth.groups.fail_duplicates" value="false"/>
+
+          <!-- Protected group names to be filtered out of the external group bean -->
+          <entry key="omero.external_auth.groups.exclude_names">
+            <util:list>
+              <value>system</value>
+              <value>user</value>
+              <value>guest</value>
+              <value>default</value>
+            </util:list>
+          </entry>
+
+          <!-- Protected user names to be filtered out of the external password provider -->
+          <entry key="omero.external_auth.users.exclude_names">
+            <util:list>
+              <value>root</value>
+              <value>guest</value>
+            </util:list>
+          </entry>
+
+          <!-- Eventually for use in combination with ExternalInfoRoleProvider       -->
+          <!-- <entry key="omero.external_auth.groups.store_details" value="false"/> -->
+          <!-- <entry key="omero.external_auth.users.store_details" value="false"/>  -->
+
+        </util:map>
+      </constructor-arg>
+  </bean>
+
+  <!--
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   PPMS web client configuration parameters
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+  <!-- Reuse the PPMS web client application context beans definitions -->
+  <import resource="classpath*:pumapi/pumapi-applicationContext.xml"/>
+
+  <!-- Override the original PUMAPI configuration (properties file based) with
+       settings from OMERO-land (defined with 'bin/omero config').
+  -->
+  <alias name="pumapiOmeroConfiguration" alias="pumapiConfiguration"/>
+
+  <!-- Service wrapper around the PUMAPI HTTP client -->
+  <bean id="ppmsService" class="org.imagopole.omero.auth.impl.ppms.DefaultPpmsService">
+      <property name="ppmsClient" ref="defaultPumapiClient"/>
+  </bean>
+
+  <!--
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   NewUserGroupBean implementations for various PPMS to OMERO user group mapping policies
+
+   Usable in combination with:
+
+     * LDAP authentication + PPMS as the authoritative source for OMERO groups
+       ldapPasswordProvider + omero.ldap.sync_on_login = true
+       @see https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/logic/LdapImpl.java#L464
+
+     * PPMS authentication + PPMS as the non-authoritative source for OMERO groups
+       externalPasswordProvider + omero.ppms.sync_on_login = true + ppmsExternalNewUserBean
+
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+  <bean id="listToGroupsBean" class="org.imagopole.omero.auth.impl.group.ListToGroupsBean">
+      <property name="externalConfig" ref="externalAuthConfiguration"/>
+      <property name="permissionLevel" value="read-only"/>
+  </bean>
+
+  <bean id="ppmsProjectToGroupBean" class="org.imagopole.omero.auth.impl.ppms.group.PpmsProjectToGroupBean">
+      <property name="ppmsService" ref="ppmsService"/>
+      <property name="externalConfig" ref="externalAuthConfiguration"/>
+      <property name="permissionLevel" value="read-annotate"/>
+  </bean>
+
+  <bean id="ppmsSystemToGroupBean" class="org.imagopole.omero.auth.impl.ppms.group.PpmsSystemToGroupBean">
+      <property name="ppmsService" ref="ppmsService"/>
+      <property name="externalConfig" ref="externalAuthConfiguration"/>
+      <property name="permissionLevel" value="private"/>
+  </bean>
+
+  <bean id="ppmsSystemAutonomyToGroupBean" class="org.imagopole.omero.auth.impl.ppms.group.PpmsSystemAutonomyToGroupBean">
+      <property name="ppmsService" ref="ppmsService"/>
+      <property name="externalConfig" ref="externalAuthConfiguration"/>
+      <property name="permissionLevel" value="private"/>
+  </bean>
+
+  <bean id="ppmsUnitToGroupBean" class="org.imagopole.omero.auth.impl.ppms.group.PpmsUnitToGroupBean">
+      <property name="ppmsService" ref="ppmsService"/>
+      <property name="externalConfig" ref="externalAuthConfiguration"/>
+      <property name="permissionLevel" value="read-only"/>
+  </bean>
+
+  <!-- System + predefined optional predefined names -->
+  <bean id="ppmsChainedGroupBeanS" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System with autonomy + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanSA" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemAutonomyToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System + Unit + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanSU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemToGroupBean"/>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System + Project + Unit + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanSPU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemToGroupBean"/>
+         <ref bean="ppmsProjectToGroupBean"/>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System with autonomy + Project + Unit + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanSAU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemAutonomyToGroupBean"/>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System with autonomy + Project + Unit + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanSAPU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsSystemAutonomyToGroupBean"/>
+         <ref bean="ppmsProjectToGroupBean"/>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!--
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   ExternalNewUserBean implementations for various PPMS to OMERO user authentication group synchronization policies
+
+   Usable only with subclasses of org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider to provide:
+   * configurable user and group synchronisation on login (similar to LdapImpl)
+   * pluggable group synchronisation policies - eg. authoritative or conservative
+
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+
+  <!-- OMERO bean customization for use with ExternalNewUserService and ExternalNewUserGroupBean implementations -->
+  <bean id="externalInfoRoleProvider" class="org.imagopole.omero.auth.impl.ExternalInfoRoleProvider">
+      <description>
+        RoleProvider which redefines the SimpleRoleProvider object cloning behaviour so as to enable
+        persisting ExternalInfo links together with Experimenter and Group upon creation.
+      </description>
+      <constructor-arg ref="securitySystem"/>
+      <constructor-arg ref="omeroSessionFactory"/>
+  </bean>
+
+  <bean id="ppmsNewUserService" parent="level2" class="org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserService">
+      <constructor-arg name="roles" ref="roles"/>
+      <constructor-arg name="config" ref="externalAuthConfiguration"/>
+      <constructor-arg name="roleProvider" ref="externalInfoRoleProvider"/>
+      <constructor-arg name="sqlAction" ref="simpleSqlAction"/>
+      <property name="ppmsService" ref="ppmsService"/>
+  </bean>
+
+  <!--
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   PasswordProvider implementations for various PPMS to OMERO user authentication and group synchronization policies
+
+   Note: the standalone ppmsPasswordProvider should preferably be used as part of a provider chain with JDBC fallback,
+   to allow for  OMERO system accounts (eg. root, guest) to connect.
+   This is mandatory for OMERO.web to work properly, as a guest connection is established upon every login
+   to check the server version number. See:
+   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/tools/OmeroWeb/omeroweb/webclient/views.py#L150-L151
+   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/tools/OmeroWeb/omeroweb/connector.py#L210-L211
+   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/tools/OmeroWeb/omeroweb/connector.py#L173-L175
+   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  -->
+  <bean id="ppmsPasswordProvider" class="org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider">
+    <description>
+        PasswordProvider with PPMS (PUMAPI) as an external data source.
+    </description>
+    <constructor-arg name="util" ref="passwordUtil"/>
+    <constructor-arg name="externalNewUserService" ref="ppmsNewUserService"/>
+    <constructor-arg name="config" ref="externalAuthConfiguration"/>
+    <constructor-arg name="ignoreUnknown" value="true"/>
+  </bean>
+
+  <bean id="ppmsChainedPasswordProvider" class="ome.security.auth.PasswordProviders">
+    <constructor-arg>
+      <list>
+        <ref bean="ppmsPasswordProvider"/>
+        <ref bean="jdbcPasswordProvider"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+</beans>

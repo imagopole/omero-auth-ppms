@@ -1,0 +1,316 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'maven'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+apply plugin: 'checkstyle'
+apply plugin: 'project-report' // gradle-1.9 feature
+apply plugin: 'jacoco'         // gradle-1.9 incubating
+apply plugin: 'asciidoctor'
+apply plugin: 'shadow'
+apply plugin: 'artifactory'
+
+
+/********************************/
+/**** Profile configuration ****/
+
+/** Profile loading boilerplate */
+def applyProfile(aProfile) {
+    def profilesDir = relativePath('build-profiles')
+
+    println 'Loading profile: ' + aProfile + '.gradle'
+    apply from: profilesDir + '/' + aProfile + '.gradle'
+}
+
+/** usage: gradle build -Pprofile=omero500-ice34 */
+ext.profile = hasProperty("profile") ? profile : 'omero500-ice34' // default profile: omero-5.0.0 + ice-3.4.2
+applyProfile(profile)
+
+
+/********************************/
+/**** Project configuration ****/
+
+group = 'org.imagopole.omero'
+version = '0.1-SNAPSHOT'
+description = """OMERO server extension for PPMS auth"""
+
+
+/********************************/
+/**** Custom properties     ****/
+
+ext.sharedManifest = manifest {
+    attributes 'Implementation-Title': 'OMERO server extension for PPMS auth',
+               'Implementation-Version': version,
+               'X-Build-Profile': profile,
+               'X-Omero-Version': profileVersions.omero,
+               'X-Omero-Ice-Version': iceVersions.main
+}
+
+ext.versions = [
+    ppmsClient   : '0.3',           //--OMERO: n/a
+    slf4j        : '1.7.5',         //--OMERO: n/a (logback-core + logback-classic 1.0.9)
+    logback      : '1.0.9',         //--OMERO: 1.0.9
+    testng       : '6.8',           //--OMERO: n/p (5.14.10)
+    unitils      : '3.3',           //--OMERO: n/a
+    postgresJdbc : '8.4-702.jdbc4', //--OMERO: 9.1-901.jdbc3
+    httpClient   : '4.3.2',         //--OMERO: n/a
+    csveed       : '0.3.2',         //--OMERO: n/a
+]
+
+
+/*********************************/
+/**** Builfile configuration ****/
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+jar {
+    manifest = sharedManifest
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        name 'Artifactory OME repo'
+        url  'http://artifacts.openmicroscopy.org/artifactory/repo'
+    }
+
+    // mirror for artifacts not published in a central repo (eg. OMERO language bindings
+    // and other dependencies not published in OME Artifactory)
+    maven {
+        name 'Bintray Imagopole repo'
+        url  'http://dl.bintray.com/imagopole/maven'
+    }
+}
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'ome.snapshots'
+            maven = true
+
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'repo'
+            maven = true
+
+        }
+    }
+}
+
+/**
+ * Reminder: all dependencies must remain in line with OMERO's runtime classpath
+ **/
+dependencies {
+
+    compile 'org.slf4j:slf4j-api:' + versions.slf4j
+    compile 'org.imagopole.ppms:ppms-http-client:' + versions.ppmsClient
+   // compile 'com.googlecode.ehcache-spring-annotations:' + versions.ehCacheSpring
+
+    // pumapiClient transitive dependencies
+    runtime 'org.apache.httpcomponents:fluent-hc:' + versions.httpClient
+    runtime 'org.csveed:csveed:' + versions.csveed
+
+    // logback slf4j binding
+    runtime 'ch.qos.logback:logback-classic:' + versions.logback
+    // slf4j bound to logback-classic + redirection of ACL to slf4j (ie. slf4j replaces commons-logging - see http://www.slf4j.org/legacy.html)
+    runtime 'org.slf4j:jcl-over-slf4j:' + versions.slf4j
+
+    testCompile 'org.testng:testng:' + versions.testng
+    testCompile 'org.unitils:unitils-core:' + versions.unitils
+    testCompile(group: 'org.unitils', name: 'unitils-testng', version: versions.unitils) {
+        transitive = false
+    }
+    testCompile 'org.unitils:unitils-inject:' + versions.unitils
+    testCompile 'org.unitils:unitils-mock:' + versions.unitils
+    testRuntime(group: 'org.unitils', name: 'unitils-dbunit', version: versions.unitils) {
+        exclude group: 'org.unitils', module: 'unitils-database'
+        exclude group: 'org.springframework'
+        exclude group: 'org.slf4j'
+        exclude group: 'ch.qos.logback'
+    }
+    testRuntime 'postgresql:postgresql:' + versions.postgresJdbc
+}
+
+
+/** Note: integration tests can be run only after database has been populated with the right
+ *  users/credentials by task "integrationTestDbSetup" */
+test {
+    useTestNG()
+
+    //testLogging.showStandardStreams = true
+
+    // provide a default local output directory for omero.data.dir
+    // may be overriden by settings pulled from OMERO_CONFIG/omero.config.location
+    systemProperty 'omero.data.dir',       "$buildDir/omero.data"
+
+    // for integration tests only
+    // either one or the other:
+    // - ICE_CONFIG has priority
+    // - if not set, then fallback on a default 'omero.config.location' in $HOME/omero-local.properties
+    systemProperty 'OMERO_CONFIG',          System.getenv("OMERO_CONFIG")
+    systemProperty 'omero.config.location', System.getProperty("user.home") + '/omero-local.properties'
+}
+
+artifacts {
+// archives distributionZip
+}
+
+
+/********************************/
+/**** Plugins configuration ****/
+
+findbugs {
+    sourceSets     = [sourceSets.main]
+    effort         = 'max'
+    reportLevel    = 'high'
+    ignoreFailures = true
+}
+
+findbugsMain {
+    reports {
+      xml.enabled  = false
+      html.enabled = true
+    }
+}
+
+pmd {
+    sourceSets     = [sourceSets.main]
+    ignoreFailures = true
+    ruleSetFiles   = files("config/pmd/pmd.xml")
+}
+
+checkstyle {
+    sourceSets     = [sourceSets.main]
+    ignoreFailures = true
+    showViolations = false
+}
+
+/** Generate the checkstyle html report */
+task checkstyleHtmlReport(dependsOn: checkstyleMain) {
+   if (file("$reporting.baseDir/checkstyle/main.xml").exists()) {
+
+       ant.xslt(
+            in:    "$reporting.baseDir/checkstyle/main.xml",
+            style: "$projectDir/config/checkstyle/checkstyle-noframes-severity-sorted.xsl",
+            out:   "$reporting.baseDir/checkstyle/main.html"
+       )
+
+   }
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
+
+    // workaround for source code highlighting in coverage report
+    // see http://www.eclemma.org/jacoco/trunk/doc/faq.html
+    //     http://forums.gradle.org/gradle/topics/_1_6_rc_1_jacoco_plugin_does_not_show_line_numbers
+    additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
+}
+
+asciidoctor {
+    backend = "html5"
+}
+
+/**
+ * Note: OMERO.server expects the extensions to be packaged in a single jar named 'extensions.jar'
+ * (no classpath drop-in), so this uber-jar will have to be renamed accordingly for deployment.
+ *
+ * See:
+ *   - http://www.openmicroscopy.org/site/support/omero5/developers/Server/ExtendingOmero.html#java-deployment
+ *   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/antlib/resources/lifecycle.xml#L371
+ **/
+shadow {
+    classifier "server-extension"
+
+    exclude 'META-INF/*.txt'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/NOTICE'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/DEPENDENCIES'
+
+    // aggregate the subset of dependencies not already present on the OMERO.server classpath
+    artifactSet {
+        include 'org.imagopole.ppms:ppms-http-client'
+
+        //-- runtime ppms-http-client dependencies
+        include 'org.apache.httpcomponents:fluent-hc'
+        include 'org.apache.httpcomponents:httpclient'
+        include 'org.apache.httpcomponents:httpcore'
+        include 'org.csveed:csveed'
+    }
+}
+
+
+/*********************************************/
+/**** Custom tasks/project configuration ****/
+
+/** Create a distribution bundle with runtime dependencies + OMERO server extension uber-jar */
+task withDepsDistZip (type: Zip) { zipTask ->
+
+    dependsOn asciidoctor, shadowJar
+
+    classifier = 'dist-with-dependencies'
+
+    from configurations.runtime.allArtifacts.files
+    from configurations.runtime
+    from "$buildDir/asciidoc"
+    from fileTree("$buildDir/distributions").include("*.jar")
+    from fileTree("$projectDir").include(["*.md", "LICENSE.txt"])
+}
+
+/** Create a distribution bundle with the OMERO server extension uber-jar only */
+task serverExtDistZip(type: Zip) { zipTask ->
+
+    dependsOn asciidoctor, shadowJar
+
+    classifier = 'dist-server-extension'
+
+    from "$buildDir/asciidoc"
+    from fileTree("$buildDir/distributions").include("*.jar")
+    from fileTree("$projectDir").include(["*.md", "LICENSE.txt"])
+}
+
+/** Create all distribution bundles */
+task distributionZip {
+    dependsOn serverExtDistZip, withDepsDistZip
+}
+
+
+/**************************************/
+/**** Build plugins configuration ****/
+
+buildscript {
+    ext.pluginsVersions = [
+        asciidoctor : '0.7.0',
+        shadow      : '0.8',
+        artifactory : '2.0.9',
+    ]
+
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven {
+            name 'Bintray Asciidoctor repo'
+            url  'http://dl.bintray.com/content/aalmiray/asciidoctor'
+        }
+    }
+
+    dependencies {
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:' + pluginsVersions.asciidoctor
+        classpath 'com.github.jengelman.gradle.plugins:shadow:' + pluginsVersions.shadow
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:' + pluginsVersions.artifactory
+    }
+}

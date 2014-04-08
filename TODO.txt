@@ -1,0 +1,8 @@
+TODO items
+------------
+
+- pumapi response caching
+- simplify config options
+- integration tests++
+- usage manuals: ppms & omero admin (with restrictions)
+- check possibilities for externalinfo storage (+ pumapi ids required)

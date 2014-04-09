@@ -132,9 +132,27 @@
   -->
   <alias name="pumapiOmeroConfiguration" alias="pumapiConfiguration"/>
 
-  <!-- Service wrapper around the PUMAPI HTTP client -->
+  <!-- An Ehcache cache manager for the PPMS authentication extension -->
+  <bean id="ppmsCacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean">
+      <property name="cacheManagerName" value="ppms-cache-manager"/>
+      <property name="shared" value="false"/>
+      <property name="configLocation" value="classpath:pumapi/pumapi-ehcache.xml"/>
+  </bean>
+
+  <!-- A caching wrapper around the default PUMAPI client remote invocations -->
+  <bean id="cachingPumapiClient" class="org.imagopole.omero.auth.impl.ppms.CachingPumapiClient">
+      <constructor-arg name="cacheManager" ref="ppmsCacheManager"/>
+      <constructor-arg name="delegate" ref="defaultPumapiClient"/>
+  </bean>
+
+  <!-- Allow PUMAPI caching behaviour to be toggled via bin/omero config
+       The caching client is enabled by default
+   -->
+  <alias name="${omero.ppms.client_impl:cachingPumapiClient}" alias="pumapiClient"/>
+
+  <!-- Service wrapper around the selected PUMAPI HTTP client implementation -->
   <bean id="ppmsService" class="org.imagopole.omero.auth.impl.ppms.DefaultPpmsService">
-      <property name="ppmsClient" ref="defaultPumapiClient"/>
+      <property name="ppmsClient" ref="pumapiClient"/>
   </bean>
 
   <!--

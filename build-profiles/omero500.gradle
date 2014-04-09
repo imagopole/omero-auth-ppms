@@ -48,6 +48,7 @@ dependencies {
     compile(group: 'org.hibernate', name: 'hibernate-search', version: profileVersions.hibernate.search) {
         transitive = false
     }
+    compile 'net.sf.ehcache:ehcache-core:' + profileVersions.ehcache
 
     //--------- OMERO + Ice profiles combined workaround ---------//
     // depends on Ice profile versions + OMERO profile versions
@@ -68,7 +69,6 @@ dependencies {
     testRuntime 'org.perf4j:perf4j:' + profileVersions.perf4j
     testRuntime 'quartz:quartz:' + profileVersions.quartz
     testRuntime 'javax.mail:mail:' + profileVersions.mail
-    testRuntime 'net.sf.ehcache:ehcache-core:' + profileVersions.ehcache
     testRuntime 'org.apache.lucene:lucene-analyzers:' + profileVersions.lucene
     testRuntime 'javassist:javassist:' + profileVersions.javassist
     testRuntime 'cglib:cglib:' + profileVersions.cglib

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# CacheManager configuration for the omero-auth-ppms server extension.
+#
+# Based on Ehcache built-in failsafe settings. See:
+#   - http://ehcache.org/documentation/user-guide/configuration#ehcache-failsafexml
+#   - http://svn.terracotta.org/svn/ehcache/tags/ehcache-core-2.1.0/src/main/resources/ehcache-failsafe.xml
+#   - http://svn.terracotta.org/svn/ehcache/tags/ehcache-core-2.1.0/src/main/config/ehcache.xml
+#   - http://svn.terracotta.org/svn/ehcache/tags/ehcache-core-2.1.0/src/main/config/ehcache.xsd
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../config/ehcache.xsd"
+         name="pumapiEhcacheConfig" updateCheck="false">
+
+    <!--
+    The ehcache-failsafe.xml is a default configuration for ehcache, if an ehcache.xml is not configured.
+
+    The diskStore element is optional. It must be configured if you have overflowToDisk or diskPersistent enabled
+    for any cache. If it is not configured, a warning will be issues and java.io.tmpdir will be used.
+
+    diskStore has only one attribute - "path". It is the path to the directory where .data and .index files will be created.
+
+    If the path is a Java System Property it is replaced by its value in the
+    running VM.
+
+    The following properties are translated:
+    * user.home - User's home directory
+    * user.dir - User's current working directory
+    * java.io.tmpdir - Default temp file path
+    * ehcache.disk.store.dir - A system property you would normally specify on the command line
+          e.g. java -Dehcache.disk.store.dir=/u01/myapp/diskdir ...
+
+    Subdirectories can be specified below the property e.g. java.io.tmpdir/one
+
+    -->
+    <diskStore path="java.io.tmpdir"/>
+
+    <!--
+    Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,
+    which is notified when Caches are added or removed from the CacheManager.
+
+    The attributes of CacheManagerEventListenerFactory are:
+    * class - a fully qualified factory class name
+    * properties - comma separated properties having meaning only to the factory.
+
+    Sets the fully qualified class name to be registered as the CacheManager event listener.
+
+    The events include:
+    * adding a Cache
+    * removing a Cache
+
+    Callbacks to listener methods are synchronous and unsynchronized. It is the responsibility
+    of the implementer to safely handle the potential performance and thread safety issues
+    depending on what their listener is doing.
+
+    If no class is specified, no listener is created. There is no default.
+
+    <cacheManagerEventListenerFactory class="" properties=""/>
+    -->
+
+    <!--
+    (Enable for distributed operation)
+
+    Specifies a CacheManagerPeerProviderFactory which will be used to create a
+    CacheManagerPeerProvider, which discovers other CacheManagers in the cluster.
+
+    The attributes of cacheManagerPeerProviderFactory are:
+    * class - a fully qualified factory class name
+    * properties - comma separated properties having meaning only to the factory.
+
+    Ehcache comes with a built-in RMI-based distribution system with two means of discovery of
+    CacheManager peers participating in the cluster:
+    * automatic, using a multicast group. This one automatically discovers peers and detects
+      changes such as peers entering and leaving the group
+    * manual, using manual rmiURL configuration. A hardcoded list of peers is provided at
+      configuration time.
+
+    Configuring Automatic Discovery:
+    Automatic discovery is configured as per the following example:
+    <cacheManagerPeerProviderFactory
+                        class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                        properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1,
+                                    multicastGroupPort=4446, timeToLive=32"/>
+
+    Valid properties are:
+    * peerDiscovery (mandatory) - specify "automatic"
+    * multicastGroupAddress (mandatory) - specify a valid multicast group address
+    * multicastGroupPort (mandatory) - specify a dedicated port for the multicast heartbeat
+      traffic
+    * timeToLive - specify a value between 0 and 255 which determines how far the packets will propagate.
+      By convention, the restrictions are:
+      0   - the same host
+      1   - the same subnet
+      32  - the same site
+      64  - the same region
+      128 - the same continent
+      255 - unrestricted
+
+
+    Configuring Manual Discovery:
+    Manual discovery is configured as per the following example:
+    <cacheManagerPeerProviderFactory class=
+                          "net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                          properties="peerDiscovery=manual,
+                          rmiUrls=//server1:40000/sampleCache1|//server2:40000/sampleCache1
+                          | //server1:40000/sampleCache2|//server2:40000/sampleCache2"/>
+
+    Valid properties are:
+    * peerDiscovery (mandatory) - specify "manual"
+    * rmiUrls (mandatory) - specify a pipe separated list of rmiUrls, in the form
+                            //hostname:port
+
+    The hostname is the hostname of the remote CacheManager peer. The port is the listening
+    port of the RMICacheManagerPeerListener of the remote CacheManager peer.
+
+    <cacheManagerPeerProviderFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+            properties="peerDiscovery=automatic,
+                        multicastGroupAddress=230.0.0.1,
+                        multicastGroupPort=4446, timeToLive=1"/>
+    -->
+
+    <!--
+    (Enable for distributed operation)
+
+    Specifies a CacheManagerPeerListenerFactory which will be used to create a
+    CacheManagerPeerListener, which
+    listens for messages from cache replicators participating in the cluster.
+
+    The attributes of cacheManagerPeerListenerFactory are:
+    class - a fully qualified factory class name
+    properties - comma separated properties having meaning only to the factory.
+
+    Ehcache comes with a built-in RMI-based distribution system. The listener component is
+    RMICacheManagerPeerListener which is configured using
+    RMICacheManagerPeerListenerFactory. It is configured as per the following example:
+
+    <cacheManagerPeerListenerFactory
+        class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"
+        properties="hostName=fully_qualified_hostname_or_ip,
+                    port=40001,
+                    socketTimeoutMillis=120000"/>
+
+    All properties are optional. They are:
+    * hostName - the hostName of the host the listener is running on. Specify
+      where the host is multihomed and you want to control the interface over which cluster
+      messages are received. Defaults to the host name of the default interface if not
+      specified.
+    * port - the port the listener listens on. This defaults to a free port if not specified.
+    * socketTimeoutMillis - the number of ms client sockets will stay open when sending
+      messages to the listener. This should be long enough for the slowest message.
+      If not specified it defaults 120000ms.
+
+    <cacheManagerPeerListenerFactory
+            class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+    -->
+
+    <!--
+    Mandatory Default Cache configuration. These settings will be applied to caches
+    created programmtically using CacheManager.add(String cacheName)
+    -->
+    <defaultCache
+            maxElementsInMemory="10000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            overflowToDisk="true"
+            maxElementsOnDisk="10000000"
+            diskPersistent="false"
+            diskExpiryThreadIntervalSeconds="120"
+            memoryStoreEvictionPolicy="LRU"
+            />
+
+    <!--
+        Cache configuration for PUMAPI calls results.
+
+        No overflow to disk: maxElementsInMemory == cache size.
+        Elements TTI (ie. maximum amount of time between accesses before an element expires): 4 hrs.
+        Elements TTL (ie. maximum time between creation time and when an element expires): infinity.
+        Default memory eviction policy: Least Recently Used.
+
+        This cache contains a maximum in memory of 10 000 elements, and will expire
+        an element if it is idle for more than 4 hours (elements may live indefinitely).
+    -->
+    <cache name="pumapiClientCache"
+           maxElementsInMemory="10000"
+           overflowToDisk="false"
+           eternal="false"
+           timeToIdleSeconds="14400"
+           timeToLiveSeconds="0"
+           />
+
+</ehcache>

@@ -80,6 +80,7 @@ public class DefaultPpmsService implements PpmsService {
     public PpmsGroup findGroupByUserName(String userName) throws PumapiException {
         PpmsGroup result = null;
 
+        // finding the group always requires looking up the user first to get hold of the "unitlogin"
         PpmsUserDetails details = findUserAndGroupByName(userName);
 
         if (null != details) {

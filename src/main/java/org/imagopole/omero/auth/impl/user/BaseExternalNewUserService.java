@@ -14,6 +14,7 @@ import java.util.Set;
 import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.ServiceInterface;
+import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
 import ome.logic.LdapImpl;
@@ -44,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Most the API and implementation have been replicated and (slightly) amended from {@link LdapImpl}.
  * The main divergence points from the LDAP counterpart stem from:
  * - the ability for subclasses to define alternative groups memberships synchronisation behaviour
- * - the removal of unneeded LDAP parameterd (eg. LDAP-specific groupspecs)
+ * - the removal of unneeded LDAP parameters (eg. LDAP-specific groupspecs)
  * - the ability to optionally pre-seed the experimenter's LDAP DN for eventual fallback on {@link LdapImpl}
  *
  * @author seb
@@ -155,6 +156,14 @@ public abstract class BaseExternalNewUserService
             exp = findExperimenterDetailsFromExternalSource(username);
         } else {
             exp = findExperimenterFromExternalSource(username);
+        }
+
+        // difference with Ldap version: LdapImpl performs this check in #mapUserName
+        // this will cause the password provider to use the "default choice on create user"
+        // (ie. return the configured value for "ignoreUnknown")
+        if (null == exp) {
+            throw new ApiUsageException(
+                String.format("Cannot find user in external source: %s", username));
         }
 
         boolean access = validatePassword(username, password);

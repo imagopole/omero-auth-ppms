@@ -1,5 +1,7 @@
 package org.imagopole.omero.auth;
 
+import static org.testng.Assert.fail;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,12 +13,11 @@ import org.imagopole.omero.auth.TestsUtil.Env;
 import org.imagopole.omero.auth.util.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.unitils.UnitilsTestNG;
-
-import static org.testng.Assert.fail;
 
 
 public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
@@ -96,6 +97,14 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
 
         // subclasses initialization hook
         setUpAfterServerStartup(omeroContext);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        if (null != omeroContext) {
+            log.debug("Unloading OMERO.server managed context: {}", omeroContext);
+            omeroContext.close();
+        }
     }
 
 }

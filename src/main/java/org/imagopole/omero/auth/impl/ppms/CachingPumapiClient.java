@@ -56,6 +56,9 @@ public class CachingPumapiClient implements PumapiClient {
         Check.notNull(cacheManager, "cacheManager");
         this.delegate = delegate;
         this.cacheManager = cacheManager;
+
+        log.debug("[external_auth][ppms][cache] Wrapping pumapiClient delegate: {} with cache: {}",
+                  delegate, cacheManager.getEhcache(CacheConfig.CACHE_NAME));
     }
 
     /**
@@ -98,7 +101,7 @@ public class CachingPumapiClient implements PumapiClient {
         if (null == element) {
 
             result = delegate.getUser(login);
-            writeToCache(key, result);
+            writeToCacheIfNotNull(key, result);
 
         } else {
 
@@ -133,7 +136,7 @@ public class CachingPumapiClient implements PumapiClient {
         if (null == element) {
 
             result = delegate.getGroup(unitLogin);
-            writeToCache(key, result);
+            writeToCacheIfNotNull(key, result);
 
         } else {
 
@@ -159,7 +162,7 @@ public class CachingPumapiClient implements PumapiClient {
         if (null == element) {
 
             result = delegate.getSystem(systemId);
-            writeToCache(key, result);
+            writeToCacheIfNotNull(key, result);
 
         } else {
 
@@ -188,7 +191,17 @@ public class CachingPumapiClient implements PumapiClient {
         return result;
     }
 
-    private final void writeToCache(String key, Object value) {
+    private final void writeToCacheIfNotNull(String key, Object value) {
+        if (null != value) {
+
+            writeToCacheAlways(key, value);
+
+        } else {
+            log.debug("[external_auth][ppms][cache] Skipping cache write for null value with key: {}", key);
+        }
+    }
+
+    private final void writeToCacheAlways(String key, Object value) {
         log.debug("[external_auth][ppms][cache] Writing to cache for key: {}", key);
         Ehcache cache = getCacheOrFail();
         Element element = new Element(key, value);
@@ -213,7 +226,7 @@ public class CachingPumapiClient implements PumapiClient {
      *
      */
     private final class CacheConfig {
-        /** Main cache name. */
+        /** Main cache name, as configured in pumapi-ehcache.xml. */
         private final static String CACHE_NAME     = "pumapiClientCache";
 
         /** Key format for {@link PumapiClient#getUser(String)} calls. */

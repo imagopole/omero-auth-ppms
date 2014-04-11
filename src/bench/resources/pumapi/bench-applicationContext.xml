@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Spring context used for benchmark tests.
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/util  http://www.springframework.org/schema/util/spring-util-3.0.xsd
+         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+  <bean id="benchPropertiesResolver" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="nullValue" value="@NULL"/>
+        <property name="ignoreUnresolvablePlaceholders" value="false"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="locations">
+          <list>
+            <value>classpath*:pumapi/bench-template.properties</value><!-- Nullify all properties -->
+            <value>classpath*:pumapi-bench.properties</value>
+            <value>file:#{ T(java.lang.System).getenv('BENCH_CONFIG') }</value>
+            <value>file:#{ systemProperties[ 'bench.config.location' ] }</value>
+          </list>
+        </property>
+  </bean>
+
+  <!-- Combine settings from the loaded config files into a bean to be injected into the test cases -->
+  <util:properties id="benchProperties">
+      <prop key="bench.ppms.ldap_user">${bench.ppms.ldap_user}</prop>
+      <prop key="bench.ppms.local_user">${bench.ppms.local_user}</prop>
+      <prop key="bench.ppms.missing_user">${bench.ppms.missing_user}</prop>
+      <prop key="bench.ppms.system_id">${bench.ppms.system_id}</prop>
+      <prop key="bench.ppms.missing_system_id">${bench.ppms.missing_system_id}</prop>
+      <prop key="bench.ppms.group_key">${bench.ppms.group_key}</prop>
+      <prop key="bench.ppms.missing_group_key">${bench.ppms.missing_group_key}</prop>
+      <prop key="bench.ppms.ldap_pwd_ok">${bench.ppms.ldap_pwd_ok}</prop>
+      <prop key="bench.ppms.ldap_pwd_ko">${bench.ppms.ldap_pwd_ko}</prop>
+      <prop key="bench.ppms.local_pwd_ok">${bench.ppms.local_pwd_ok}</prop>
+      <prop key="bench.ppms.local_pwd_ko">${bench.ppms.local_pwd_ko}</prop>
+  </util:properties>
+
+  <!-- PUMAPI (ie. ppms-http-client) configuration settings
+       For consistency, all properties defined under keys 'pumapi.xxx' have been moved to 'bench.ppms.xxx'.
+  -->
+  <bean id="pumapiBenchConfiguration" class="org.imagopole.ppms.api.config.PumapiConfig">
+       <property name="endpoint"       value="${bench.ppms.endpoint}"/>
+       <property name="apiKey"         value="${bench.ppms.api_key}"/>
+       <property name="proxyHost"      value="${bench.ppms.proxy_host}"/>
+       <property name="proxyPort"      value="${bench.ppms.proxy_port}"/>
+       <property name="connectTimeout" value="${bench.ppms.connect_timeout}"/>
+       <property name="socketTimeout"  value="${bench.ppms.socket_timeout}"/>
+  </bean>
+
+  <!-- Reuse the PPMS web client application context beans definitions -->
+  <import resource="classpath*:pumapi/pumapi-applicationContext.xml"/>
+
+  <!-- Override the original PUMAPI configuration (properties file based) with
+       settings from OMERO-land (defined with 'bin/omero config').
+  -->
+  <alias name="pumapiBenchConfiguration" alias="pumapiConfiguration"/>
+
+   <!-- An Ehcache cache manager for the PPMS authentication extension -->
+  <bean id="ppmsCacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean">
+      <property name="cacheManagerName" value="ppms-cache-manager-test"/>
+      <property name="shared" value="false"/>
+      <property name="configLocation" value="classpath:pumapi/pumapi-ehcache.xml"/>
+  </bean>
+
+  <!-- A caching wrapper around the default PUMAPI client remote invocations -->
+  <bean id="cachingPumapiClient" class="org.imagopole.omero.auth.impl.ppms.CachingPumapiClient">
+      <constructor-arg name="cacheManager" ref="ppmsCacheManager"/>
+      <constructor-arg name="delegate" ref="defaultPumapiClient"/>
+  </bean>
+
+</beans>

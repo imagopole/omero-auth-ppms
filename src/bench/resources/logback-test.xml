@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" debug="false">
+
+  <!-- Target directory for logging output -->
+  <property name="LOGS_DIR" value="build/logs" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [%40.40logger{40}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${LOGS_DIR}/bench-test.log</file>
+    <encoder>
+        <pattern>%d %-5level [%thread] %logger{0}: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!--                      -->
+  <!-- Root logger          -->
+  <!--                      -->
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+  <!--                      -->
+  <!-- Internal loggers     -->
+  <!--                      -->
+  <logger name="org.imagopole.omero.auth" level="info"/>
+  <logger name="org.imagopole.ppms" level="info"/>
+  <logger name="org.csveed" level="warn"/>
+
+  <!--                      -->
+  <!-- Dependencies loggers -->
+  <!--                      -->
+  <logger name="ome" level="info"/>
+  <logger name="org.apache" level="info"/>
+
+</configuration>

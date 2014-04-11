@@ -31,8 +31,8 @@ applyProfile(profile)
 /********************************/
 /**** Project configuration ****/
 
-group = 'org.imagopole.omero'
-version = '0.2-SNAPSHOT'
+group       = 'org.imagopole.omero'
+version     = '0.2-SNAPSHOT'
 description = """OMERO server extension for PPMS auth"""
 
 
@@ -56,6 +56,7 @@ ext.versions = [
     postgresJdbc : '8.4-702.jdbc4', //--OMERO: 9.1-901.jdbc3
     httpClient   : '4.3.2',         //--OMERO: n/a
     csveed       : '0.3.2',         //--OMERO: n/a
+    contiperf    : '2.3.2',         //--OMERO: n/a
 ]
 
 
@@ -84,6 +85,11 @@ repositories {
         name 'Bintray Imagopole repo'
         url  'http://dl.bintray.com/imagopole/maven'
     }
+
+    maven {
+        name 'Maven Databene repo'
+        url  'http://databene.org/m2'
+    }
 }
 
 artifactory {
@@ -102,6 +108,10 @@ artifactory {
 
         }
     }
+}
+
+sourceSets {
+    bench
 }
 
 /**
@@ -135,8 +145,20 @@ dependencies {
         exclude group: 'ch.qos.logback'
     }
     testRuntime 'postgresql:postgresql:' + versions.postgresJdbc
+
+    benchCompile sourceSets.main.output
+    benchCompile configurations.testCompile
+    benchCompile sourceSets.test.output
+    benchRuntime configurations.testRuntime
+    benchCompile 'org.databene:contiperf:' + versions.contiperf
+    benchCompile 'org.springframework:spring-test:' + profileVersions.spring.core
 }
 
+eclipse {
+    classpath {
+        plusConfigurations += configurations.benchCompile
+    }
+}
 
 /** Note: integration tests can be run only after database has been populated with the right
  *  users/credentials by task "integrationTestDbSetup" */
@@ -287,6 +309,20 @@ task distributionZip {
     dependsOn serverExtDistZip, withDepsDistZip
 }
 
+task benchTest(type: Test) {
+    useJUnit()
+
+    //testLogging.showStandardStreams = true
+
+    // workaround to make sure that ContiPerf reports get generated in the build directory
+    workingDir     = project.buildDir
+
+    testClassesDir = sourceSets.bench.output.classesDir
+    classpath      = sourceSets.bench.runtimeClasspath
+
+    systemProperty 'BENCH_CONFIG',          System.getenv("BENCH_CONFIG")
+    systemProperty 'bench.config.location', System.getProperty("user.home") + '/bench-local.properties'
+}
 
 /**************************************/
 /**** Build plugins configuration ****/

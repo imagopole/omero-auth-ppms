@@ -321,7 +321,7 @@ task benchTest(type: Test) {
     classpath      = sourceSets.bench.runtimeClasspath
 
     systemProperty 'BENCH_CONFIG',          System.getenv("BENCH_CONFIG")
-    systemProperty 'bench.config.location', System.getProperty("user.home") + '/bench-local.properties'
+    systemProperty 'bench.config.location', System.getProperty("user.home") + '/omero-auth-bench-local.properties'
 }
 
 /**************************************/

@@ -50,12 +50,12 @@
        For consistency, all properties defined under keys 'pumapi.xxx' have been moved to 'bench.ppms.xxx'.
   -->
   <bean id="pumapiBenchConfiguration" class="org.imagopole.ppms.api.config.PumapiConfig">
-       <property name="endpoint"       value="${bench.ppms.endpoint}"/>
-       <property name="apiKey"         value="${bench.ppms.api_key}"/>
-       <property name="proxyHost"      value="${bench.ppms.proxy_host}"/>
-       <property name="proxyPort"      value="${bench.ppms.proxy_port}"/>
-       <property name="connectTimeout" value="${bench.ppms.connect_timeout}"/>
-       <property name="socketTimeout"  value="${bench.ppms.socket_timeout}"/>
+       <property name="endpoint"       value="${omero.ppms.endpoint}"/>
+       <property name="apiKey"         value="${omero.ppms.api_key}"/>
+       <property name="proxyHost"      value="${omero.ppms.proxy_host}"/>
+       <property name="proxyPort"      value="${omero.ppms.proxy_port}"/>
+       <property name="connectTimeout" value="${omero.ppms.connect_timeout}"/>
+       <property name="socketTimeout"  value="${omero.ppms.socket_timeout}"/>
   </bean>
 
   <!-- Reuse the PPMS web client application context beans definitions -->

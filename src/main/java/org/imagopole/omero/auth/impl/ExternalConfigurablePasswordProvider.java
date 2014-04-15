@@ -16,6 +16,7 @@ import ome.security.auth.RoleProvider;
 import ome.security.auth.SimpleRoleProvider;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.SynchronizingPasswordProvider;
 import org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.imagopole.omero.auth.util.Check;
@@ -26,9 +27,9 @@ import org.slf4j.LoggerFactory;
  * {@link PasswordProvider} which can create users and groups on {@link #checkPassword(String, String) request}
  * to synchronize with an external backend.
  *
- * This implementation has been largely inspired and carried over from {@link LdapPasswordProvider}, but
- * delegates the actual account synchronization tasks to a pluggable {@link ExternalNewUserService}
- * (which emulates/customizes the {@link LdapImpl} behaviour).
+ * This implementation has been largely inspired and carried over from {@link LdapPasswordProvider}
+ * and {@link LdapPasswordProvider431}, but delegates the actual account synchronization tasks to a
+ * pluggable {@link ExternalNewUserService} (which emulates/customizes the {@link LdapImpl} behaviour).
  *
  * This class hence mostly defines one possible account management lifecycle, with specific policies
  * for users and their group memberships being handled by {@link ExternalNewUserService} and
@@ -46,7 +47,8 @@ import org.slf4j.LoggerFactory;
  * @see ExternalNewUserGroupBean
  */
 
-public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordProvider {
+public class ExternalConfigurablePasswordProvider
+       extends ConfigurablePasswordProvider implements SynchronizingPasswordProvider {
 
     /** Application logs. */
     private final Logger log = LoggerFactory.getLogger(ExternalConfigurablePasswordProvider.class);
@@ -54,7 +56,7 @@ public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordPr
     /** User management service for external accounts synchronization. */
     final protected ExternalNewUserService externalNewUserService;
 
-    /** Configuration settings for the external accounts extenstion module. */
+    /** Configuration settings for the external accounts extension module. */
     final protected ExternalAuthConfig config;
 
     /**
@@ -110,6 +112,8 @@ public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordPr
      */
     @Override
     public boolean hasPassword(String user) {
+        Check.notEmpty(user, "user");
+
         boolean result = false;
 
         if (externalNewUserService.isEnabled()) {
@@ -147,6 +151,8 @@ public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordPr
      */
     @Override
     public Boolean checkPassword(String user, String password, boolean readOnly) {
+        Check.notEmpty(user, "user");
+        Check.notEmpty(password, "password");
 
         if (!externalNewUserService.isEnabled()) {
             log.debug("[external_auth] ExternalNewUserService service not enabled - returning null password");
@@ -211,15 +217,14 @@ public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordPr
 
                 if (null != externalUser) {
 
-                    log.debug("[external_auth] Attempting known user synchronization from remote source for user: {}-{}",id, user);
-                    externalNewUserService.synchronizeUserFromExternalSource(user);
-
                     log.debug("[external_auth] Attempting known user password check from remote source for: {}-{}", id, user);
                     return loginAttempt(user, externalNewUserService.validatePassword(user, password));
 
                 } else {
+
                     // user not found in remote source
-                    log.debug("[external_auth] User not in remote - skipping sync+check from remote source for: {}-{}", id, user);
+                    log.debug("[external_auth] User not in remote - skipping check from remote source for: {}-{}", id, user);
+
                 }
 
             } catch (ApiUsageException e) { // TODO: other exceptions too?
@@ -233,6 +238,17 @@ public class ExternalConfigurablePasswordProvider extends ConfigurablePasswordPr
         // probably return null in order to check JDBC for the password.
         log.debug("[external_auth] Delegating password check logic for user: {}-{}", id, user);
         return super.checkPassword(user, password, readOnly);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void synchronizeUser(String username) {
+        Check.notEmpty(username, "username");
+
+        log.debug("[external_auth] Attempting synchronization from remote source for user: {}", username);
+        externalNewUserService.synchronizeUserFromExternalSource(username);
     }
 
     private boolean isProtectedAccount(String username) {

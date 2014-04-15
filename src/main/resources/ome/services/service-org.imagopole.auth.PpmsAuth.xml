@@ -309,7 +309,7 @@
   -->
   <bean id="ppmsPasswordProvider" class="org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider">
     <description>
-        PasswordProvider with PPMS (PUMAPI) as an external data source.
+        Standalone PasswordProvider with PPMS (PUMAPI) as an external data source.
     </description>
     <constructor-arg name="util" ref="passwordUtil"/>
     <constructor-arg name="externalNewUserService" ref="ppmsNewUserService"/>
@@ -317,10 +317,27 @@
     <constructor-arg name="ignoreUnknown" value="true"/>
   </bean>
 
+  <!-- Note: this should be used as the preference chain when authenticating against PPMS (possibly
+       coupled to a JDBC provider) as:
+       * it enables working around the PUMAPI password checking response times when authenticating LDAP users
+       * it enables DN seeding by default for PPMS LDAP users
+   -->
+  <bean id="ppmsLdapChainedPasswordProvider" class="org.imagopole.omero.auth.impl.SynchronizingPasswordProviders">
+     <description>
+        Chained PasswordProvider with LDAP as a first authentication source, and PPMS as an external
+        data source for both authentication and accounts/roles synchronization.
+     </description>
+     <constructor-arg name="primaryProvider" ref="ldapPasswordProvider431"/>
+     <constructor-arg name="synchronizingProvider" ref="ppmsPasswordProvider"/>
+  </bean>
+
   <bean id="ppmsChainedPasswordProvider" class="ome.security.auth.PasswordProviders">
+    <description>
+        Default PPMS password providers chain: LDAP -> PPMS -> OMERO database.
+    </description>
     <constructor-arg>
       <list>
-        <ref bean="ppmsPasswordProvider"/>
+        <ref bean="ppmsLdapChainedPasswordProvider"/>
         <ref bean="jdbcPasswordProvider"/>
       </list>
     </constructor-arg>

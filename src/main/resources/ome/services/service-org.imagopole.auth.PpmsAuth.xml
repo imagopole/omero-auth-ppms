@@ -71,9 +71,6 @@
           <entry key="omero.ppms.systems.include_types"
                  value="#{ systemProperties[ 'omero.ppms.include_system_types' ] }"/>
 
-          <entry key="omero.ppms.ldap_dn_format"
-                 value="#{ systemProperties[ 'omero.ppms.ldap_dn_format' ] }"/>
-
           <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                ListToGroupsBean specific keys/values
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -86,10 +83,6 @@
           <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                External auth common keys/values : see DefaultExternalAuthConfig$ConfigKeys
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-          <!--  -->
-          <entry key="omero.external_auth.ldap.seed_dn"
-                 value="#{ systemProperties[ 'omero.ppms.ldap_dn_seed' ] }"/>
-
           <!-- Flag for strict behaviour for group creation -->
           <entry key="omero.external_auth.groups.fail_duplicates" value="false"/>
 

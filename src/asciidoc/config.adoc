@@ -21,8 +21,6 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 |+omero.ppms.include_facilities+    |1,2,3                |
 |+omero.ppms.include_system_types+  |confocal,biphoton    |
 |+omero.ppms.add_user_groups+       |Default,Shared       |
-|+omero.ppms.ldap_dn_seed+          |true,false           |
-|+omero.ppms.ldap_dn_format+        |uid={},ou=Lab,dc=org |
 |+omero.ppms.client_impl+           |spring bean name     |
 |===================================================================================================
 

@@ -149,21 +149,6 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
      * {@inheritDoc}
      */
     @Override
-    public boolean seedLdapDn() {
-        boolean result = false;
-
-        if (null != getConfigMap() && getConfigMap().containsKey(ConfigKeys.SEED_LDAP_DN)) {
-            String configValue = (String) getConfigMap().get(ConfigKeys.SEED_LDAP_DN);
-            result =  Boolean.valueOf(configValue);
-        }
-
-        return result;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Map<String, Object> getConfigMap() {
         return this.configMap;
     }
@@ -183,9 +168,6 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
 
         /** Protected user names to be filtered out of the external auth module's password provider. */
         public static final String EXCLUDE_USERS            = PREFIX + "users.exclude_names";
-
-        /** Should the experimenter's DistinguishedName be populated upon creation. */
-        public static final String SEED_LDAP_DN             = PREFIX + "ldap.seed_dn";
 
         /** Behaviour for group creation.
          *

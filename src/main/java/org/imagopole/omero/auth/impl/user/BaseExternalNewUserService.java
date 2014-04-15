@@ -30,7 +30,6 @@ import ome.util.SqlAction;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
-import org.imagopole.omero.auth.util.ConvertUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -146,17 +145,9 @@ public abstract class BaseExternalNewUserService
      */
     @Override
     public boolean createUserFromExternalSource(String username, String password) {
-        boolean shouldSeedLdapDn = config.seedLdapDn();
+        log.info("[external_auth] [ldap] Preparing to create experimenter: {}", username);
 
-        log.info("[external_auth] [ldap] Preparing to create experimenter: {} with seedLdapDn? {}",
-                 username, shouldSeedLdapDn);
-
-        Experimenter exp = null;
-        if (shouldSeedLdapDn) {
-            exp = findExperimenterDetailsFromExternalSource(username);
-        } else {
-            exp = findExperimenterFromExternalSource(username);
-        }
+        Experimenter exp = findExperimenterFromExternalSource(username);
 
         // difference with Ldap version: LdapImpl performs this check in #mapUserName
         // this will cause the password provider to use the "default choice on create user"
@@ -191,20 +182,6 @@ public abstract class BaseExternalNewUserService
 
             long uid = roleProvider.createExperimenter(exp, grp1, grpOther);
             log.info("[external_auth] Created experimenter with id: {} for username: {}", uid, username);
-
-            if (shouldSeedLdapDn) {
-
-                String dn = (String) exp.retrieve(ConvertUtil.DN_FIELD);
-
-                if (null != dn && !dn.trim().isEmpty()) {
-                    log.info("[external_auth] [ldap] Got DN: {} for experimenter : {}-{}", dn, uid, username);
-                    setDN(uid, dn.trim());
-                } else {
-                    log.warn("[external_auth] [ldap] Empty DN: {} for experimenter : {}-{} - may be 'external'?",
-                             dn, uid, username);
-                }
-
-            }
 
         }
 

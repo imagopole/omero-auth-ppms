@@ -42,17 +42,6 @@ public interface ExternalNewUserService extends ServiceInterface {
     Experimenter findExperimenterFromExternalSource(String username);
 
     /**
-     * Identical to {@link #findExperimenterFromExternalSource(String)}, with additional information
-     * related to:
-     * - internal/external status. Implementation-dependent - eg. materialized as an extra <code>dn</code> field.
-     * - affiliation/institution
-     *
-     * @param username
-     * @return
-     */
-    Experimenter findExperimenterDetailsFromExternalSource(String username);
-
-    /**
      *
      * @param username
      * @param password

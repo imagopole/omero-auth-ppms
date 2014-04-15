@@ -27,21 +27,9 @@ public class BaseExternalNewUserServiceTest extends UnitilsTestNG {
 
     @Test(expectedExceptions = { ApiUsageException.class },
           expectedExceptionsMessageRegExp = "^Cannot find user in external source.*")
-    public void createUserFromExternalSourceShouldFailOnUserNotFoundLdapSeedOff() {
+    public void createUserFromExternalSourceShouldFailOnUserNotFound() {
         // behaviour
-        authConfigMock.returns(false).seedLdapDn();
         externalNewUserServiceMock.returns(null).findExperimenterFromExternalSource(Data.USERNAME);
-
-        // test
-        externalNewUserServiceMock.getMock().createUserFromExternalSource(Data.USERNAME, "password");
-    }
-
-    @Test(expectedExceptions = { ApiUsageException.class },
-          expectedExceptionsMessageRegExp = "^Cannot find user in external source.*")
-    public void createUserFromExternalSourceShouldFailOnUserNotFoundLdapSeedOn() {
-        // behaviour
-        authConfigMock.returns(true).seedLdapDn();
-        externalNewUserServiceMock.returns(null).findExperimenterDetailsFromExternalSource(Data.USERNAME);
 
         // test
         externalNewUserServiceMock.getMock().createUserFromExternalSource(Data.USERNAME, "password");

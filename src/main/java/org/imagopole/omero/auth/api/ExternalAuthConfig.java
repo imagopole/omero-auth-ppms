@@ -56,12 +56,6 @@ public interface ExternalAuthConfig {
      */
     boolean failOnDuplicateGroups();
 
-    /**
-     * Should the authentication extension preset the experimenter's LDAP DN on creation?
-     * eg. to allow switching to one of the LDAP providers transparently, and enable account "locking" in the UI.
-     */
-    boolean seedLdapDn();
-
     /** Additional implementation-specific configuration settings for management by the client. */
     Map<String, Object> getConfigMap();
 

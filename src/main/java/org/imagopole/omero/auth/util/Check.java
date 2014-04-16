@@ -58,10 +58,7 @@ public final class Check {
                 "Condition not met - expected : non-empty parameter for " + argName);
     }
 
-    /** OMERO Ice session */
-       // private ServiceFactoryPrx session;
-
-        public static final boolean empty(String input) {
-            return (null == input || input.isEmpty());
-        }
+    public static final boolean empty(String input) {
+        return (null == input || input.isEmpty());
+    }
 }

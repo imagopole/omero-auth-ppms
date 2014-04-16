@@ -3,6 +3,8 @@
  */
 package org.imagopole.omero.auth.api.user;
 
+import org.imagopole.omero.auth.api.ExternalAuthConfig;
+
 import ome.api.ServiceInterface;
 import ome.model.meta.Experimenter;
 import ome.security.auth.LdapPasswordProvider;
@@ -33,37 +35,54 @@ public interface ExternalNewUserService extends ServiceInterface {
     boolean isEnabled();
 
     /**
+     * Looks up an experimenter by login.
      *
-     * @param username
-     * @return
+     * @param username the username / external identifier
+     * @return the experimenter, or null if none found
      *
      * @see ome.logic.LdapImpl#findExperimenter(String)
      */
     Experimenter findExperimenterFromExternalSource(String username);
 
     /**
+     * Initializes a new user account in OMERO from the external source.
      *
-     * @param username
-     * @param password
-     * @return
+     * Note that the initialization is performed only if the user's credentials are verified
+     * by {@link #validatePassword(String, String)}.
+     *
+     * This initialization will subsequently trigger groups initialization, and memberships assignment.
+     *
+     * @param username the username / external identifier
+     * @param password the password
+     * @return true if the password check succeeded, false otherwise
      *
      * @see ome.logic.LdapImpl#createUserFromLdap(String, String)
+     * @see ome.logic.LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
     boolean createUserFromExternalSource(String username, String password);
 
     /**
+     * Updates an existing OMERO user account from the external source.
      *
-     * @param username
+     * Note that the synchronization is performed only if the service is configured accordingly
+     * via {@link ExternalAuthConfig#isSyncOnLogin()}, and if a user is present in the remote source.
+     *
+     * This synchronization will subsequently trigger groups and memberships creation and assignment
+     * as done upon {@link #createUserFromExternalSource(String, String)}. Besides, the experimenter's
+     * metadata synchronization will be triggered for the relevant attributes (name, email, institution).
+     *
+     * @param username the username / external identifier
      *
      * @see ome.logic.LdapImpl#synchronizeLdapUser(String)
      */
     void synchronizeUserFromExternalSource(String username);
 
     /**
+     * Checks the experimenter credentials.
      *
-     * @param username
-     * @param password
-     * @return
+     * @param username the username / external identifier
+     * @param password the password
+     * @return true if the password check succeeded, false otherwise
      *
      * @see ome.logic.LdapImpl#validatePassword(String, String)
      */

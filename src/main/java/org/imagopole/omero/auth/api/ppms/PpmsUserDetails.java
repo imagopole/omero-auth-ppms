@@ -37,6 +37,12 @@ public class PpmsUserDetails {
         this.group = group;
     }
 
+    /**
+     * Indicates whether the user belongs to a group whose affiliation is
+     * an external institution.
+     *
+     * @return true if the user belongs to an external group, false otherwise
+     */
     public boolean isExternalAffiliation() {
         boolean result = false;
 

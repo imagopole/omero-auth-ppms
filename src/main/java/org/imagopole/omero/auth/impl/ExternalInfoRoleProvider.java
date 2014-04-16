@@ -89,10 +89,6 @@ public class ExternalInfoRoleProvider extends SimpleRoleProvider {
         return copy;
     }
 
-    /**
-     * @param externalInfo
-     * @param currentPermissions
-     */
     private void copyPermissionsIfMissing(ExternalInfo externalInfo, Permissions currentPermissions) {
         Permissions externalPermissions = externalInfo.getDetails().getPermissions();
 

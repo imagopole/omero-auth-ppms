@@ -30,8 +30,16 @@ public interface PpmsService {
      */
     PpmsUser findUserByName(String userName) throws PumapiException;
 
+    /**
+     * Retrieves a PPMS user by login, with affiliation details.
+     *
+     * @param userName the username / PPMS identifier
+     * @return the user attributes or null if not found.
+     * @throws PumapiException in case of an underlying error (API or technical)
+     */
     PpmsUserDetails findUserAndGroupByName(String userName) throws PumapiException;
 
+    // not implemented yet - will likely return a PpmsProject entity later
     List<NamedItem> findProjectsByUserName(String userName) throws PumapiException;
 
     /**

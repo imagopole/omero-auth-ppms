@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ome.annotations.NotNull;
 import ome.annotations.RolesAllowed;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
@@ -26,7 +25,6 @@ import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.RoleProvider;
 import ome.system.OmeroContext;
 import ome.system.Roles;
-import ome.util.SqlAction;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
@@ -35,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base {@link ExternalNewUserService} class - provides implementation inheritance of common
@@ -68,9 +65,6 @@ public abstract class BaseExternalNewUserService
     /** OMERO Spring application context. */
     private OmeroContext appContext;
 
-    /** OMERO SQL service. */
-    private final SqlAction sqlAction;
-
     /** Delimiter for configured group specs. */
     public static final String GROUPSPEC_DELIM = ":";
 
@@ -83,15 +77,13 @@ public abstract class BaseExternalNewUserService
      * @param roles OMERO roles for superclass
      * @param config external extension configuration settings
      * @param roleProvider OMERO roles service
-     * @param sqlAction OMERO SQL service
      */
     public BaseExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider, SqlAction sqlAction) {
+        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
         super();
         this.roles = roles;
         this.config = config;
         this.roleProvider = roleProvider;
-        this.sqlAction = sqlAction;
     }
 
     /**
@@ -380,18 +372,6 @@ public abstract class BaseExternalNewUserService
                 }
             }
         }
-    }
-
-    /**
-     * Copied as-is from {@link LdapImpl#setDN(Long, String)}.
-     *
-     * @param experimenterID user identifier
-     * @param dn user LDAP Distinguished Name
-     */
-    @RolesAllowed("system")
-    @Transactional(readOnly = false)
-    public void setDN(@NotNull Long experimenterID, String dn) {
-        sqlAction.setUserDn(experimenterID, dn);
     }
 
 }

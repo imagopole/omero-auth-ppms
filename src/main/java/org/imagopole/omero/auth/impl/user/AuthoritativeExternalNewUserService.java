@@ -11,7 +11,6 @@ import ome.model.meta.Experimenter;
 import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.RoleProvider;
 import ome.system.Roles;
-import ome.util.SqlAction;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
@@ -40,11 +39,10 @@ public abstract class AuthoritativeExternalNewUserService extends BaseExternalNe
      * @param roles OMERO roles for superclass
      * @param config external extension configuration settings
      * @param roleProvider OMERO roles service
-     * @param sqlAction OMERO SQL service
      */
     public AuthoritativeExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider, SqlAction sqlAction) {
-        super(roles, config, roleProvider, sqlAction);
+        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
+        super(roles, config, roleProvider);
     }
 
     /**

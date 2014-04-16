@@ -6,7 +6,6 @@ package org.imagopole.omero.auth.impl.ppms;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ome.model.meta.Experimenter;
 
@@ -103,20 +102,6 @@ public class PpmsUtil {
         return ConvertUtil.lookupCsvValue(config, PpmsExternalConfigKeys.INCLUDE_TYPES);
     }
 
-    public static final String getLdapDnFormat(ExternalAuthConfig config) {
-        Check.notNull(config, "config");
-
-        String result = null;
-
-        Map<String, Object> configMap = config.getConfigMap();
-
-        if (null != configMap && configMap.containsKey(PpmsExternalConfigKeys.LDAP_DN_FORMAT)) {
-            result = (String) configMap.get(PpmsExternalConfigKeys.LDAP_DN_FORMAT);
-        }
-
-        return result;
-    }
-
     public static final List<NamedItem> toNamedItems(List<PpmsSystem> systems) {
         List<NamedItem> result = new ArrayList<NamedItem>();
 
@@ -178,8 +163,6 @@ public class PpmsUtil {
         private static final String INCLUDE_FACILITIES = PREFIX + "systems.include_facilities";
 
         private static final String INCLUDE_TYPES      = PREFIX + "systems.include_types";
-
-        public static final String LDAP_DN_FORMAT      = PREFIX + "ldap_dn_format";
 
         /** Constants class. */
         private PpmsExternalConfigKeys() {

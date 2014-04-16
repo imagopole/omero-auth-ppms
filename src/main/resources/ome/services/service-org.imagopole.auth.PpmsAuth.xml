@@ -283,7 +283,6 @@
       <constructor-arg name="roles" ref="roles"/>
       <constructor-arg name="config" ref="externalAuthConfiguration"/>
       <constructor-arg name="roleProvider" ref="externalInfoRoleProvider"/>
-      <constructor-arg name="sqlAction" ref="simpleSqlAction"/>
       <property name="ppmsService" ref="ppmsService"/>
   </bean>
 

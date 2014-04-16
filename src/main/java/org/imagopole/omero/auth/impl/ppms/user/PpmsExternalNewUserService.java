@@ -8,7 +8,6 @@ import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
 import ome.security.auth.RoleProvider;
 import ome.system.Roles;
-import ome.util.SqlAction;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
@@ -39,11 +38,10 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
      * @param roles OMERO roles for superclass
      * @param config external extension configuration settings
      * @param roleProvider OMERO roles service
-     * @param sqlAction OMERO SQL service
      */
     public PpmsExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider, SqlAction sqlAction) {
-        super(roles, config, roleProvider, sqlAction);
+        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
+        super(roles, config, roleProvider);
     }
 
     /**

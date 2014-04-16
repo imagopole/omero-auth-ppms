@@ -31,6 +31,7 @@ public class TestsUtil {
     // test fixtures data
     public final static class Data {
         public final static String USERNAME = "some.username";
+        public final static String PASSWORD = "some.password";
         public final static boolean GROUPS_STRICT_MODE = true;
         public final static Permissions PERMISSIONS_FOR_LEVEL = Permissions.USER_PRIVATE;
 

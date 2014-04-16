@@ -32,7 +32,7 @@ public class BaseExternalNewUserServiceTest extends UnitilsTestNG {
         externalNewUserServiceMock.returns(null).findExperimenterFromExternalSource(Data.USERNAME);
 
         // test
-        externalNewUserServiceMock.getMock().createUserFromExternalSource(Data.USERNAME, "password");
+        externalNewUserServiceMock.getMock().createUserFromExternalSource(Data.USERNAME, Data.PASSWORD);
     }
 
 }

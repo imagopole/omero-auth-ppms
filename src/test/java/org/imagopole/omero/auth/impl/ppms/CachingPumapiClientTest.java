@@ -96,7 +96,7 @@ public class CachingPumapiClientTest extends UnitilsTestNG {
     public void authenticateShouldNotCache() {
         // define behaviour
         String username = Data.USERNAME;
-        String password = "pwd";
+        String password = Data.PASSWORD;
         pumapiClientMockDelegate.returns(true).authenticate(username, password);
 
         // run test

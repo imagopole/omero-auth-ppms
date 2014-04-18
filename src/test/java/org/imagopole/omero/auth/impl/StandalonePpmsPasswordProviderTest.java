@@ -7,7 +7,6 @@ import ome.system.OmeroContext;
 import org.imagopole.omero.auth.AbstractOmeroServerTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testng.annotations.Test;
 
 public class StandalonePpmsPasswordProviderTest extends AbstractOmeroServerTest {
 
@@ -27,7 +26,7 @@ public class StandalonePpmsPasswordProviderTest extends AbstractOmeroServerTest 
         this.passwordProvider = (ExternalConfigurablePasswordProvider) omeroContext.getBean("ppmsPasswordProvider");
     }
 
-    @Test
+    //@Test
     public void testHasPassword() {
        log.debug("TODO: integration test {}", passwordProvider);
     }

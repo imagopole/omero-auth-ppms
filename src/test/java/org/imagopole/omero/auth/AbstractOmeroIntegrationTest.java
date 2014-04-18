@@ -15,10 +15,23 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldif.LDIFException;
 import com.unboundid.ldif.LDIFReader;
 
+import ome.security.SecuritySystem;
+import ome.security.basic.CurrentDetails;
+import ome.security.basic.PrincipalHolder;
+import ome.server.itests.LoginInterceptor;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
+import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.Roles;
+import ome.system.ServiceFactory;
+import ome.testing.InterceptingServiceFactory;
+
 import org.imagopole.omero.auth.TestsUtil.Env;
 import org.imagopole.omero.auth.TestsUtil.LdapUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
 import org.testng.annotations.AfterClass;
 
 /**
@@ -38,6 +51,15 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
     /** LDAP fixtures server. */
     private InMemoryDirectoryServer ldapServer;
 
+    /** Factory which provides "wrapped" managed services which handles login as would take place via ISession */
+    private ServiceFactory serviceFactory;
+    private SecuritySystem securitySystem;
+    private PrincipalHolder principalHolder;
+    private SessionManager sessionManager;
+    private LoginInterceptor loginInterceptor;
+    private Executor executor;
+    private Roles roles;
+
     @Override
     protected void setUpBeforeServerStartup(Properties systemProps) {
         try {
@@ -56,6 +78,23 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
            log.error("Failed to configure database", e);
            fail(e.getMessage());
         }
+    }
+
+    @Override
+    protected void setUpAfterServerStartup(OmeroContext omeroContext) {
+        //-- OMERO server boilerplate
+        executor = (Executor) omeroContext.getBean("executor");
+        principalHolder = (PrincipalHolder) omeroContext.getBean("principalHolder");
+        sessionManager = (SessionManager) omeroContext.getBean("sessionManager");
+        securitySystem = (SecuritySystem) omeroContext.getBean("securitySystem");
+
+        roles = securitySystem.getSecurityRoles();
+        loginInterceptor = new LoginInterceptor((CurrentDetails) principalHolder);
+
+        serviceFactory = new InterceptingServiceFactory(
+                        new ServiceFactory(omeroContext),
+                        loginInterceptor,
+                        new JamonPerformanceMonitorInterceptor());
     }
 
     private void configureDatabase(Properties systemProps) throws FlywayException {
@@ -124,6 +163,46 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
             log.debug("Stopping in-memory LDAP server: {}", ldapServer);
             ldapServer.shutDown(true);
         }
+    }
+
+    protected Principal getLoginPrincipal() {
+        return loginInterceptor.p;
+    }
+
+    protected void setLoginPrincipal(Principal principal) {
+        loginInterceptor.p = principal;
+    }
+
+    /**
+     * Returns serviceFactory.
+     * @return the serviceFactory
+     */
+    protected ServiceFactory getServiceFactory() {
+        return serviceFactory;
+    }
+
+    /**
+     * Returns sessionManager.
+     * @return the sessionManager
+     */
+    protected SessionManager getSessionManager() {
+        return sessionManager;
+    }
+
+    /**
+     * Returns executor.
+     * @return the executor
+     */
+    protected Executor getExecutor() {
+        return executor;
+    }
+
+    /**
+     * Returns roles.
+     * @return the roles
+     */
+    protected Roles getRoles() {
+        return roles;
     }
 
 }

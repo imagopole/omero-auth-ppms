@@ -50,6 +50,9 @@ dependencies {
     }
     compile 'net.sf.ehcache:ehcache-core:' + profileVersions.ehcache
 
+    testCompile 'org.hibernate:hibernate-core:' + profileVersions.hibernate.core
+    testCompile 'org.springframework:spring-orm:' + profileVersions.spring.core
+
     //--------- OMERO + Ice profiles combined workaround ---------//
     // depends on Ice profile versions + OMERO profile versions
     testRuntime 'zeroc:ice:' + iceVersions.main
@@ -59,9 +62,7 @@ dependencies {
     testRuntime 'ome.omero:romio:' + profileVersions.omero
     testRuntime 'org.springframework:spring-context-support:' + profileVersions.spring.core
     testRuntime 'org.springframework:spring-jdbc:' + profileVersions.spring.core
-    testRuntime 'org.springframework:spring-orm:' + profileVersions.spring.core
     testRuntime 'org.springframework.security:spring-security-ldap:' + profileVersions.spring.security
-    testRuntime 'org.hibernate:hibernate-core:' + profileVersions.hibernate.core
     testRuntime 'org.hibernate:hibernate-commons-annotations:' + profileVersions.hibernate.commonsannot
     testRuntime 'org.hibernate:hibernate-jmx:' + profileVersions.hibernate.core
     testRuntime 'org.codehaus.btm:btm:' + profileVersions.bitronix

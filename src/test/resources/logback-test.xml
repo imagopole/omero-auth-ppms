@@ -36,11 +36,11 @@
   <!-- Dependencies loggers -->
   <!--                      -->
   <logger name="ome" level="info"/>
-  <logger name="ome.system.PreferenceContext" level="info"/>
+  <logger name="ome.system.PreferenceContext" level="warn"/>
   <logger name="ome.formats" level="debug"/>
-  <logger name="omero" level="debug"/>
-  <logger name="omeis" level="debug"/>
-  <logger name="OMERO" level="debug"/>
+  <logger name="omero" level="info"/>
+  <logger name="omeis" level="info"/>
+  <logger name="OMERO" level="info"/>
 
   <logger name="org.apache" level="warn"/>
   <logger name="org.jgroups" level="warn"/>
@@ -51,5 +51,11 @@
   <logger name="net.sf.ehcache" level="info"/>
   <logger name="loci" level="info"/>
   <logger name="bitronix" level="info"/>
+
+  <!--                      -->
+  <!-- Testing loggers      -->
+  <!--                      -->
+  <logger name="com.googlecode.flyway" level="info"/>
+  <logger name="com.unboundid" level="info"/>
 
 </configuration>

@@ -57,6 +57,8 @@ ext.versions = [
     httpClient   : '4.3.2',         //--OMERO: n/a
     csveed       : '0.3.2',         //--OMERO: n/a
     contiperf    : '2.3.2',         //--OMERO: n/a
+    flyway       : '2.3.1',         //--OMERO: n/a
+    ldapSdk      : '2.3.6',         //--OMERO: n/a (apache-ds)
 ]
 
 
@@ -138,6 +140,9 @@ dependencies {
     }
     testCompile 'org.unitils:unitils-inject:' + versions.unitils
     testCompile 'org.unitils:unitils-mock:' + versions.unitils
+    testCompile 'com.googlecode.flyway:flyway-core:' + versions.flyway
+    testCompile 'com.unboundid:unboundid-ldapsdk:' + versions.ldapSdk
+
     testRuntime(group: 'org.unitils', name: 'unitils-dbunit', version: versions.unitils) {
         exclude group: 'org.unitils', module: 'unitils-database'
         exclude group: 'org.springframework'

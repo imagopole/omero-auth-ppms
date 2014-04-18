@@ -69,8 +69,29 @@ public class TestsUtil {
         public final static String OMERO_CONFIG = "OMERO_CONFIG";
         public final static String OMERO_CONFIG_LOCATION = "omero.config.location";
 
+        public final static String OMERO_DB_NAME = "omero.db.name";
+        public final static String OMERO_DB_USER = "omero.db.user";
+        public final static String OMERO_DB_PASS = "omero.db.pass";
+        public final static String FLYWAY_DB_BASE_URL = "flyway.db.base_url";
+        public final static String FLYWAY_DB_INIT_ON_MIGRATE = "flyway.db.init_on_migrate";
+        public final static String FLYWAY_DB_CLEAN_ON_MIGRATE = "flyway.db.clean_on_migrate";
+
         /** Private constructor (utility class) */
         private Env() {
+            super();
+        }
+    }
+
+    public final static class LdapUnit {
+
+        public final static int LISTEN_PORT = 10389;
+        public final static String BASE_DN = "dc=example,dc=com";
+        public final static String COMMON_LDIF_LOCATION = "ldap/migration/common.ldif";
+        // dc + ou + user
+        public final static int COMMON_LDIF_MIN_ENTRIES = 3;
+
+        /** Private constructor (utility class) */
+        private LdapUnit() {
             super();
         }
     }

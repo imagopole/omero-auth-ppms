@@ -19,7 +19,12 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.unitils.UnitilsTestNG;
 
-
+/**
+ * Basic integration test with OMERO.server only.
+ *
+ * @author seb
+ *
+ */
 public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
 
     /** Application logs */
@@ -28,7 +33,7 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
     /** Client configuration settings. */
     private Properties configProperties;
 
-   // @SpringBean("ome.server")
+    // @SpringBean("ome.server")
     private OmeroContext omeroContext;
 
     @BeforeClass
@@ -47,32 +52,30 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
 
             props.load(new FileInputStream(omeroConfigLocation));
         } else {
-            fail("Run integration tests with exported OMERO_CONFIG=/path/to/omero-local.properties " +
-                 "environment variable or -Domero.config.location=/path/to/omero-local.properties " +
-                 "JVM system property");
+            fail("Run integration tests with exported OMERO_CONFIG=/path/to/omero-local.properties "
+                + "environment variable or -Domero.config.location=/path/to/omero-local.properties "
+                + "JVM system property");
         }
 
-        this.configProperties = props;
+        configureSystemProperties(props);
 
-        configureSystemProperties();
         configureIntegrationServer();
     }
 
-    private void configureSystemProperties() {
-        Properties mergedProperties = new Properties(System.getProperties());
-        log.trace("Configuring OMERO.server from current system properties: {}", mergedProperties);
+    private void configureSystemProperties(Properties props) {
+        Properties systemProperties = new Properties(System.getProperties());
+        log.trace("Configuring OMERO.server from current system properties: {}", systemProperties);
 
-        Properties overrideProperties = new Properties();
+        // merge omero config with current system props
+        Properties overrideProperties = new Properties(systemProperties);
+        overrideProperties.putAll(props);
 
         // subclasses config override hook
         setUpBeforeServerStartup(overrideProperties);
-        log.trace("Configuring OMERO.server from override system properties: {}", overrideProperties);
 
-        mergedProperties.putAll(configProperties);
-        mergedProperties.putAll(overrideProperties);
-
-        log.trace("Configuring OMERO.server with config properties: {}", mergedProperties);
-        System.setProperties(mergedProperties);
+        log.trace("Configuring OMERO.server with config properties: {}", overrideProperties);
+        this.configProperties = overrideProperties;
+        System.setProperties(this.configProperties);
     }
 
     /**

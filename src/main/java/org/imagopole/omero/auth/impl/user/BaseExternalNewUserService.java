@@ -137,7 +137,7 @@ public abstract class BaseExternalNewUserService
      */
     @Override
     public boolean createUserFromExternalSource(String username, String password) {
-        log.info("[external_auth] [ldap] Preparing to create experimenter: {}", username);
+        log.info("[external_auth] Preparing to create experimenter: {}", username);
 
         Experimenter exp = findExperimenterFromExternalSource(username);
 

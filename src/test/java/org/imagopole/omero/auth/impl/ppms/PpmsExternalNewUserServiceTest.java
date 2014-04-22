@@ -12,6 +12,7 @@ import ome.system.OmeroContext;
 import org.imagopole.omero.auth.AbstractOmeroServerTest;
 import org.imagopole.omero.auth.TestsUtil;
 import org.imagopole.omero.auth.TestsUtil.Data;
+import org.imagopole.omero.auth.TestsUtil.Groups;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserService;
@@ -37,7 +38,7 @@ public class PpmsExternalNewUserServiceTest extends AbstractOmeroServerTest {
         ppmsNewUserService = (PpmsExternalNewUserService) omeroContext.getBean("ppmsNewUserService");
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void findExperimenterFromExternalSourceShouldIgnoreUnknownUsers() {
         // define behaviour
         ppmsServiceMock.returns(null).findUserByName(Data.USERNAME);
@@ -51,7 +52,7 @@ public class PpmsExternalNewUserServiceTest extends AbstractOmeroServerTest {
         ppmsServiceMock.assertInvoked().findUserByName(Data.USERNAME);
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void findExperimenterFromExternalSourceShouldConvertActiveUsers() {
         // define behaviour
         PpmsUser ppmsUnitUser = TestsUtil.newPpmsUser();
@@ -72,7 +73,7 @@ public class PpmsExternalNewUserServiceTest extends AbstractOmeroServerTest {
         ppmsServiceMock.assertInvoked().findUserByName(PpmsUnit.DEFAULT_USER);
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void findExperimenterFromExternalSourceShouldIgnoreInactiveUsers() {
         // define behaviour
         PpmsUser ppmsUnitUser = TestsUtil.newPpmsUser();
@@ -89,7 +90,7 @@ public class PpmsExternalNewUserServiceTest extends AbstractOmeroServerTest {
         ppmsServiceMock.assertInvoked().findUserByName(PpmsUnit.DEFAULT_USER);
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void findExperimenterFromExternalSourceShouldIgnoreUsersWithUnknownActivityStatus() {
         // define behaviour
         PpmsUser ppmsUnitUser = TestsUtil.newPpmsUser();

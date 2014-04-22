@@ -23,6 +23,7 @@ import ome.system.ServiceFactory;
 
 import org.imagopole.omero.auth.AbstractOmeroIntegrationTest;
 import org.imagopole.omero.auth.TestsUtil;
+import org.imagopole.omero.auth.TestsUtil.Groups;
 import org.imagopole.omero.auth.TestsUtil.LdapUnit;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
@@ -98,7 +99,7 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         getSessionManager().closeAll();
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void checkPasswordLdapAuthShouldSaveDn() {
         String workDescription = "checkPasswordLdapAuthShouldSaveDn";
 
@@ -137,7 +138,7 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect group");
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void checkPasswordPpmsAuthShouldNotSaveDn() {
         String workDescription = "checkPasswordPpmsAuthShouldNotSaveDn";
 

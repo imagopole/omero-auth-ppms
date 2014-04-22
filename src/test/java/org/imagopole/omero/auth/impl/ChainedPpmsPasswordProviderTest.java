@@ -141,11 +141,7 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
     public void checkPasswordPpmsAuthShouldNotSaveDn() {
         String workDescription = "checkPasswordPpmsAuthShouldNotSaveDn";
 
-        PpmsUser ppmsUnitUser = new PpmsUser();
-        ppmsUnitUser.setLogin(PpmsUnit.DEFAULT_USER);
-        ppmsUnitUser.setFname(PpmsUnit.DEFAULT_USER_GN);
-        ppmsUnitUser.setLname(PpmsUnit.DEFAULT_USER_SN);
-        ppmsUnitUser.setEmail(PpmsUnit.DEFAULT_USER_EMAIL);
+        PpmsUser ppmsUnitUser = TestsUtil.newPpmsUser();
 
         pumapiClientMock.returns(ppmsUnitUser).getUser(PpmsUnit.DEFAULT_USER);
         pumapiClientMock.returns(true).authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);

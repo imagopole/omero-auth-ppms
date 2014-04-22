@@ -9,6 +9,7 @@ import java.util.List;
 import ome.model.internal.Permissions;
 
 import org.imagopole.ppms.api.dto.PpmsGroup;
+import org.imagopole.ppms.api.dto.PpmsUser;
 
 
 /**
@@ -22,12 +23,21 @@ public class TestsUtil {
 
     public static final String TEST_EVENT_TYPE = "Test";
 
-    public static final PpmsGroup newUnit(String name) {
+    public static final PpmsGroup newPpmsUnit(String name) {
         PpmsGroup unit = new PpmsGroup();
         unit.setUnitname(name);
         unit.setUnitlogin("testng::" + name);
 
         return unit;
+    }
+
+    public static final PpmsUser newPpmsUser() {
+        PpmsUser ppmsUnitUser = new PpmsUser();
+        ppmsUnitUser.setLogin(PpmsUnit.DEFAULT_USER);
+        ppmsUnitUser.setFname(PpmsUnit.DEFAULT_USER_GN);
+        ppmsUnitUser.setLname(PpmsUnit.DEFAULT_USER_SN);
+        ppmsUnitUser.setEmail(PpmsUnit.DEFAULT_USER_EMAIL);
+        return ppmsUnitUser;
     }
 
     // test fixtures data

@@ -94,7 +94,7 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
         log.debug("Loading OMERO.server managed context");
 
         this.omeroContext = OmeroContext.getManagedServerContext();
-        omeroContext.refreshAllIfNecessary();
+        omeroContext.refresh();
 
         log.debug("Loaded OMERO.server managed context: {}", omeroContext);
 

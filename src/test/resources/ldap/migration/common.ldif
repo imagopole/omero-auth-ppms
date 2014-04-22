@@ -8,6 +8,7 @@ objectClass: top
 objectclass: organizationalUnit
 ou: People
 
+# assumed to be known to LDAP only, not to PPMS
 dn: uid=jdoe,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson
 cn: John DOE
@@ -16,5 +17,13 @@ givenName: John
 mail: john.doe@example.com
 userPassword: ldapunit
 
+# assumed to be known to both LDAP and PPMS
+dn: uid=fbloggs,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: Fred BLOGGS
+sn: BLOGGS
+givenName: Fred
+mail: fred.bloggs@example.com
+userPassword: bothunit
 
 

@@ -40,6 +40,24 @@ public class TestsUtil {
         return ppmsUnitUser;
     }
 
+    public static final PpmsUser newLdapUser() {
+        PpmsUser ppmsUnitUser = new PpmsUser();
+        ppmsUnitUser.setLogin(LdapUnit.DEFAULT_USER);
+        ppmsUnitUser.setFname(LdapUnit.DEFAULT_USER_GN);
+        ppmsUnitUser.setLname(LdapUnit.DEFAULT_USER_SN);
+        ppmsUnitUser.setEmail(LdapUnit.DEFAULT_USER_EMAIL);
+        return ppmsUnitUser;
+    }
+
+    public static final PpmsUser newSharedUser() {
+        PpmsUser sharedUser = new PpmsUser();
+        sharedUser.setLogin(LdapUnit.PPMS_USER);
+        sharedUser.setFname(LdapUnit.PPMS_USER_GN);
+        sharedUser.setLname(LdapUnit.PPMS_USER_SN);
+        sharedUser.setEmail(LdapUnit.PPMS_USER_EMAIL);
+        return sharedUser;
+    }
+
     // test fixtures data
     public static final class Data {
         public static final String USERNAME = "some.username";
@@ -105,8 +123,9 @@ public class TestsUtil {
         public static final int LISTEN_PORT = 10389;
         public static final String BASE_DN = "dc=example,dc=com";
         public static final String COMMON_LDIF_LOCATION = "ldap/migration/common.ldif";
-        public static final int COMMON_LDIF_MIN_ENTRIES = 3; // 1 dc + 1 ou + 1 user
+        public static final int COMMON_LDIF_MIN_ENTRIES = 4; // 1 dc + 1 ou + 2 users
 
+        /** The "DEFAULT_USER" is assumed to be known to LDAP only, not to PPMS. */
         public static final String DEFAULT_USER = "jdoe";
         public static final String DEFAULT_PWD = "ldapunit";
         public static final String DEFAULT_USER_GN = "John";
@@ -114,6 +133,14 @@ public class TestsUtil {
         public static final String DEFAULT_USER_EMAIL = "john.doe@example.com";
         public static final String DEFAULT_USER_DN = "uid=jdoe,ou=People,dc=example,dc=com";
         public static final String DEFAULT_GROUP = "LdapUnitDefault";
+
+        /** The "PPMS_USER" is assumed to be known to both LDAP and PPMS. */
+        public static final String PPMS_USER = "fbloggs";
+        public static final String PPMS_PWD = "bothunit";
+        public static final String PPMS_USER_GN = "Fred";
+        public static final String PPMS_USER_SN = "BLOGGS";
+        public static final String PPMS_USER_EMAIL = "fred.bloggs@example.com";
+        public static final String PPMS_USER_DN = "uid=fbloggs,ou=People,dc=example,dc=com";
 
         /** Private constructor (utility class) */
         private LdapUnit() {
@@ -129,6 +156,7 @@ public class TestsUtil {
      */
     public static final class PpmsUnit {
 
+        /** The "DEFAULT_USER" is assumed to be known to PPMS only, not to LDAP. */
         public static final String DEFAULT_USER = "jbar";
         public static final String DEFAULT_PWD = "ppmsunit";
         public static final String DEFAULT_USER_GN = "Joe";
@@ -138,6 +166,24 @@ public class TestsUtil {
 
         /** Private constructor (utility class) */
         private PpmsUnit() {
+            super();
+        }
+    }
+
+    /**
+     * Constants for the "OmeroUnit" integration tests.
+     *
+     * Values must be kept in sync with those defined in OMERO integration test db.
+     */
+    public static final class OmeroUnit {
+
+        public static final String GUEST_USER_GN = "Guest";
+        public static final String GUEST_USER_SN = "Account";
+        public static final String GUEST_USER_PWD = "anything";
+        public static final String ROOT_USER_PWD = "root_dbunit";
+
+        /** Private constructor (utility class) */
+        private OmeroUnit() {
             super();
         }
     }

@@ -77,7 +77,15 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
 
         if (null != ppmsUser) {
 
-            person = PpmsUtil.toExperimenter(ppmsUser);
+            boolean isActiveUser = (null != ppmsUser.getActive() && ppmsUser.getActive());
+
+            if (isActiveUser) {
+
+                person = PpmsUtil.toExperimenter(ppmsUser);
+
+            } else {
+                log.info("[external_auth][ppms] Ignoring inactive external username: {}", username);
+            }
 
         }
 

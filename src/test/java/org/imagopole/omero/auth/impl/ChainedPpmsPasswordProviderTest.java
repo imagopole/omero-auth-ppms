@@ -137,11 +137,12 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect group");
     }
 
-    //@Test
+    @Test
     public void checkPasswordPpmsAuthShouldNotSaveDn() {
         String workDescription = "checkPasswordPpmsAuthShouldNotSaveDn";
 
         PpmsUser ppmsUnitUser = TestsUtil.newPpmsUser();
+        ppmsUnitUser.setActive(true);
 
         pumapiClientMock.returns(ppmsUnitUser).getUser(PpmsUnit.DEFAULT_USER);
         pumapiClientMock.returns(true).authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);

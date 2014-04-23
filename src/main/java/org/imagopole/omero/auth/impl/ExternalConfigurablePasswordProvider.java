@@ -116,33 +116,47 @@ public class ExternalConfigurablePasswordProvider
 
         boolean result = false;
 
-        if (externalNewUserService.isEnabled()) {
-            log.debug("[external_auth] service enabled - verifying hasPassword status for user: {}", user);
+        boolean hasUsername = hasUsername(user);
+        if (hasUsername) {
+            // similar logic to that of LdapPasswordProviders
+            // as per javadoc: "this is typically only of importance during checkPassword,
+            // [..] before a provider has not created a user, it is also not responsible."
+            Long id = util.userId(user);
+            log.debug("[external_auth] verifying local existence for user: {} - {}", user, id);
 
-            // difference from LdapPasswordProviders here: check for excluded accounts first
-            if (isProtectedAccount(user)) {
-                log.debug("[external_auth] skipping protected OMERO account: {}", user);
-                result = false;
-            } else {
-                // similar logic to that of LdapPasswordProviders
-                // as per javadoc: "this is typically only of importance during checkPassword,
-                // [..] before a provider has not created a user, it is also not responsible."
-                Long id = util.userId(user);
-                log.debug("[external_auth] verifying local existence for user: {} - {}", user, id);
-
-                if (id != null) {
-
-                    log.debug("[external_auth] checking account ownership: {}", user);
-                    Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
-                    if (externalUser != null) {
-                        result = true;
-                    }
-
-                }
+            if (null != id) {
+                result = true;
             }
         }
 
         log.debug("[external_auth] hasPassword result for username: {}:{}", user, result);
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean hasUsername(String user) {
+        Check.notEmpty(user, "user");
+
+        boolean result = false;
+
+        if (externalNewUserService.isEnabled()) {
+            log.debug("[external_auth] service enabled - verifying hasUsername status for user: {}", user);
+
+            if (isProtectedAccount(user)) {
+                log.debug("[external_auth] skipping protected OMERO account: {}", user);
+                result = false;
+            } else {
+                Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
+                if (null != externalUser) {
+                    result = true;
+                }
+            }
+        }
+
+        log.debug("[external_auth] hasUsername result for username: {}:{}", user, result);
         return result;
     }
 

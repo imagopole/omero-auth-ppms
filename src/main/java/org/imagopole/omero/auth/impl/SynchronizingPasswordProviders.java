@@ -18,6 +18,10 @@ import org.slf4j.LoggerFactory;
  * account synchronization.
  *
  * Chain invocation logic:
+ * 0 - The second provider, which is responsible for accounts synchronization, is checked for the
+ * account's existence. If no account is known to this provider, the authentication chain will be
+ * skipped entirely so as to avoid account operations being issued from a potentially larger user
+ * base via the primary provider, but subsequently unknown to the synchronizing provider.
  * 1 - The first provider is used for authentication only (typically intended to be a LDAP provider,
  * which may perform the user account initialization).
  * 2 - If the first provider is not responsible for the account, then check the second provider
@@ -33,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * {@link #checkPassword(String, String, boolean)} operation, it may require disabling to avoid
  * double-synching.
  *
- * Note: this implementation will require the OMERO LDAP configuration to be defined together
- * with the external configuration.
+ * Note: this implementation is likely to require the OMERO LDAP configuration to be defined
+ * together with the external configuration.
  *
  * @author seb
  *
@@ -78,6 +82,27 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
     public boolean hasPassword(String user) {
         boolean chainResult = false;
 
+        // 0 - check the synchronizing provider "knows" about the user
+        boolean isUsernameSynchronizable = synchronizingProvider.hasUsername(user);
+
+        if (isUsernameSynchronizable) {
+            // the user is present in the reference data source - proceed with the chained password verification
+            chainResult = hasPasswordChain(user);
+        } else {
+            // the (reference) synchronizing provider is not aware of this username: disallow password ownership
+            log.info("[external_auth][chain] Chain hasPassword - Skipping unknown username in secondary source: {}", user);
+        }
+
+        return chainResult;
+    }
+
+    /**
+     * Default chain implementation once account existence checks have been performed.
+     * @see #hasPassword(String)
+     */
+    private boolean hasPasswordChain(String user) {
+        boolean chainResult = false;
+
         // 1 - check primary (LDAP) provider
         boolean primaryResult = primaryProvider.hasPassword(user);
 
@@ -108,6 +133,27 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
      */
     @Override
     public Boolean checkPassword(String user, String password, boolean readOnly) {
+        Boolean chainResult = null;
+
+        // 0 - check the synchronizing provider "knows" about the user
+        boolean isUsernameSynchronizable = synchronizingProvider.hasUsername(user);
+
+        if (isUsernameSynchronizable) {
+            // the user is present in the reference data source - proceed with the chained password verification
+            chainResult = checkPasswordChain(user, password, readOnly);
+        } else {
+            // the (reference) synchronizing provider is not aware of this username: disallow authentication
+            log.info("[external_auth][chain] Chain step-0 - Skipping unknown username in secondary source: {}", user);
+        }
+
+        return chainResult;
+    }
+
+    /**
+     * Default chain implementation once account existence checks have been performed.
+     * @see #checkPassword(String, String, boolean)
+     */
+    private Boolean checkPasswordChain(String user, String password, boolean readOnly) {
         Boolean chainResult = null;
 
         // 1 - check primary (LDAP) provider

@@ -108,10 +108,12 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         passwordProvider.changePassword(Data.USERNAME, Data.PASSWORD);
     }
 
-    /** First login of a user known to LDAP only */
+    /** First login of a user known to LDAP only
+     *  The new {@link SynchronizingPasswordProviders} behaviour prevents LDAP-only users from
+     *  logging in: to be "eligible" to password checking, they must exist in PPMS first. */
     @Test(groups = { Groups.INTEGRATION })
-    public void checkPasswordLdapAuthShouldSaveDn() {
-        String workDescription = "checkPasswordLdapAuthShouldSaveDn";
+    public void checkPasswordLdapAuthShouldBeIgnored() {
+        String workDescription = "checkPasswordLdapAuthShouldBeIgnored";
 
         Boolean result = (Boolean) getExecutor().execute(getLoginPrincipal(), new Executor.SimpleWork(this, workDescription) {
 
@@ -125,27 +127,17 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         });
 
         // check authentication succeeded
-        assertNotNull(result, "Non null results expected");
-        assertTrue(result, "Should auth ok");
+        assertNull(result, "Null auth result expected");
 
-        // check experimenter fields
-        Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.DEFAULT_USER);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), LdapUnit.DEFAULT_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), LdapUnit.DEFAULT_USER_SN, "Incorrect results");
-        assertEquals(experimenter.getEmail(), LdapUnit.DEFAULT_USER_EMAIL, "Incorrect results");
+        // check the absence of experimenter
+        try {
+            iAdmin.lookupExperimenter(LdapUnit.DEFAULT_USER);
 
-        // check LDAP password provider ownership
-        String dn = iLdap.findDN(LdapUnit.DEFAULT_USER);
-        assertNotNull(dn, "Non null results expected");
-        assertEquals(dn, LdapUnit.DEFAULT_USER_DN, "Incorrect results");
-
-        // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 2, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), LdapUnit.DEFAULT_GROUP, "Incorrect ppms group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system group");
+            fail("Should have thrown username api usage exception");
+        } catch(ApiUsageException e) {
+            boolean passTest = e.getMessage().matches("^No such experimenter: " + LdapUnit.DEFAULT_USER);
+            assertTrue(passTest, "Wrong api usage exception");
+        }
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.DEFAULT_USER, LdapUnit.DEFAULT_PWD);

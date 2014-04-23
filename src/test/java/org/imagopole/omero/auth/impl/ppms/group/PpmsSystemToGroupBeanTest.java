@@ -5,6 +5,7 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.List;
 
+import ome.model.internal.Permissions;
 import ome.security.auth.RoleProvider;
 
 import org.imagopole.omero.auth.TestsUtil;
@@ -56,7 +57,7 @@ public class PpmsSystemToGroupBeanTest extends UnitilsTestNG {
        ppmsServiceMock.assertInvoked().findSystemsByUserName(Data.USERNAME);
        roleProviderMock.assertNotInvoked().createGroup(
                        null,
-                       Data.PERMISSIONS_FOR_LEVEL,
+                       Permissions.USER_PRIVATE,
                        Data.GROUPS_STRICT_MODE);
        authConfigMock.assertNotInvoked().failOnDuplicateGroups();
        authConfigMock.assertNotInvoked().listExcludedGroups();

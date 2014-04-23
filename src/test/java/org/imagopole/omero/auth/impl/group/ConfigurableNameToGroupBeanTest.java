@@ -36,10 +36,6 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
     /** OMERO role provider mock collaborator */
     private Mock<RoleProvider> roleProviderMock;
 
-    // fixture data
-    private final static String PERMISSIONS_LEVEL = ConfigValues.PRIVATE;
-    private final static Permissions PERMISSIONS_FOR_LEVEL = Permissions.USER_PRIVATE;
-
     @BeforeMethod
     public void setupBeforeMethod() {
         authConfigMock.returns(Data.GROUPS_STRICT_MODE).failOnDuplicateGroups();
@@ -49,7 +45,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
     @Test
     public void shouldIgnoreNullGroupNamesList() {
        // define behaviour
-       newUserGroupBeanMock.returns(PERMISSIONS_LEVEL).getPermissionLevel();
+       newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(null).listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
 
        // run test
@@ -62,7 +58,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        newUserGroupBeanMock.assertInvoked().groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
        newUserGroupBeanMock.assertInvoked().listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
        newUserGroupBeanMock.assertNotInvoked().getExternalConfig();
-       roleProviderMock.assertNotInvoked().createGroup(null, PERMISSIONS_FOR_LEVEL, Data.GROUPS_STRICT_MODE);
+       roleProviderMock.assertNotInvoked().createGroup(null, Permissions.USER_PRIVATE, Data.GROUPS_STRICT_MODE);
        authConfigMock.assertNotInvoked().failOnDuplicateGroups();
        authConfigMock.assertNotInvoked().listExcludedGroups();
     }
@@ -71,7 +67,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
     public void shouldIgnoreOmeroSystemGroupsNames(String groupName) {
        // define behaviour
        List<NamedItem> items = Arrays.asList(new NamedItem[] { NamedItem.newItem(groupName) } );
-       newUserGroupBeanMock.returns(PERMISSIONS_LEVEL).getPermissionLevel();
+       newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(items).listItemsByUserName(Data.USERNAME, null);
 
        // run test
@@ -83,7 +79,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        assertTrue(result.isEmpty(), "Empty results expected");
        newUserGroupBeanMock.assertInvoked().groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
        newUserGroupBeanMock.assertInvoked().listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
-       roleProviderMock.assertNotInvoked().createGroup(groupName, PERMISSIONS_FOR_LEVEL, Data.GROUPS_STRICT_MODE);
+       roleProviderMock.assertNotInvoked().createGroup(groupName, Permissions.USER_PRIVATE, Data.GROUPS_STRICT_MODE);
        authConfigMock.assertInvoked().failOnDuplicateGroups();
        authConfigMock.assertInvoked().listExcludedGroups();
     }
@@ -93,7 +89,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        // define behaviour
        String groupName = "some.group.name";
        List<NamedItem> items = Arrays.asList(new NamedItem[] { NamedItem.newItem(groupName) } );
-       newUserGroupBeanMock.returns(PERMISSIONS_LEVEL).getPermissionLevel();
+       newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(items).listItemsByUserName(Data.USERNAME, null);
 
        // run test
@@ -105,7 +101,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        assertTrue(result.size() == 1, "One result expected");
        newUserGroupBeanMock.assertInvoked().groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
        newUserGroupBeanMock.assertInvoked().listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
-       roleProviderMock.assertInvoked().createGroup(groupName, PERMISSIONS_FOR_LEVEL, Data.GROUPS_STRICT_MODE);
+       roleProviderMock.assertInvoked().createGroup(groupName, Permissions.USER_PRIVATE, Data.GROUPS_STRICT_MODE);
        authConfigMock.assertInvoked().failOnDuplicateGroups();
        authConfigMock.assertInvoked().listExcludedGroups();
     }

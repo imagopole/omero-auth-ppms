@@ -6,8 +6,6 @@ package org.imagopole.omero.auth;
 import java.util.Arrays;
 import java.util.List;
 
-import ome.model.internal.Permissions;
-
 import org.imagopole.ppms.api.dto.PpmsGroup;
 import org.imagopole.ppms.api.dto.PpmsUser;
 
@@ -63,7 +61,6 @@ public class TestsUtil {
         public static final String USERNAME = "some.username";
         public static final String PASSWORD = "some.password";
         public static final boolean GROUPS_STRICT_MODE = true;
-        public static final Permissions PERMISSIONS_FOR_LEVEL = Permissions.USER_PRIVATE;
 
         /** Private constructor (utility class) */
         private Data() {

@@ -11,7 +11,6 @@ import java.util.Map;
 import ome.model.internal.Permissions;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
-import ome.security.auth.PersonContextMapper;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
@@ -31,19 +30,12 @@ public final class ConvertUtil {
     /** Application logs */
     private static final Logger LOG = LoggerFactory.getLogger(ConvertUtil.class);
 
-    /**
-     * Experimenter attribute for the LDAP DN field.
-     *
-     * @see PersonContextMapper#getDn(ome.model.meta.Experimenter)
-     * @see ExternalAuthConfig#seedLdapDn() */
-    public static final String DN_FIELD = "dn";
-
     /** CSV config separator. */
     private static final String COMMA = ",";
 
     /**
      * RWR_RA_ : all can read, user can write, group can annotate */
-    private static final Permissions PERMISSION_READ_ANNOTATE =
+    protected static final Permissions PERMISSION_READ_ANNOTATE =
         new Permissions(Permissions.GROUP_READABLE).grant(Role.GROUP, Right.ANNOTATE);
 
     /**

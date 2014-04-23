@@ -1,4 +1,4 @@
-package org.imagopole.omero.auth.impl.ppms;
+package org.imagopole.omero.auth.impl.ppms.user;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;

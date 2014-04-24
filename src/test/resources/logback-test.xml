@@ -38,6 +38,7 @@
   <logger name="ome" level="info"/>
   <logger name="ome.system.PreferenceContext" level="warn"/>
   <logger name="ome.services.util" level="warn"/>
+  <logger name="ome.services.util.ServerVersionCheck" level="info"/>
   <logger name="ome.formats" level="info"/>
   <logger name="omero" level="info"/>
   <logger name="omeis" level="info"/>

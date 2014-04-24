@@ -9,6 +9,7 @@ objectclass: organizationalUnit
 ou: People
 
 # assumed to be known to LDAP only, not to PPMS
+# assumed not present in OMERO initial database state
 dn: uid=jdoe,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson
 cn: John DOE
@@ -18,6 +19,7 @@ mail: john.doe@example.com
 userPassword: ldapunit
 
 # assumed to be known to both LDAP and PPMS
+# assumed not present in OMERO initial database state
 dn: uid=fbloggs,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson
 cn: Fred BLOGGS
@@ -26,4 +28,13 @@ givenName: Fred
 mail: fred.bloggs@example.com
 userPassword: bothunit
 
+# assumed to be known to both LDAP and PPMS
+# assumed to be present in OMERO initial database state
+dn: uid=jbloggs,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: Joe BLOGGS
+sn: BLOGGS
+givenName: Joe
+mail: joe.bloggs@example.com
+userPassword: omerounit
 

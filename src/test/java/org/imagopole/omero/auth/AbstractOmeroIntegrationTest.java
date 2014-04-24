@@ -157,8 +157,16 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
 
     @AfterClass
     public void tearDown() {
+        // release potentially lingering sessions
+        if (principalHolder.size() > 0) {
+            principalHolder.logout();
+        }
+        sessionManager.closeAll();
+
+        // shut down OMERO
         super.tearDown();
 
+        // shut down LDAP
         if (null != ldapServer) {
             log.debug("Stopping in-memory LDAP server: {}", ldapServer);
             ldapServer.shutDown(true);

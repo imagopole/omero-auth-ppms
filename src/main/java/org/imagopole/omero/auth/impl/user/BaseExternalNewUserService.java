@@ -84,6 +84,9 @@ public abstract class BaseExternalNewUserService
         this.roles = roles;
         this.config = config;
         this.roleProvider = roleProvider;
+
+        log.debug("[external_auth] Loaded: {} with config: [enabled:{} - sync_on_login:{} - new_group:{}]",
+                  getClass().getSimpleName(), config.isEnabled(), config.isSyncOnLogin(), config.getNewUserGroup());
     }
 
     /**

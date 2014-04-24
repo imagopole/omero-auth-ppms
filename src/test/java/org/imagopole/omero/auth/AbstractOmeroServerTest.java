@@ -69,11 +69,12 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
         // merge omero config with current system props
         Properties overrideProperties = new Properties(systemProperties);
         overrideProperties.putAll(props);
+        log.trace("Configuring OMERO.server with base properties: {}", overrideProperties);
 
         // subclasses config override hook
         setUpBeforeServerStartup(overrideProperties);
 
-        log.trace("Configuring OMERO.server with config properties: {}", overrideProperties);
+        log.trace("Configuring OMERO.server with custom config properties: {}", overrideProperties);
         this.configProperties = overrideProperties;
         System.setProperties(this.configProperties);
     }
@@ -94,7 +95,7 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
         log.debug("Loading OMERO.server managed context");
 
         this.omeroContext = OmeroContext.getManagedServerContext();
-        omeroContext.refresh();
+        omeroContext.refreshAll();
 
         log.debug("Loaded OMERO.server managed context: {}", omeroContext);
 
@@ -106,7 +107,7 @@ public abstract class AbstractOmeroServerTest extends UnitilsTestNG {
     public void tearDown() {
         if (null != omeroContext) {
             log.debug("Unloading OMERO.server managed context: {}", omeroContext);
-            omeroContext.close();
+            omeroContext.closeAll();
         }
     }
 

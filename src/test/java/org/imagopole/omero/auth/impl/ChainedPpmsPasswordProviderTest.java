@@ -82,8 +82,9 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         assertFalse(ldapConfig.isSyncOnLogin(), "Ldap config should not sync on login");
 
         assertTrue(ppmsConfig.isEnabled(), "Ppms config should be enabled");
-        assertTrue(ppmsConfig.isSyncOnLogin(), "Ppms config should sync on login");
-        // no sync on groups, use default group name
+        assertTrue(ppmsConfig.syncGroupsOnLogin(), "Ppms config should sync groups on login");
+        assertTrue(ppmsConfig.syncUserOnLogin(), "Ppms config should sync user on login");
+        // no dynamic sync on groups, use default group name
         assertEquals(ppmsConfig.getNewUserGroup(), PpmsUnit.DEFAULT_GROUP, "Ppms config bean incorrect");
     }
 

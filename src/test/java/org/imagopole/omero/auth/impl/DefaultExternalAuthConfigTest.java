@@ -20,7 +20,7 @@ public class DefaultExternalAuthConfigTest {
 
     @Test
     public void shortConstructorShouldConvertNullConfigMapToEmptyMap() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, true, "some-group-spec");
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
         Map<String, Object> map = config.getConfigMap();
 
         assertNotNull(map, "Non-null configMap expected");
@@ -30,7 +30,7 @@ public class DefaultExternalAuthConfigTest {
     @Test
     public void fullConstructorShouldConvertNullConfigMapToEmptyMap() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", null);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, null);
         Map<String, Object> map = config.getConfigMap();
 
         assertNotNull(map, "Non-null configMap expected");
@@ -39,7 +39,7 @@ public class DefaultExternalAuthConfigTest {
 
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void shortConstructorShouldReturnImmutableConfigMap() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, true, "some-group-spec");
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
         Map<String, Object> map = config.getConfigMap();
 
         assertNotNull(map, "Non-null configMap expected");
@@ -49,7 +49,7 @@ public class DefaultExternalAuthConfigTest {
     @Test(expectedExceptions = UnsupportedOperationException.class)
     public void fullConstructorShouldReturnImmutableConfigMap() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", new HashMap<String, Object>());
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, new HashMap<String, Object>());
         Map<String, Object> map = config.getConfigMap();
 
         assertNotNull(map, "Non-null configMap expected");
@@ -58,7 +58,7 @@ public class DefaultExternalAuthConfigTest {
 
     @Test
     public void shortConstructorShouldConvertNullEnabledToFalse() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(null, true, "some-group-spec");
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(null, "some-group-spec");
         boolean enabled = config.isEnabled();
 
         assertFalse(enabled, "False Boolean expected");
@@ -68,7 +68,7 @@ public class DefaultExternalAuthConfigTest {
     @SuppressWarnings("unchecked")
     public void fullConstructorShouldConvertNullEnabledToFalse() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(null, true, "some-group-spec", Collections.EMPTY_MAP);
+            new DefaultExternalAuthConfig(null, "some-group-spec", true, true, Collections.EMPTY_MAP);
         boolean enabled = config.isEnabled();
 
         assertFalse(enabled, "False Boolean expected");
@@ -76,25 +76,83 @@ public class DefaultExternalAuthConfigTest {
 
     @Test
     public void shortConstructorShouldConvertNullSyncToFalse() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, null, "some-group-spec");
-        boolean syncOnLogin = config.isSyncOnLogin();
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
+        boolean syncGroups = config.syncGroupsOnLogin();
+        boolean syncUser = config.syncUserOnLogin();
 
-        assertFalse(syncOnLogin, "False Boolean expected");
+        assertFalse(syncGroups, "False Boolean expected");
+        assertFalse(syncUser, "False Boolean expected");
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void fullConstructorShouldConvertNullSyncToFalse() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, null, "some-group-spec", Collections.EMPTY_MAP);
-        boolean syncOnLogin = config.isSyncOnLogin();
+            new DefaultExternalAuthConfig(true, "some-group-spec", null, null, Collections.EMPTY_MAP);
+        boolean syncGroups = config.syncGroupsOnLogin();
+        boolean syncUser = config.syncUserOnLogin();
 
-        assertFalse(syncOnLogin, "False Boolean expected");
+        assertFalse(syncGroups, "False Boolean expected");
+        assertFalse(syncUser, "False Boolean expected");
+    }
+
+    @Test
+    public void shortConstructorShouldDefaultSyncGroupsToNullSyncOnLogin() {
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
+        boolean syncGroups = config.syncGroupsOnLogin();
+
+        assertFalse(syncGroups, "False Boolean expected");
+    }
+
+    @Test
+    public void shortConstructorShouldDefaultSyncGroupsToFalseSync() {
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
+        boolean syncGroups = config.syncGroupsOnLogin();
+        boolean syncUser = config.syncUserOnLogin();
+
+        assertFalse(syncGroups, "False Boolean expected");
+        assertFalse(syncUser, "False Boolean expected");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void fullConstructorShouldConvertNullSyncGroupsToFalse() {
+        ExternalAuthConfig config =
+            new DefaultExternalAuthConfig(true, "some-group-spec", null, true, Collections.EMPTY_MAP);
+        boolean syncGroups = config.syncGroupsOnLogin();
+
+        assertFalse(syncGroups, "False Boolean expected");
+    }
+
+    @Test
+    public void shortConstructorShouldDefaultSyncUserToNullSyncOnLogin() {
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
+        boolean syncUser = config.syncUserOnLogin();
+
+        assertFalse(syncUser, "False Boolean expected");
+    }
+
+    @Test
+    public void shortConstructorShouldDefaultSyncUserToFalseSyncOnLogin() {
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "some-group-spec");
+        boolean syncUser = config.syncUserOnLogin();
+
+        assertFalse(syncUser, "False Boolean expected");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void fullConstructorShouldConvertNullSyncUserToFalse() {
+        ExternalAuthConfig config =
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, null, Collections.EMPTY_MAP);
+        boolean syncUser = config.syncUserOnLogin();
+
+        assertFalse(syncUser, "False Boolean expected");
     }
 
     @Test
     public void shortConstructorShouldNotConvertNullGroupSpec() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, true, null);
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, null);
         String groupSpec = config.getNewUserGroup();
 
         assertNull(groupSpec, "Null groupSpec expected");
@@ -104,7 +162,7 @@ public class DefaultExternalAuthConfigTest {
     @SuppressWarnings("unchecked")
     public void fullConstructorShouldNotConvertNullGroupSpec() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, null, Collections.EMPTY_MAP);
+            new DefaultExternalAuthConfig(true, null, true, true, Collections.EMPTY_MAP);
         String groupSpec = config.getNewUserGroup();
 
         assertNull(groupSpec, "Null groupSpec expected");
@@ -112,7 +170,7 @@ public class DefaultExternalAuthConfigTest {
 
     @Test
     public void shortConstructorShouldNullifyBlankGroupSpec() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, true, "  ");
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, "  ");
         String groupSpec = config.getNewUserGroup();
 
         assertNull(groupSpec, "Null groupSpec expected");
@@ -122,7 +180,7 @@ public class DefaultExternalAuthConfigTest {
     @SuppressWarnings("unchecked")
     public void fullConstructorShouldNullifyBlankGroupSpec() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "  ", Collections.EMPTY_MAP);
+            new DefaultExternalAuthConfig(true, "  ", true, true, Collections.EMPTY_MAP);
         String groupSpec = config.getNewUserGroup();
 
         assertNull(groupSpec, "Null groupSpec expected");
@@ -130,7 +188,7 @@ public class DefaultExternalAuthConfigTest {
 
     @Test
     public void shortConstructorShouldTrimGroupSpec() {
-        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, true, " some-group-spec ");
+        ExternalAuthConfig config = new DefaultExternalAuthConfig(true, " some-group-spec ");
         String groupSpec = config.getNewUserGroup();
 
         assertEquals(groupSpec, "some-group-spec", "Incorrect groupSpec");
@@ -140,7 +198,7 @@ public class DefaultExternalAuthConfigTest {
     @SuppressWarnings("unchecked")
     public void fullConstructorShouldTrimGroupSpec() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, " some-group-spec ", Collections.EMPTY_MAP);
+            new DefaultExternalAuthConfig(true, " some-group-spec ", true, true, Collections.EMPTY_MAP);
         String groupSpec = config.getNewUserGroup();
 
         assertEquals(groupSpec, "some-group-spec", "Incorrect groupSpec");
@@ -149,7 +207,7 @@ public class DefaultExternalAuthConfigTest {
     @Test
     public void listExcludedGroupsShouldReturnEmpyListByDefault() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", null);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, null);
 
         List<String> result = config.listExcludedGroups();
 
@@ -160,7 +218,7 @@ public class DefaultExternalAuthConfigTest {
     @Test
     public void listExcludedUsersShouldReturnEmpyListByDefault() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", null);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, null);
 
         List<String> result = config.listExcludedUsers();
 
@@ -171,7 +229,7 @@ public class DefaultExternalAuthConfigTest {
     @Test
     public void failOnDuplicateGroupsShouldReturnFalseByDefault() {
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", null);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, null);
 
         boolean result = config.failOnDuplicateGroups();
 
@@ -185,7 +243,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put(ConfigKeys.EXCLUDE_GROUPS, expected);
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         List<String> result = config.listExcludedGroups();
 
@@ -201,7 +259,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put(ConfigKeys.EXCLUDE_USERS, expected);
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         List<String> result = config.listExcludedUsers();
 
@@ -217,7 +275,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put("some.invalid.key", excluded);
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         List<String> result = config.listExcludedGroups();
 
@@ -232,7 +290,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put("some.invalid.key", excluded);
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         List<String> result = config.listExcludedGroups();
 
@@ -246,7 +304,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put(ConfigKeys.FAIL_ON_DUPLICATE_GROUPS, "true");
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         boolean result = config.failOnDuplicateGroups();
 
@@ -259,7 +317,7 @@ public class DefaultExternalAuthConfigTest {
         fixture.put("some.invalid.key", "true");
 
         ExternalAuthConfig config =
-            new DefaultExternalAuthConfig(true, true, "some-group-spec", fixture);
+            new DefaultExternalAuthConfig(true, "some-group-spec", true, true, fixture);
 
         boolean result = config.failOnDuplicateGroups();
 

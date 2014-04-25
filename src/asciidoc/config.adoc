@@ -16,8 +16,9 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 |===================================================================================================
 |Setting                            |Format               |Description
 |+omero.ppms.config+                |true,false           |
-|+omero.ppms.sync_on_login+         |true,false           |
 |+omero.ppms.new_user_group+        |:bean: or string     |
+|+omero.ppms.sync_groups+           |true,false           |
+|+omero.ppms.sync_user+             |true,false           |
 |+omero.ppms.include_facilities+    |1,2,3                |
 |+omero.ppms.include_system_types+  |confocal,biphoton    |
 |+omero.ppms.add_user_groups+       |Default,Shared       |

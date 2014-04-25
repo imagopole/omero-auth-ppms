@@ -51,8 +51,9 @@
   <bean id="ppmsOmeroConfiguration" name="externalAuthConfiguration"
         class="org.imagopole.omero.auth.impl.DefaultExternalAuthConfig">
       <constructor-arg name="enabled"      value="#{ systemProperties[ 'omero.ppms.config'          ] }"/>
-      <constructor-arg name="syncOnLogin"  value="#{ systemProperties[ 'omero.ppms.sync_on_login'   ] }"/>
       <constructor-arg name="newUserGroup" value="#{ systemProperties[ 'omero.ppms.new_user_group'  ] }" />
+      <constructor-arg name="syncGroups"   value="#{ systemProperties[ 'omero.ppms.sync_groups'     ] }"/>
+      <constructor-arg name="syncUser"     value="#{ systemProperties[ 'omero.ppms.sync_user'       ] }"/>
 
       <!-- Additional config parameters for the external data replication logic -->
       <constructor-arg name="configMap">

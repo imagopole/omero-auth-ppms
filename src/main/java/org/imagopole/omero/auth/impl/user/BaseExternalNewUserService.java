@@ -85,8 +85,9 @@ public abstract class BaseExternalNewUserService
         this.config = config;
         this.roleProvider = roleProvider;
 
-        log.debug("[external_auth] Loaded: {} with config: [enabled:{} - sync_on_login:{} - new_group:{}]",
-                  getClass().getSimpleName(), config.isEnabled(), config.isSyncOnLogin(), config.getNewUserGroup());
+        log.debug("[external_auth] Loaded: {} with config: [enabled:{} - sync_groups:{} - sync_user:{} - new_group:{}]",
+                  getClass().getSimpleName(), config.isEnabled(),
+                  config.syncGroupsOnLogin(), config.syncUserOnLogin(), config.getNewUserGroup());
     }
 
     /**
@@ -188,11 +189,13 @@ public abstract class BaseExternalNewUserService
      */
     @Override
     public void synchronizeUserFromExternalSource(String username) {
-        boolean syncOnLogin = config.isSyncOnLogin();
-        log.debug("[external_auth] Synchronization enabled for attributes and memberships for user: {} ? {}",
-                   username, syncOnLogin);
+        boolean syncGroupsOnLogin = config.syncGroupsOnLogin();
+        boolean syncUserOnLogin = config.syncUserOnLogin();
+        log.debug("[external_auth] Synchronization settings for user:{} [groups:{} - user:{}]",
+                   username, syncGroupsOnLogin, syncUserOnLogin);
 
-        if (!syncOnLogin) {
+        boolean noSyncOnLogin = !syncGroupsOnLogin && !syncUserOnLogin;
+        if (noSyncOnLogin) {
             return;
         }
 
@@ -208,32 +211,39 @@ public abstract class BaseExternalNewUserService
             return;
         }
 
-        List<Long> externalGroups = loadExternalGroups(username);
-
         Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
         log.debug("[external_auth] looked up synchronization candidate {} - local: {}",
                   username, omeExp);
 
-        List<Object[]> omeGroups = iQuery.projection(
-                "select g.id from ExperimenterGroup g " +
-                "join g.groupExperimenterMap m join m.child e where e.id = :id",
-                new Parameters().addId(omeExp.getId()));
+        if (syncGroupsOnLogin) {
 
-        Set<Long> omeGroupIds = new HashSet<Long>();
-        for (Object[] objs : omeGroups) {
-            omeGroupIds.add((Long) objs[0]);
+            List<Long> externalGroups = loadExternalGroups(username);
+
+            List<Object[]> omeGroups = iQuery.projection(
+                    "select g.id from ExperimenterGroup g " +
+                    "join g.groupExperimenterMap m join m.child e where e.id = :id",
+                    new Parameters().addId(omeExp.getId()));
+
+            Set<Long> omeGroupIds = new HashSet<Long>();
+            for (Object[] objs : omeGroups) {
+                omeGroupIds.add((Long) objs[0]);
+            }
+
+            // let the subclass decide on membership policy
+            // eg. groups from external source take precedence, merge both datasets, etc.
+            synchronizeGroupsMemberships(
+                            omeExp,
+                            Collections.unmodifiableSet(omeGroupIds),
+                            Collections.unmodifiableList(externalGroups));
+
         }
 
-        // let the subclass decide on membership policy
-        // eg. groups from external source take precedence, merge both datasets, etc.
-        // TODO: have two separate options: sync user + sync group?
-        synchronizeGroupsMemberships(
-                        omeExp,
-                        Collections.unmodifiableSet(omeGroupIds),
-                        Collections.unmodifiableList(externalGroups));
+        if (syncUserOnLogin) {
 
-        // provide a default implementation for user details synchronization
-        synchronizeUserAttributes(username, omeExp, externalExp);
+            // provide a default implementation for user details synchronization
+            synchronizeUserAttributes(username, omeExp, externalExp);
+
+        }
 
         iUpdate.flush();
     }

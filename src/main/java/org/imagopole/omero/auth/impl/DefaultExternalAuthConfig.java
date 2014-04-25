@@ -18,8 +18,11 @@ import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
 /**
  * Default external auth config implementation, modeled after the existing {@link LdapConfig},
  * with the following differences:
- * - retains a subset of shared settings with the LDAP config (ie. <code>enabled</code>,
- *   <code>syncOnLogin</code> and <code>newUserGroup</code>)
+ * - retains a subset of shared settings with the LDAP config (ie. <code>enabled</code> and
+ *   <code>newUserGroup</code>).
+ * - replaces <code>syncOnLogin</code> with two distinct settings to independently control the
+ *   synchronization behaviour: only the user's groups and memberships, or only the user's
+ *   attributes, or both.
  * - adds optional extra methods to allow filtering of user and group accounts - typically to
  *   exclude "protected" OMERO internal accounts (but not restricted to).
  * - adds optional extra methods to allow pre-seeding of LDAP-aware accounts - allows switching
@@ -36,13 +39,16 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
     /** Should the authentication extension be activated in OMERO.server */
     private final Boolean enabled;
 
-    /** Should the authentication extension perform user and groups synchronization upon login */
-    private final Boolean syncOnLogin;
-
     /** Group specifier as already in use by {@link LdapConfig} and {@link LdapImpl}.
      *  Only supports non-LDAP specific parameters, ie:
      *  literal group name and <code>:bean:<spring_bean_name></code> constructs. */
     private final String newUserGroup;
+
+    /** Should the authentication extension perform groups and memberships synchronization upon login. */
+    private final Boolean syncGroups;
+
+    /** Should the authentication extension perform user attributes synchronization upon login. */
+    private final Boolean syncUser;
 
     /** Additional implementation-specific configuration settings for management by the client. */
     private Map<String, Object> configMap;
@@ -50,29 +56,36 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
     /**
      * Parameterized constructor.
      *
+     * Groups and user synchronisation on login is disabled.
+     *
      * @param enabled should the authentication extension be activated
-     * @param syncOnLogin should the authentication extension perform user and groups synchronization upon login
      * @param newUserGroup group specifier as already in use by {@link LdapConfig}
      */
-    public DefaultExternalAuthConfig(Boolean enabled, Boolean syncOnLogin, String newUserGroup) {
-        this(enabled, syncOnLogin, newUserGroup, null);
+    public DefaultExternalAuthConfig(Boolean enabled, String newUserGroup) {
+        this(enabled, newUserGroup, Boolean.FALSE, Boolean.FALSE, null);
     }
 
     /**
      * Full constructor.
      *
      * @param enabled should the authentication extension be activated
-     * @param syncOnLogin should the authentication extension perform user and groups synchronization upon login
      * @param newUserGroup group specifier as already in use by {@link LdapConfig}
+     * @param syncGroups should the authentication extension perform groups synchronization upon login
+     * @param syncUser should the authentication extension perform user synchronization upon login
      * @param configMap additional implementation-specific configuration settings
      */
     @SuppressWarnings("unchecked")
     public DefaultExternalAuthConfig(
-        Boolean enabled, Boolean syncOnLogin, String newUserGroup, Map<String, Object> configMap) {
+                    Boolean enabled,
+                    String newUserGroup,
+                    Boolean syncGroups,
+                    Boolean syncUser,
+                    Map<String, Object> configMap) {
         super();
         this.enabled = (null == enabled ? Boolean.FALSE : enabled);
-        this.syncOnLogin = (null == syncOnLogin ? Boolean.FALSE : syncOnLogin);
         this.newUserGroup = ((null == newUserGroup || newUserGroup.trim().isEmpty()) ? null : newUserGroup.trim());
+        this.syncGroups = (null == syncGroups ? Boolean.FALSE : syncGroups);
+        this.syncUser = (null == syncUser ? Boolean.FALSE : syncUser);
         this.configMap = (null == configMap ? Collections.EMPTY_MAP : Collections.unmodifiableMap(configMap));
     }
 
@@ -82,14 +95,6 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
     @Override
     public boolean isEnabled() {
         return this.enabled;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isSyncOnLogin() {
-        return this.syncOnLogin;
     }
 
     /**
@@ -143,6 +148,22 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
         }
 
         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean syncGroupsOnLogin() {
+        return this.syncGroups;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean syncUserOnLogin() {
+        return this.syncUser;
     }
 
     /**

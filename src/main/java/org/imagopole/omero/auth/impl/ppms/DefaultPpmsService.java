@@ -14,10 +14,10 @@ import org.imagopole.omero.auth.api.ppms.PpmsUserDetails;
 import org.imagopole.ppms.api.PumapiClient;
 import org.imagopole.ppms.api.PumapiException;
 import org.imagopole.ppms.api.dto.PpmsGroup;
+import org.imagopole.ppms.api.dto.PpmsPrivilege;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
-import org.imagopole.ppms.api.dto.PumapiParams.PpmsSystemPrivilege;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,7 +179,7 @@ public class DefaultPpmsService implements PpmsService {
 
             for (PpmsUserPrivilege grantedSystem : grantedIntruments) {
                 Long systemId = grantedSystem.getSystemId();
-                PpmsSystemPrivilege systemPrivilege = grantedSystem.getPrivilege();
+                PpmsPrivilege systemPrivilege = grantedSystem.getPrivilege();
 
                 // lookup the systems' details (name, description...)
                 PpmsSystem system = getPpmsClient().getSystem(systemId);
@@ -189,8 +189,8 @@ public class DefaultPpmsService implements PpmsService {
                     boolean isAutonomyRequired =
                         (null != system.getAutonomyRequired() && system.getAutonomyRequired());
 
-                    boolean isAutonomyGranted = PpmsSystemPrivilege.Autonomous.equals(systemPrivilege);
-                    boolean isUserActivated = !PpmsSystemPrivilege.Deactivated.equals(systemPrivilege);
+                    boolean isAutonomyGranted = PpmsPrivilege.Autonomous.equals(systemPrivilege);
+                    boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
 
                     // the instrument on this facility requires autonomy before user access
                     if (isAutonomyRequired) {

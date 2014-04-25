@@ -14,10 +14,10 @@ import net.sf.ehcache.Element;
 import org.imagopole.omero.auth.TestsUtil.Data;
 import org.imagopole.ppms.api.PumapiClient;
 import org.imagopole.ppms.api.dto.PpmsGroup;
+import org.imagopole.ppms.api.dto.PpmsPrivilege;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
-import org.imagopole.ppms.api.dto.PumapiParams.PpmsSystemPrivilege;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -75,7 +75,7 @@ public class CachingPumapiClientTest extends UnitilsTestNG {
         // define behaviour
         String username = Data.USERNAME;
         List<PpmsUserPrivilege> fixture =
-            Arrays.asList(new PpmsUserPrivilege[] { new PpmsUserPrivilege(555L, PpmsSystemPrivilege.Novice) });
+            Arrays.asList(new PpmsUserPrivilege[] { new PpmsUserPrivilege(555L, PpmsPrivilege.Novice) });
         pumapiClientMockDelegate.returns(fixture).getUserRights(username);
 
         // run test

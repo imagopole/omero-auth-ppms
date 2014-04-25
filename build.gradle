@@ -151,12 +151,11 @@ dependencies {
     }
     testRuntime 'postgresql:postgresql:' + versions.postgresJdbc
 
-    benchCompile sourceSets.main.output
-    benchCompile configurations.testCompile
-    benchCompile sourceSets.test.output
-    benchRuntime configurations.testRuntime
     benchCompile 'org.databene:contiperf:' + versions.contiperf
     benchCompile 'org.springframework:spring-test:' + profileVersions.spring.core
+    benchCompile sourceSets.main.output
+    benchCompile configurations.testCompile
+    benchRuntime configurations.testRuntime
 }
 
 eclipse {

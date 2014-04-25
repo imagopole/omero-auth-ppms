@@ -196,10 +196,9 @@ public abstract class BaseExternalNewUserService
             return;
         }
 
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
         Experimenter externalExp = findExperimenterFromExternalSource(username);
-        log.debug("[external_auth] looked up synchronization candidate {} - local: {} - remote: {}",
-                  username, omeExp, externalExp);
+        log.debug("[external_auth] looked up synchronization candidate {} - remote: {}",
+                  username, externalExp);
 
         // difference from LdapImpl here: do not attempt to synchronize a user if it is
         // local to OMERO only, or not found in the remote data source
@@ -210,6 +209,10 @@ public abstract class BaseExternalNewUserService
         }
 
         List<Long> externalGroups = loadExternalGroups(username);
+
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
+        log.debug("[external_auth] looked up synchronization candidate {} - local: {}",
+                  username, omeExp);
 
         List<Object[]> omeGroups = iQuery.projection(
                 "select g.id from ExperimenterGroup g " +
@@ -228,6 +231,35 @@ public abstract class BaseExternalNewUserService
                         omeExp,
                         Collections.unmodifiableSet(omeGroupIds),
                         Collections.unmodifiableList(externalGroups));
+
+        // provide a default implementation for user details synchronization
+        synchronizeUserAttributes(username, omeExp, externalExp);
+
+        iUpdate.flush();
+    }
+
+    /**
+     * Synchronize the experimenter's attributes from the external source to OMERO.
+     *
+     * The <code>omeExp</code> attributes are directly modified.
+     *
+     * Fields currently synchronized:
+     * <ul>
+     *   <li>{@link Experimenter.FIRSTNAME}</li>
+     *   <li>{@link Experimenter.MIDDLENAME}</li>
+     *   <li>{@link Experimenter.LASTNAME}</li>
+     *   <li>{@link Experimenter.EMAIL}</li>
+     *   <li>{@link Experimenter.INSTITUTION}</li>
+     * </ul>
+     *
+     * @param username the experimenter's login
+     * @param omeExp the OMERO user
+     * @param externalExp the external user
+     */
+    public void synchronizeUserAttributes(
+                    final String username,
+                    final Experimenter omeExp,
+                    final Experimenter externalExp) {
 
         List<String> fields = Arrays.asList(
                 Experimenter.FIRSTNAME,
@@ -254,7 +286,6 @@ public abstract class BaseExternalNewUserService
                 }
             }
         }
-        iUpdate.flush();
     }
 
     /**
@@ -285,7 +316,7 @@ public abstract class BaseExternalNewUserService
             return groups;
         }
 
-        if (!grpSpec.startsWith(BaseExternalNewUserService.GROUPSPEC_BEAN)) {
+        if (!grpSpec.startsWith(GROUPSPEC_BEAN)) {
             log.debug("[external_auth] Configuring externalNewUserGroup as literal value: {}", grpSpec);
 
             // The default case is the original logic: use the spec as name
@@ -293,7 +324,7 @@ public abstract class BaseExternalNewUserService
             return groups; // EARLY EXIT!
         }
 
-        final String data = grpSpec.substring(grpSpec.lastIndexOf(BaseExternalNewUserService.GROUPSPEC_DELIM) + 1);
+        final String data = grpSpec.substring(grpSpec.lastIndexOf(GROUPSPEC_DELIM) + 1);
         log.debug("[external_auth] Configuring externalNewUserGroup as javabean: {}", data);
         if (null == data || data.trim().isEmpty()) {
             throw new ValidationException(grpSpec + " spec currently not supported.");

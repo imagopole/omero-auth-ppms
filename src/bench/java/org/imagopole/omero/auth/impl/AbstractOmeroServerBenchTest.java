@@ -80,7 +80,7 @@ public class AbstractOmeroServerBenchTest {
         LOG.debug("Loading OMERO.server managed context");
 
         omeroContext = OmeroContext.getManagedServerContext();
-        omeroContext.refreshAllIfNecessary();
+        omeroContext.refreshAll();
 
         LOG.debug("Loaded OMERO.server managed context: {}", omeroContext);
     }

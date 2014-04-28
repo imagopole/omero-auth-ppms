@@ -71,6 +71,17 @@ public abstract class BaseExternalNewUserService
     /** Group spec for a spring bean - eg. <code> :bean:<beanName> </code>. */
     public static final String GROUPSPEC_BEAN = GROUPSPEC_DELIM + "bean" + GROUPSPEC_DELIM;
 
+    /** List of experimenter fields to be synchronized on login. */
+    public static final List<String> EXPERIMENTER_FIELD_NAMES = Arrays.asList(
+                    Experimenter.FIRSTNAME,
+                    Experimenter.MIDDLENAME,
+                    Experimenter.LASTNAME,
+                    Experimenter.EMAIL,
+                    Experimenter.INSTITUTION);
+
+    /** Delimiter for the experimenter's instance field names. */
+    public static final String EXPERIMENTER_FIELD_DELIM = "_";
+
     /**
      * Full constructor.
      *
@@ -271,15 +282,8 @@ public abstract class BaseExternalNewUserService
                     final Experimenter omeExp,
                     final Experimenter externalExp) {
 
-        List<String> fields = Arrays.asList(
-                Experimenter.FIRSTNAME,
-                Experimenter.MIDDLENAME,
-                Experimenter.LASTNAME,
-                Experimenter.EMAIL,
-                Experimenter.INSTITUTION);
-
-        for (String field : fields) {
-            String fieldname = field.substring(field.indexOf("_") + 1);
+        for (String field : EXPERIMENTER_FIELD_NAMES) {
+            String fieldname = field.substring(field.indexOf(EXPERIMENTER_FIELD_DELIM) + 1);
             String ome = (String) omeExp.retrieve(field);
             String ldap = (String) externalExp.retrieve(field);
             log.debug("[external_auth] Synchronizing field '{}' [{} -> {}]", fieldname, ldap, ome);

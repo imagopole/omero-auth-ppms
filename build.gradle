@@ -169,6 +169,9 @@ eclipse {
 test {
     useTestNG()
 
+    // set arguments for the test JVM(s)
+    jvmArgs "-XX:MaxPermSize=256m"
+
     //testLogging.showStandardStreams = true
 
     // provide a default local output directory for omero.data.dir

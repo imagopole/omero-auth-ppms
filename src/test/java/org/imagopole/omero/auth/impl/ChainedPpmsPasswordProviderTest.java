@@ -121,6 +121,35 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
        }
     }
 
+    private void checkUserAttributes(
+                    Experimenter experimenter,
+                    String expectedFirstName,
+                    String expectedLastName,
+                    String expectedEmail) {
+
+        assertNotNull(experimenter, "Non null results expected");
+        assertEquals(experimenter.getFirstName(), expectedFirstName, "Incorrect results");
+        assertEquals(experimenter.getLastName(), expectedLastName, "Incorrect results");
+        assertEquals(experimenter.getEmail(), expectedEmail, "Incorrect results");
+    }
+
+    private void checkMemberships(
+                    Experimenter experimenter,
+                    int expectedCount,
+                    String... expectedNames) {
+
+        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
+        assertNotNull(memberships, "Non null results expected");
+        assertEquals(memberships.size(), expectedCount, "Incorrect memberships count");
+
+        for (int i = 0; i < expectedNames.length; ++i) {
+            String actualGroupName = memberships.get(i).getName();
+            String expectedGroupName = expectedNames[i];
+
+            assertEquals(actualGroupName, expectedGroupName, "Incorrect group");
+        }
+    }
+
     private Boolean doLogin(final String username, final String password, final String workDescription) {
        Boolean result = (Boolean) getExecutor().execute(getLoginPrincipal(), new Executor.SimpleWork(this, workDescription) {
 
@@ -210,20 +239,15 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(PpmsUnit.DEFAULT_USER);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), PpmsUnit.DEFAULT_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), PpmsUnit.DEFAULT_USER_SN, "Incorrect results");
-        assertEquals(experimenter.getEmail(), PpmsUnit.DEFAULT_USER_EMAIL, "Incorrect results");
+        checkUserAttributes(experimenter,
+                            PpmsUnit.DEFAULT_USER_GN, PpmsUnit.DEFAULT_USER_SN, PpmsUnit.DEFAULT_USER_EMAIL);
 
         // check the absence of LDAP password provider ownership
         checkLdapDnAbsent(PpmsUnit.DEFAULT_USER);
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 2, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), PpmsUnit.DEFAULT_GROUP, "Incorrect ppms group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system group");
+        checkMemberships(experimenter,
+                         2, PpmsUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
@@ -251,10 +275,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.PPMS_USER);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), LdapUnit.PPMS_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), LdapUnit.PPMS_USER_SN, "Incorrect results");
-        assertEquals(experimenter.getEmail(), LdapUnit.PPMS_USER_EMAIL, "Incorrect results");
+        checkUserAttributes(experimenter,
+                            LdapUnit.PPMS_USER_GN, LdapUnit.PPMS_USER_SN, LdapUnit.PPMS_USER_EMAIL);
 
         // check LDAP password provider ownership
         String dn = iLdap.findDN(LdapUnit.PPMS_USER);
@@ -262,12 +284,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         assertEquals(dn, LdapUnit.PPMS_USER_DN, "Incorrect results");
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 3, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), LdapUnit.DEFAULT_GROUP, "Incorrect ldap group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system group");
-        assertEquals(memberships.get(2).getName(), PpmsUnit.DEFAULT_GROUP, "Incorrect ppm group");
+        checkMemberships(experimenter,
+                         3, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
@@ -300,19 +318,14 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.KNOWN_USER);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), OmeroUnit.KNOWN_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), OmeroUnit.KNOWN_USER_SN, "Incorrect results");
-        assertEquals(experimenter.getEmail(), OmeroUnit.KNOWN_USER_EMAIL, "Incorrect results");
+        checkUserAttributes(experimenter,
+                            OmeroUnit.KNOWN_USER_GN, OmeroUnit.KNOWN_USER_SN, OmeroUnit.KNOWN_USER_EMAIL);
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 4, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), OmeroUnit.DEFAULT_GROUP, "Incorrect default group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system group");
-        assertEquals(memberships.get(2).getName(), OmeroUnit.PPMS_DUPLICATE_GROUP, "Incorrect ppms duplicate group");
-        assertEquals(memberships.get(3).getName(), PpmsUnit.DEFAULT_GROUP, "Incorrect ppms default group");
+        checkMemberships(experimenter,
+                         4,
+                         OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(),
+                         OmeroUnit.PPMS_DUPLICATE_GROUP, PpmsUnit.DEFAULT_GROUP);
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
@@ -343,18 +356,12 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(PpmsUnit.OMERO_USER);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), PpmsUnit.OMERO_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), PpmsUnit.OMERO_USER_SN, "Incorrect results");
-        assertEquals(experimenter.getEmail(), PpmsUnit.OMERO_USER_EMAIL, "Incorrect results");
+        checkUserAttributes(experimenter,
+                            PpmsUnit.OMERO_USER_GN, PpmsUnit.OMERO_USER_SN, PpmsUnit.OMERO_USER_EMAIL);
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 3, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), OmeroUnit.DEFAULT_GROUP, "Incorrect default group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system group");
-        assertEquals(memberships.get(2).getName(), PpmsUnit.DEFAULT_GROUP, "Incorrect ppms default group");
+        checkMemberships(experimenter,
+                         3, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
 
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
@@ -379,19 +386,15 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(guestUser);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), OmeroUnit.GUEST_USER_GN, "Incorrect results");
-        assertEquals(experimenter.getLastName(), OmeroUnit.GUEST_USER_SN, "Incorrect results");
-        assertNull(experimenter.getEmail(), "Incorrect results");
+        checkUserAttributes(experimenter,
+                            OmeroUnit.GUEST_USER_GN, OmeroUnit.GUEST_USER_SN, null);
 
         // check the absence of LDAP password provider ownership
         checkLdapDnAbsent(guestUser);
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 1, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), getRoles().getGuestGroupName(), "Incorrect guest group");
+        checkMemberships(experimenter,
+                         1, getRoles().getGuestGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(guestUser, OmeroUnit.GUEST_USER_PWD);
@@ -416,20 +419,15 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
 
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(rootUser);
-        assertNotNull(experimenter, "Non null results expected");
-        assertEquals(experimenter.getFirstName(), rootUser, "Incorrect results");
-        assertEquals(experimenter.getLastName(), rootUser, "Incorrect results");
-        assertNull(experimenter.getEmail(), "Incorrect results");
+        checkUserAttributes(experimenter,
+                            rootUser, rootUser, null);
 
         // check the absence of LDAP password provider ownership
         checkLdapDnAbsent(rootUser);
 
         // check default group membership
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 2, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), getRoles().getSystemGroupName(), "Incorrect system/r group");
-        assertEquals(memberships.get(1).getName(), getRoles().getUserGroupName(), "Incorrect system/u group");
+        checkMemberships(experimenter,
+                         2, getRoles().getSystemGroupName(), getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(rootUser, OmeroUnit.ROOT_USER_PWD);
@@ -454,11 +452,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTes
         // check experimenter has not been updated (no added membership)
         Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.DEFAULT_USER);
 
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
-        assertEquals(memberships.size(), 2, "Incorrect memberships count");
-        assertEquals(memberships.get(0).getName(), getRoles().getUserGroupName(), "Incorrect system group");
-        assertEquals(memberships.get(1).getName(), OmeroUnit.DEFAULT_GROUP, "Incorrect default group");
+        checkMemberships(experimenter,
+                         2, getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP);
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.DEFAULT_USER, OmeroUnit.DEFAULT_PWD);

@@ -21,12 +21,34 @@ public class TestsUtil {
 
     public static final String TEST_EVENT_TYPE = "Test";
 
+    public static final String WRANGLE_PREFIX = "ppms+";
+
     public static final PpmsGroup newPpmsUnit(String name) {
         PpmsGroup unit = new PpmsGroup();
         unit.setUnitname(name);
         unit.setUnitlogin("testng::" + name);
 
         return unit;
+    }
+
+    /** Modifies the experimenter fields. */
+    public static final PpmsUser wrangleFields(PpmsUser user) {
+        PpmsUser wrangledUser = new PpmsUser();
+        wrangledUser.setLogin(user.getLogin());
+        wrangledUser.setFname(wrangle(user.getFname()));
+        wrangledUser.setLname(wrangle(user.getLname()));
+        wrangledUser.setEmail(wrangle(user.getEmail()));
+        return wrangledUser;
+    }
+
+    /** Simple user with first name and last name identical to login. */
+    public static final PpmsUser newSimpleUser(String login, String email) {
+        PpmsUser user = new PpmsUser();
+        user.setLogin(login);
+        user.setFname(login);
+        user.setLname(login);
+        user.setEmail(email);
+        return user;
     }
 
     /** A user supposed missing in the OMERO and LDAP databases, and present in PPMS. */
@@ -85,6 +107,18 @@ public class TestsUtil {
         return fooUser;
     }
 
+    public static final String wrangle(String input) {
+        String result = null;
+
+        if (null != input) {
+
+            result = WRANGLE_PREFIX.concat(input);
+
+        }
+
+        return result;
+    }
+
     // test fixtures data
     public static final class Data {
         public static final String USERNAME = "some.username";
@@ -129,11 +163,13 @@ public class TestsUtil {
         public static final String OMERO_DB_USER = "omero.db.user";
         public static final String OMERO_DB_PASS = "omero.db.pass";
 
-        public static final String FLYWAY_DB_BASE_URL = "flyway.db.base_url";
-        public static final String FLYWAY_DB_INIT_ON_MIGRATE = "flyway.db.init_on_migrate";
+        public static final String FLYWAY_DB_BASE_URL         = "flyway.db.base_url";
+        public static final String FLYWAY_DB_INIT_ON_MIGRATE  = "flyway.db.init_on_migrate";
         public static final String FLYWAY_DB_CLEAN_ON_MIGRATE = "flyway.db.clean_on_migrate";
 
-        public static final String OMERO_PPMS_NEW_USER_GROUP = "omero.ppms.new_user_group";
+        public static final String PPMS_NEW_USER_GROUP = "omero.ppms.new_user_group";
+        public static final String PPMS_SYNC_GROUPS    = "omero.ppms.sync_groups";
+        public static final String PPMS_SYNC_USER      = "omero.ppms.sync_user";
 
         /** Private constructor (utility class) */
         private Env() {

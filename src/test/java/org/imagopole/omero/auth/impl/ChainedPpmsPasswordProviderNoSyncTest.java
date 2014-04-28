@@ -1,20 +1,20 @@
 package org.imagopole.omero.auth.impl;
 
-import static org.imagopole.omero.auth.TestsUtil.newSimpleUser;
 import static org.imagopole.omero.auth.TestsUtil.newFooUser;
 import static org.imagopole.omero.auth.TestsUtil.newKnownUser;
 import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
-import static org.imagopole.omero.auth.TestsUtil.wrangle;
 import static org.imagopole.omero.auth.TestsUtil.wrangleFields;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
-import ome.model.meta.Experimenter;
-import ome.security.auth.PasswordChangeException;
 
-import org.imagopole.omero.auth.TestsUtil.Data;
+import java.util.Properties;
+
+import ome.model.meta.Experimenter;
+
+import org.imagopole.omero.auth.TestsUtil.Env;
 import org.imagopole.omero.auth.TestsUtil.Groups;
 import org.imagopole.omero.auth.TestsUtil.LdapUnit;
 import org.imagopole.omero.auth.TestsUtil.OmeroUnit;
@@ -22,7 +22,17 @@ import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.testng.annotations.Test;
 
-public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPasswordProviderTest {
+public class ChainedPpmsPasswordProviderNoSyncTest extends AbstractChainedPpmsPasswordProviderTest {
+
+    @Override
+    protected void setUpBeforeServerStartup(Properties systemProps) {
+        // disable all synchronization (groups + user)
+        systemProps.put(Env.PPMS_SYNC_GROUPS, "false");
+        systemProps.put(Env.PPMS_SYNC_USER, "false");
+
+        // startup server with overridden properties
+        super.setUpBeforeServerStartup(systemProps);
+    }
 
     @Override
     protected void checkSetupConfig() {
@@ -30,50 +40,21 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
         assertFalse(ldapConfig.isSyncOnLogin(), "Ldap config should not sync on login");
 
         assertTrue(ppmsConfig.isEnabled(), "Ppms config should be enabled");
-        assertTrue(ppmsConfig.syncGroupsOnLogin(), "Ppms config should sync groups on login");
-        assertTrue(ppmsConfig.syncUserOnLogin(), "Ppms config should sync user on login");
+        assertFalse(ppmsConfig.syncGroupsOnLogin(), "Ppms config should not sync groups on login");
+        assertFalse(ppmsConfig.syncUserOnLogin(), "Ppms config should not sync user on login");
         // no dynamic sync on groups, use default group name
         assertEquals(ppmsConfig.getNewUserGroup(), PpmsUnit.DEFAULT_GROUP, "Ppms config bean incorrect");
-    }
-
-    @Test(groups = { Groups.INTEGRATION }, expectedExceptions = { PasswordChangeException.class })
-    public void changePasswordShouldBeDisabled() throws PasswordChangeException {
-        passwordProvider.changePassword(Data.USERNAME, Data.PASSWORD);
-    }
-
-    /** First login of a user known to LDAP only
-     *
-     *  The new {@link SynchronizingPasswordProviders} behaviour prevents LDAP-only users from
-     *  logging in: to be "eligible" to password checking, they must exist in PPMS first.
-     * */
-    @Test(groups = { Groups.INTEGRATION })
-    public void loginLdapAuthShouldNotCreateAccount() {
-        String workDescription = "loginLdapAuthShouldNotCreateAccount";
-
-        // test precondition: check experimenter does not exists beforehand
-        checkUserAbsent(LdapUnit.DEFAULT_USER);
-
-        Boolean result = doLogin(LdapUnit.DEFAULT_USER, LdapUnit.DEFAULT_PWD, workDescription);
-
-        // check authentication was not possible (user must be in both ppms + ldap, and is missing in OMERO)
-        assertNull(result, "Null auth result expected");
-
-        // check the absence of experimenter
-        checkUserAbsent(LdapUnit.DEFAULT_USER);
-
-        // check invocations
-        pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.DEFAULT_USER, LdapUnit.DEFAULT_PWD);
     }
 
     /** First login of a user known to PPMS only
      *
      *  If existing user - may be:
-     *    - LDAP-enabled + PPMS
-     *    - OMERO-local + PPMS
+     *    - LDAP-enabled + PPMS => loginPpmsLdapAuthShouldNotCreateAccountIfKnownUser
+     *    - OMERO-local + PPMS => loginPpmsOmeroAuthShouldNotCreateAccountIfKnownUser
      **/
     @Test(groups = { Groups.INTEGRATION })
-    public void loginPpmsAuthShouldCreateAccountIfNewUser() {
-        String workDescription = "loginPpmsAuthShouldCreateAccountIfNewUser";
+    public void loginPpmsAuthShouldKeepPpmsFields() {
+        String workDescription = "loginPpmsAuthShouldKeepPpmsFields";
 
         // test precondition: check experimenter does not exists beforehand
         checkUserAbsent(PpmsUnit.DEFAULT_USER);
@@ -91,10 +72,7 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
         checkUserAttributes(experimenter,
                             PpmsUnit.DEFAULT_USER_GN, PpmsUnit.DEFAULT_USER_SN, PpmsUnit.DEFAULT_USER_EMAIL);
 
-        // check the absence of LDAP password provider ownership
-        checkLdapDnAbsent(PpmsUnit.DEFAULT_USER);
-
-        // check default group membership (user created by PPMS user bean)
+        // check unmodified group memberships (user created by PPMS user bean)
         checkMemberships(experimenter,
                          2, PpmsUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
@@ -104,8 +82,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of a user known to both LDAP and PPMS */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginPpmsLdapAuthShouldCreateAccountIfNewUser() {
-        String workDescription = "loginPpmsLdapAuthShouldCreateAccountIfNewUser";
+    public void loginPpmsLdapAuthShouldKeepLdapFields() {
+        String workDescription = "loginPpmsLdapAuthShouldKeepLdapFields";
 
         // test precondition: check experimenter does not exists beforehand
         checkUserAbsent(LdapUnit.PPMS_USER);
@@ -121,15 +99,11 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.PPMS_USER);
         checkUserAttributes(experimenter,
-                            wrangle(LdapUnit.PPMS_USER_GN), wrangle(LdapUnit.PPMS_USER_SN),
-                            wrangle(LdapUnit.PPMS_USER_EMAIL));
+                            LdapUnit.PPMS_USER_GN, LdapUnit.PPMS_USER_SN, LdapUnit.PPMS_USER_EMAIL);
 
-        // check LDAP password provider ownership
-        checkLdapDnPresent(LdapUnit.PPMS_USER, LdapUnit.PPMS_USER_DN);
-
-        // check default group membership
+        // check default group membership (user created by LdapImpl)
         checkMemberships(experimenter,
-                         3, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
+                         2, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
@@ -137,19 +111,16 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of an existing user known to LDAP, PPMS and OMERO */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginPpmsLdapAuthShouldNotCreateAccountIfKnownUser() {
-        String workDescription = "loginPpmsLdapAuthShouldNotCreateAccountIfKnownUser";
+    public void loginPpmsLdapAuthShouldKeepOmeroFields() {
+        String workDescription = "loginPpmsLdapAuthShouldKeepOmeroFields";
 
         // test precondition: check experimenter exists beforehand
         checkUserPresent(OmeroUnit.KNOWN_USER);
 
-        // test precondition: check experimenter fields from DB
-        Experimenter precondition = iAdmin.lookupExperimenter(OmeroUnit.KNOWN_USER);
-        checkUserAttributes(precondition,
-                            OmeroUnit.KNOWN_USER_GN, OmeroUnit.KNOWN_USER_SN, null);
-
         // test precondition: LDAP enabled
-        checkLdapDnPresent(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_USER_DN);
+        String dn = iLdap.findDN(OmeroUnit.KNOWN_USER);
+        assertNotNull(dn, "Non null results expected");
+        assertEquals(dn, OmeroUnit.KNOWN_USER_DN, "Incorrect results");
 
         PpmsUser knownUser = wrangleFields(newKnownUser());
         knownUser.setActive(true);
@@ -159,17 +130,16 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
         checkLoginSuccess(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD, workDescription);
 
-        // check experimenter fields
+        // check experimenter fields (not sync'd)
         Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.KNOWN_USER);
         checkUserAttributes(experimenter,
-                            wrangle(OmeroUnit.KNOWN_USER_GN), wrangle(OmeroUnit.KNOWN_USER_SN),
-                            wrangle(OmeroUnit.KNOWN_USER_EMAIL));
+                            OmeroUnit.KNOWN_USER_GN, OmeroUnit.KNOWN_USER_SN, null);
 
         // check default group membership
         checkMemberships(experimenter,
-                         4,
-                         OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(),
-                         OmeroUnit.PPMS_DUPLICATE_GROUP, PpmsUnit.DEFAULT_GROUP);
+                         3,
+                         getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP,
+                         OmeroUnit.PPMS_DUPLICATE_GROUP);
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
@@ -177,8 +147,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of an existing user known to PPMS and OMERO, but not LDAP */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginPpmsOmeroAuthShouldNotCreateAccountIfKnownUser() {
-        String workDescription = "loginPpmsOmeroAuthShouldNotCreateAccountIfKnownUser";
+    public void loginPpmsOmeroAuthShouldKeepOmeroFields() {
+        String workDescription = "loginPpmsOmeroAuthShouldKeepOmeroFields";
 
         // test precondition: check experimenter exists beforehand
         checkUserPresent(PpmsUnit.OMERO_USER);
@@ -186,12 +156,7 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
         // test precondition: LDAP disabled
         checkLdapDnAbsent(PpmsUnit.OMERO_USER);
 
-        // test precondition: check experimenter fields from DB
-        Experimenter precondition = iAdmin.lookupExperimenter(PpmsUnit.OMERO_USER);
-        checkUserAttributes(precondition,
-                            PpmsUnit.OMERO_USER_GN, PpmsUnit.OMERO_USER_SN, null);
-
-        PpmsUser fooUser = wrangleFields(newFooUser());
+        PpmsUser fooUser = newFooUser();
         fooUser.setActive(true);
 
         pumapiClientMock.returns(fooUser).getUser(PpmsUnit.OMERO_USER);
@@ -202,12 +167,11 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
         // check experimenter fields
         Experimenter experimenter = iAdmin.lookupExperimenter(PpmsUnit.OMERO_USER);
         checkUserAttributes(experimenter,
-                            wrangle(PpmsUnit.OMERO_USER_GN), wrangle(PpmsUnit.OMERO_USER_SN),
-                            wrangle(PpmsUnit.OMERO_USER_EMAIL));
+                            PpmsUnit.OMERO_USER_GN, PpmsUnit.OMERO_USER_SN, null);
 
         // check default group membership
         checkMemberships(experimenter,
-                         3, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
+                         2, getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP);
 
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
@@ -215,18 +179,14 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of an OMERO system ("protected") guest user */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginOmeroGuestAuthShouldNotCreateAccount() {
-        String workDescription = "loginOmeroGuestAuthShouldNotCreateAccount";
+    public void loginOmeroGuestAuthShouldKeepOmeroFields() {
+        String workDescription = "loginOmeroGuestAuthShouldKeepOmeroFields";
 
         // no test precondition: guest always exists
 
         final String guestUser = getRoles().getGuestName();
 
-        PpmsUser ppmsGuestUser = wrangleFields(newSimpleUser(guestUser, null));
-        ppmsGuestUser.setActive(true);
-
-        pumapiClientMock.returns(ppmsGuestUser).getUser(guestUser);
-        pumapiClientMock.returns(true).authenticate(guestUser, OmeroUnit.GUEST_USER_PWD);
+        pumapiClientMock.returns(null).getUser(guestUser);
 
         checkLoginSuccess(guestUser, OmeroUnit.GUEST_USER_PWD, workDescription);
 
@@ -248,18 +208,14 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of an OMERO system ("protected") root user */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginOmeroRootAuthShouldNotCreateAccount() {
-        String workDescription = "loginOmeroRootAuthShouldNotCreateAccount";
+    public void loginOmeroRootAuthShouldKeepOmeroFields() {
+        String workDescription = "loginOmeroRootAuthShouldKeepOmeroFields";
 
         // no test precondition: root always exists
 
         final String rootUser = getRoles().getRootName();
 
-        PpmsUser ppmsRootUser = wrangleFields(newSimpleUser(rootUser, null));
-        ppmsRootUser.setActive(true);
-
-        pumapiClientMock.returns(ppmsRootUser).getUser(rootUser);
-        pumapiClientMock.returns(true).authenticate(rootUser, OmeroUnit.ROOT_USER_PWD);
+        pumapiClientMock.returns(null).getUser(rootUser);
 
         checkLoginSuccess(rootUser, OmeroUnit.ROOT_USER_PWD, workDescription);
 
@@ -281,8 +237,8 @@ public class ChainedPpmsPasswordProviderTest extends AbstractChainedPpmsPassword
 
     /** First login of an OMERO local user, unknown to both LDAP and PPMS */
     @Test(groups = { Groups.INTEGRATION })
-    public void loginOmeroLocalAuthShouldNotCreateAccount() {
-        String workDescription = "loginOmeroLocalAuthShouldNotCreateAccount";
+    public void loginOmeroLocalAuthShouldKeepOmeroFields() {
+        String workDescription = "loginOmeroLocalAuthShouldKeepOmeroFields";
 
         // test precondition: check experimenter exists beforehand
         checkUserPresent(OmeroUnit.DEFAULT_USER);

@@ -1,6 +1,6 @@
 -- pre-existing OMERO user, supposed known to both LDAP and PPMS
 insert into experimenter (id,permissions,version,omename,firstname,lastname)
-        values (ome_nextval('seq_experimenter'),0,0,'jbloggs','Joe','Bloggs');
+        values (ome_nextval('seq_experimenter'),0,0,'jbloggs','Joe','BLOGGS');
 
 -- extra pre-existing local groups
 insert into experimentergroup (id,permissions,version,name)

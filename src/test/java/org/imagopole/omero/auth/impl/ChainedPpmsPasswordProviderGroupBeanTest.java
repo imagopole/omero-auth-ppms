@@ -1,0 +1,226 @@
+package org.imagopole.omero.auth.impl;
+
+import static org.imagopole.omero.auth.TestsUtil.autonomousRights;
+import static org.imagopole.omero.auth.TestsUtil.inactiveRights;
+import static org.imagopole.omero.auth.TestsUtil.newOpenSystem;
+import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
+import static org.imagopole.omero.auth.TestsUtil.newRestrictedSystem;
+import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
+import static org.imagopole.omero.auth.TestsUtil.newSharedUserB;
+import static org.imagopole.omero.auth.TestsUtil.noviceRights;
+import static org.imagopole.omero.auth.TestsUtil.superUserRights;
+import static org.imagopole.omero.auth.TestsUtil.systemName;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+
+import ome.model.meta.Experimenter;
+
+import org.imagopole.omero.auth.TestsUtil.Env;
+import org.imagopole.omero.auth.TestsUtil.Groups;
+import org.imagopole.omero.auth.TestsUtil.LdapUnit;
+import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
+import org.imagopole.ppms.api.dto.PpmsUser;
+import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpmsPasswordProviderTest {
+
+    @Override
+    protected void setUpBeforeServerStartup(Properties systemProps) {
+        // disable user synchronization only, keep groups sync on
+        systemProps.put(Env.PPMS_SYNC_GROUPS, "true");
+        systemProps.put(Env.PPMS_SYNC_USER, "false");
+
+        // configure a group synchronization bean
+        systemProps.put(Env.PPMS_NEW_USER_GROUP, PpmsUnit.AUTONOMY_GROUP_BEAN);
+
+        // configure facilities and system types whitelists
+        systemProps.put(Env.PPMS_INCLUDE_FACILITIES, PpmsUnit.FACILITIES_WHITELIST);
+        systemProps.put(Env.PPMS_INCLUDE_SYSTEM_TYPES, PpmsUnit.SYSTEM_TYPES_WHITELIST);
+
+        // startup server with overridden properties
+        super.setUpBeforeServerStartup(systemProps);
+    }
+
+    @Override
+    protected void checkSetupConfig() {
+        assertTrue(ldapConfig.isEnabled(), "Ldap config should be enabled");
+        assertFalse(ldapConfig.isSyncOnLogin(), "Ldap config should not sync on login");
+
+        assertTrue(ppmsConfig.isEnabled(), "Ppms config should be enabled");
+        assertTrue(ppmsConfig.syncGroupsOnLogin(), "Ppms config should sync groups on login");
+        assertFalse(ppmsConfig.syncUserOnLogin(), "Ppms config should not sync user on login");
+        // dynamic PPMS groups sync
+        assertEquals(ppmsConfig.getNewUserGroup(), PpmsUnit.AUTONOMY_GROUP_BEAN, "Ppms config bean incorrect");
+    }
+
+    @DataProvider(name="insufficientRightsDataProvider")
+    private Object[][] provideInsufficientSystemPrivileges() {
+        return new Object[][] {
+            { null                               },
+            { Collections.emptyList()            },
+            { inactiveRights(PpmsUnit.OPEN_SYSTEM_ID) },
+            { noviceRights(PpmsUnit.OPEN_SYSTEM_ID)   }
+        };
+    }
+
+    @DataProvider(name="grantedRightsDataProvider")
+    private Object[][] provideGrantedSystemPrivileges() {
+        return new Object[][] {
+            { autonomousRights(PpmsUnit.OPEN_SYSTEM_ID) },
+            { superUserRights(PpmsUnit.OPEN_SYSTEM_ID)  }
+        };
+    }
+
+    /** First login of a user known to PPMS only, with no granted instrument
+     *
+     *  If existing user - may be:
+     *    - LDAP-enabled + PPMS
+     *    - OMERO-local + PPMS
+     **/
+    @Test(groups = { Groups.INTEGRATION }, dataProvider = "insufficientRightsDataProvider")
+    public void loginPpmsAuthNoRightsShouldNotCreateAccount(List<PpmsUserPrivilege> userRights) {
+        String workDescription = "loginPpmsAuthNoRightsShouldNotCreateAccount";
+
+        // test precondition: check experimenter does not exists beforehand
+        checkUserAbsent(PpmsUnit.DEFAULT_USER);
+
+        PpmsUser ppmsUnitUser = newPpmsUser();
+        ppmsUnitUser.setActive(true);
+
+        pumapiClientMock.returns(ppmsUnitUser).getUser(PpmsUnit.DEFAULT_USER);
+        pumapiClientMock.returns(true).authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
+
+        pumapiClientMock.returns(userRights).getUserRights(PpmsUnit.DEFAULT_USER);
+
+        // check authentication was not possible: no system granted => no group
+        checkLoginNulled(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD, workDescription);
+
+        // check the absence of experimenter (no group => failed creation)
+        checkUserAbsent(LdapUnit.DEFAULT_USER);
+
+        // check invocations
+        pumapiClientMock.assertInvoked().authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
+        pumapiClientMock.assertInvoked().getUserRights(PpmsUnit.DEFAULT_USER);
+        if (null == userRights || userRights.isEmpty()) {
+            pumapiClientMock.assertNotInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+        } else {
+            pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+        }
+    }
+
+    /** First login of a user known to PPMS only, with one granted instrument
+     *
+     *  If existing user - may be:
+     *    - LDAP-enabled + PPMS
+     *    - OMERO-local + PPMS
+     */
+    @Test(groups = { Groups.INTEGRATION }, dataProvider = "grantedRightsDataProvider")
+    public void loginPpmsAuthWithRightsShouldCreateAccount(List<PpmsUserPrivilege> userRights) {
+        String workDescription = "loginPpmsAuthWithRightsShouldCreateAccount";
+
+        // disable test precondition (dataPRovider)
+        // checkUserAbsent(PpmsUnit.DEFAULT_USER);
+
+        PpmsUser ppmsUnitUser = newPpmsUser();
+        ppmsUnitUser.setActive(true);
+
+        pumapiClientMock.returns(ppmsUnitUser).getUser(PpmsUnit.DEFAULT_USER);
+        pumapiClientMock.returns(true).authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
+
+        pumapiClientMock.returns(userRights).getUserRights(PpmsUnit.DEFAULT_USER);
+        pumapiClientMock.returns(newOpenSystem()).getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+
+        checkLoginSuccess(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD, workDescription);
+
+        checkLdapDnAbsent(PpmsUnit.DEFAULT_USER);
+
+        // check granted memberships
+        Experimenter experimenter = iAdmin.lookupExperimenter(PpmsUnit.DEFAULT_USER);
+        checkMemberships(experimenter,
+                         2, systemName(PpmsUnit.OPEN_SYSTEM_ID), getRoles().getUserGroupName());
+
+        // check invocations
+        pumapiClientMock.assertInvoked().authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
+        pumapiClientMock.assertInvoked().getUserRights(PpmsUnit.DEFAULT_USER);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+    }
+
+    /** First login of a user known to both LDAP and PPMS, with one granted instrument on an
+     *  "open system" (ie. which does not require autonomy). */
+    @Test(groups = { Groups.INTEGRATION })
+    public void loginPpmsLdapAuthShouldCreateAccountForNoviceOnOpenSystem() {
+        String workDescription = "loginPpmsLdapAuthShouldCreateAccountForNoviceOnOpenSystem";
+
+        // test precondition: check experimenter does not exists beforehand
+        checkUserAbsent(LdapUnit.PPMS_USER);
+
+        PpmsUser sharedUser = newSharedUser();
+        sharedUser.setActive(true);
+
+        pumapiClientMock.returns(sharedUser).getUser(LdapUnit.PPMS_USER);
+        pumapiClientMock.returns(true).authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
+
+        pumapiClientMock.returns(noviceRights(PpmsUnit.OPEN_SYSTEM_ID)).getUserRights(LdapUnit.PPMS_USER);
+        pumapiClientMock.returns(newOpenSystem()).getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+
+        checkLoginSuccess(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD, workDescription);
+
+        // check LDAP password provider ownership
+        checkLdapDnPresent(LdapUnit.PPMS_USER, LdapUnit.PPMS_USER_DN);
+
+        // check granted memberships
+        Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.PPMS_USER);
+
+        checkMemberships(experimenter,
+                         3, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName(),
+                         systemName(PpmsUnit.OPEN_SYSTEM_ID));
+
+        // check invocations
+        pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
+        pumapiClientMock.assertInvoked().getUserRights(LdapUnit.PPMS_USER);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+    }
+
+    /** First login of a user known to both LDAP and PPMS, with one granted instrument on a
+     *  "restricted system" (ie. which does require autonomy). */
+    @Test(groups = { Groups.INTEGRATION })
+    public void loginPpmsLdapAuthShouldCreateAccountForNoviceOnRestrictedSystem() {
+        String workDescription = "loginPpmsLdapAuthShouldCreateAccountForNoviceOnRestrictedSystem";
+
+        // test precondition: check experimenter does not exists beforehand
+        checkUserAbsent(LdapUnit.PPMS_USER_B);
+
+        PpmsUser sharedUserB = newSharedUserB();
+        sharedUserB.setActive(true);
+
+        pumapiClientMock.returns(sharedUserB).getUser(LdapUnit.PPMS_USER_B);
+        pumapiClientMock.returns(true).authenticate(LdapUnit.PPMS_USER_B, LdapUnit.PPMS_PWD);
+
+        pumapiClientMock.returns(noviceRights(PpmsUnit.RESTRICTED_SYSTEM_ID)).getUserRights(LdapUnit.PPMS_USER_B);
+        pumapiClientMock.returns(newRestrictedSystem()).getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
+
+        checkLoginSuccess(LdapUnit.PPMS_USER_B, LdapUnit.PPMS_PWD_B, workDescription);
+
+        // check LDAP password provider ownership
+        checkLdapDnPresent(LdapUnit.PPMS_USER_B, LdapUnit.PPMS_USER_DN_B);
+
+        // check granted memberships
+        Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.PPMS_USER_B);
+
+        checkMemberships(experimenter,
+                         2, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
+
+        // check invocations
+        pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER_B, LdapUnit.PPMS_PWD_B);
+        pumapiClientMock.assertInvoked().getUserRights(LdapUnit.PPMS_USER_B);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
+    }
+
+}

@@ -3,11 +3,15 @@
  */
 package org.imagopole.omero.auth;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.imagopole.ppms.api.dto.PpmsGroup;
+import org.imagopole.ppms.api.dto.PpmsPrivilege;
+import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
+import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
 
 
 /**
@@ -22,6 +26,7 @@ public class TestsUtil {
     public static final String TEST_EVENT_TYPE = "Test";
 
     public static final String WRANGLE_PREFIX = "ppms+";
+    public static final String SYSTEM_PREFIX = "ppms_system_";
 
     public static final PpmsGroup newPpmsUnit(String name) {
         PpmsGroup unit = new PpmsGroup();
@@ -81,6 +86,15 @@ public class TestsUtil {
         return sharedUser;
     }
 
+    public static final PpmsUser newSharedUserB() {
+        PpmsUser sharedUser = new PpmsUser();
+        sharedUser.setLogin(LdapUnit.PPMS_USER_B);
+        sharedUser.setFname(LdapUnit.PPMS_USER_GN_B);
+        sharedUser.setLname(LdapUnit.PPMS_USER_SN_B);
+        sharedUser.setEmail(LdapUnit.PPMS_USER_EMAIL_B);
+        return sharedUser;
+    }
+
     /** A user supposed present in the OMERO, LDAP and PPMS databases. */
     public static final PpmsUser newKnownUser() {
         PpmsUser knownUser = new PpmsUser();
@@ -105,6 +119,58 @@ public class TestsUtil {
         fooUser.setLname(PpmsUnit.OMERO_USER_SN);
         fooUser.setEmail(PpmsUnit.OMERO_USER_EMAIL);
         return fooUser;
+    }
+
+    public static final List<PpmsUserPrivilege> inactiveRights(long systemId) {
+        return rightsList(systemId, PpmsPrivilege.Deactivated);
+    }
+
+    public static final List<PpmsUserPrivilege> noviceRights(long systemId) {
+        return rightsList(systemId, PpmsPrivilege.Novice);
+    }
+
+    public static final List<PpmsUserPrivilege> autonomousRights(long systemId) {
+        return rightsList(systemId, PpmsPrivilege.Autonomous);
+    }
+
+    public static final List<PpmsUserPrivilege> superUserRights(long systemId) {
+        return rightsList(systemId, PpmsPrivilege.SuperUser);
+    }
+
+    public static List<PpmsUserPrivilege> rightsList(long systemId, PpmsPrivilege privilegeLevel) {
+        List<PpmsUserPrivilege> result = new ArrayList<PpmsUserPrivilege>();
+        PpmsUserPrivilege privilege = new PpmsUserPrivilege(systemId, privilegeLevel);
+        result.add(privilege);
+        return result;
+    }
+
+    public static final PpmsSystem newSystem(long systemId, String name) {
+        PpmsSystem ppmsSystem = new PpmsSystem();
+        ppmsSystem.setSystemId(systemId);
+        ppmsSystem.setName(systemName(systemId));
+        ppmsSystem.setType(PpmsUnit.SYSTEM_TYPE);
+        ppmsSystem.setCoreFacilityRef(PpmsUnit.FACILITY_ID);
+        return ppmsSystem;
+    }
+
+    /** A PPMS system with no required autonomy. */
+    public static final PpmsSystem newOpenSystem() {
+        PpmsSystem ppmsSystem =
+            newSystem(PpmsUnit.OPEN_SYSTEM_ID, systemName(PpmsUnit.OPEN_SYSTEM_ID));
+        return ppmsSystem;
+    }
+
+    /** A PPMS system which requires autonomy for usage. */
+    public static final PpmsSystem newRestrictedSystem() {
+        PpmsSystem ppmsSystem =
+            newSystem(PpmsUnit.RESTRICTED_SYSTEM_ID, systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
+
+        ppmsSystem.setAutonomyRequired(true);
+        return ppmsSystem;
+    }
+
+    public static String systemName(long systemId) {
+        return SYSTEM_PREFIX + systemId;
     }
 
     public static final String wrangle(String input) {
@@ -167,9 +233,11 @@ public class TestsUtil {
         public static final String FLYWAY_DB_INIT_ON_MIGRATE  = "flyway.db.init_on_migrate";
         public static final String FLYWAY_DB_CLEAN_ON_MIGRATE = "flyway.db.clean_on_migrate";
 
-        public static final String PPMS_NEW_USER_GROUP = "omero.ppms.new_user_group";
-        public static final String PPMS_SYNC_GROUPS    = "omero.ppms.sync_groups";
-        public static final String PPMS_SYNC_USER      = "omero.ppms.sync_user";
+        public static final String PPMS_NEW_USER_GROUP       = "omero.ppms.new_user_group";
+        public static final String PPMS_SYNC_GROUPS          = "omero.ppms.sync_groups";
+        public static final String PPMS_SYNC_USER            = "omero.ppms.sync_user";
+        public static final String PPMS_INCLUDE_FACILITIES   = "omero.ppms.include_facilities";
+        public static final String PPMS_INCLUDE_SYSTEM_TYPES = "omero.ppms.include_system_types";
 
         /** Private constructor (utility class) */
         private Env() {
@@ -188,7 +256,7 @@ public class TestsUtil {
         public static final int LISTEN_PORT = 10389;
         public static final String BASE_DN = "dc=example,dc=com";
         public static final String COMMON_LDIF_LOCATION = "ldap/migration/common.ldif";
-        public static final int COMMON_LDIF_MIN_ENTRIES = 5; // 1 dc + 1 ou + 3 users
+        public static final int COMMON_LDIF_MIN_ENTRIES = 6; // 1 dc + 1 ou + 4 users
 
         /** The "DEFAULT_USER" is assumed to be known to LDAP only, not to PPMS. */
         public static final String DEFAULT_USER = "jdoe";
@@ -206,6 +274,14 @@ public class TestsUtil {
         public static final String PPMS_USER_SN = "BLOGGS";
         public static final String PPMS_USER_EMAIL = "fred.bloggs@example.com";
         public static final String PPMS_USER_DN = "uid=fbloggs,ou=People,dc=example,dc=com";
+
+        /** The "PPMS_USER" is assumed to be known to both LDAP and PPMS. */
+        public static final String PPMS_USER_B = "kbloggs";
+        public static final String PPMS_PWD_B = "bothunit";
+        public static final String PPMS_USER_GN_B = "Karl";
+        public static final String PPMS_USER_SN_B = "BLOGGS";
+        public static final String PPMS_USER_EMAIL_B = "karl.bloggs@example.com";
+        public static final String PPMS_USER_DN_B = "uid=kbloggs,ou=People,dc=example,dc=com";
 
         /** Private constructor (utility class) */
         private LdapUnit() {
@@ -236,6 +312,15 @@ public class TestsUtil {
         public static final String OMERO_USER_SN = "DOO";
         public static final String OMERO_USER_EMAIL = "foo.doo@corner.net";
         public static final String OMERO_GROUP = "?";
+
+        public static final long OPEN_SYSTEM_ID = 111L;
+        public static final long RESTRICTED_SYSTEM_ID = 333L;
+        public static final long FACILITY_ID = 22L;
+        public static final String SYSTEM_TYPE = "some.system.type";
+
+        public static final String AUTONOMY_GROUP_BEAN = ":bean:ppmsSystemAutonomyToGroupBean";
+        public static final String FACILITIES_WHITELIST = "," + FACILITY_ID;
+        public static final String SYSTEM_TYPES_WHITELIST = SYSTEM_TYPE + ",";
 
         /** Private constructor (utility class) */
         private PpmsUnit() {

@@ -29,6 +29,16 @@ mail: fred.bloggs@example.com
 userPassword: bothunit
 
 # assumed to be known to both LDAP and PPMS
+# assumed not present in OMERO initial database state
+dn: uid=kbloggs,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+cn: Karl BLOGGS
+sn: BLOGGS
+givenName: Karl
+mail: karl.bloggs@example.com
+userPassword: bothunit
+
+# assumed to be known to both LDAP and PPMS
 # assumed to be present in OMERO initial database state
 dn: uid=jbloggs,ou=People,dc=example,dc=com
 objectClass: inetOrgPerson

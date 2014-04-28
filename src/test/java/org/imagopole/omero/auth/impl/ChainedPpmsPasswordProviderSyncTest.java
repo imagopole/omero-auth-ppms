@@ -1,15 +1,14 @@
 package org.imagopole.omero.auth.impl;
 
-import static org.imagopole.omero.auth.TestsUtil.newSimpleUser;
 import static org.imagopole.omero.auth.TestsUtil.newFooUser;
 import static org.imagopole.omero.auth.TestsUtil.newKnownUser;
 import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
+import static org.imagopole.omero.auth.TestsUtil.newSimpleUser;
 import static org.imagopole.omero.auth.TestsUtil.wrangle;
 import static org.imagopole.omero.auth.TestsUtil.wrangleFields;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import ome.model.meta.Experimenter;
 import ome.security.auth.PasswordChangeException;
@@ -53,10 +52,8 @@ public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPass
         // test precondition: check experimenter does not exists beforehand
         checkUserAbsent(LdapUnit.DEFAULT_USER);
 
-        Boolean result = doLogin(LdapUnit.DEFAULT_USER, LdapUnit.DEFAULT_PWD, workDescription);
-
         // check authentication was not possible (user must be in both ppms + ldap, and is missing in OMERO)
-        assertNull(result, "Null auth result expected");
+        checkLoginNulled(LdapUnit.DEFAULT_USER, LdapUnit.DEFAULT_PWD, workDescription);
 
         // check the absence of experimenter
         checkUserAbsent(LdapUnit.DEFAULT_USER);

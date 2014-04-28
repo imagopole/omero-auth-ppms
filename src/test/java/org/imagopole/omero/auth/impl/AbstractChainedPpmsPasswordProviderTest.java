@@ -2,6 +2,7 @@ package org.imagopole.omero.auth.impl;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
@@ -143,6 +144,13 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
         // check authentication succeeded
         assertNotNull(result, "Non null results expected");
         assertTrue(result, "Should auth ok");
+    }
+
+    protected void checkLoginNulled(final String username, final String password, final String workDescription) {
+        Boolean result = doLogin(username, password, workDescription);
+
+        // check authentication succeeded
+        assertNull(result, "Null result expected - auth status unknown");
     }
 
     protected Boolean doLogin(final String username, final String password, final String workDescription) {

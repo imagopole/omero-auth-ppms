@@ -1,0 +1,34 @@
+name: OmeroPpmsAuthTestSuite
+
+tests:
+
+  - name: Util
+    classes:
+      - org.imagopole.omero.auth.util.ConvertUtilTest
+
+  - name: Group
+    classes:
+      - org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBeanTest
+
+  - name: User
+    classes:
+      - org.imagopole.omero.auth.impl.user.BaseExternalNewUserServiceTest
+
+  - name: Ppms
+    classes:
+      - org.imagopole.omero.auth.impl.ppms.group.PpmsSystemToGroupBeanTest
+      - org.imagopole.omero.auth.impl.ppms.group.PpmsUnitToGroupBeanTest
+      - org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserServiceTest
+      - org.imagopole.omero.auth.impl.ppms.CachingPumapiClientTest
+      - org.imagopole.omero.auth.impl.ppms.DefaultPpmsServiceTest
+
+  - name: Config
+    classes:
+      - org.imagopole.omero.auth.impl.DefaultExternalAuthConfigTest
+
+  - name: Chain
+    classes:
+      - org.imagopole.omero.auth.impl.SynchronizingPasswordProvidersTest
+      - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderSyncTest
+      - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderNoSyncTest
+      - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderGroupBeanTest

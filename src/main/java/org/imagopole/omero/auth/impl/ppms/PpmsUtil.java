@@ -49,7 +49,7 @@ public class PpmsUtil {
             List<Long> includeFacilities = listIncludedFacilities(config);
             List<String> includeTypes = listIncludedSystemTypes(config);
 
-            LOG.debug("[external_auth ][ppms] filtering PPMS systems for facilities: {} and types: {}",
+            LOG.debug("[external_auth][ppms] filtering PPMS systems for facilities: {} and types: {}",
                       includeFacilities, includeTypes);
 
             for (PpmsSystem system : systems) {
@@ -63,7 +63,7 @@ public class PpmsUtil {
                 if (includeSystem) {
                     result.add(system);
                 } else {
-                    LOG.debug("[external_auth ][ppms] skipping PPMS system: {}-{} of facility: {} and type: {} [{}:{}]",
+                    LOG.debug("[external_auth][ppms] skipping PPMS system: {}-{} of facility: {} and type: {} [{}:{}]",
                               system.getSystemId(), system.getName(), systemFacility, systemType,
                               isFacilityIncluded, isSystemTypeIncluded);
                 }

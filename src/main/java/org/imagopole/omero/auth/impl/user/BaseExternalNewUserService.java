@@ -404,14 +404,14 @@ public abstract class BaseExternalNewUserService
                 // the "user" group is at the front of the list, in which
                 // case we should assign another specific group.
                 Experimenter databaseExperimenter = iQuery.get(Experimenter.class, experimenter.getId());
-                log.debug("[external_auth] sizeOfGroupExperimenterMap=",
+                log.debug("[external_auth] sizeOfGroupExperimenterMap={}",
                           databaseExperimenter.sizeOfGroupExperimenterMap());
 
                 if (databaseExperimenter.sizeOfGroupExperimenterMap() > 1) {
                     GroupExperimenterMap primary = databaseExperimenter.getGroupExperimenterMap(0);
                     GroupExperimenterMap next = databaseExperimenter.getGroupExperimenterMap(1);
-                    log.debug("[external_auth] primary=", primary.parent().getId());
-                    log.debug("[external_auth] next=", next.parent().getId());
+                    log.debug("[external_auth] primary={}", primary.parent().getId());
+                    log.debug("[external_auth] next={}", next.parent().getId());
 
                     if (primary.parent().getId().equals(roles.getUserGroupId())) {
                         log.debug("[external_auth] calling setDefaultGroup");

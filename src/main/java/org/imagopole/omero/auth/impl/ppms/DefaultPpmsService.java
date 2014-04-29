@@ -157,6 +157,8 @@ public class DefaultPpmsService implements PpmsService {
                 }
             }
 
+        } else {
+            log.warn("[external_auth][ppms] No granted rights for username: {}", userName);
         }
 
         return result;
@@ -170,7 +172,6 @@ public class DefaultPpmsService implements PpmsService {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
-        //TODO: index by system first?
         List<PpmsUserPrivilege> grantedIntruments = getPpmsClient().getUserRights(userName);
 
         // include them taking into account both his/her autonomy status and the autonomy requirements
@@ -194,6 +195,10 @@ public class DefaultPpmsService implements PpmsService {
                         || PpmsPrivilege.SuperUser.equals(systemPrivilege);
                     boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
 
+                    log.debug("[external_auth][ppms] Autonomy filters for: {} on system: {}"
+                              + "[required:{} - granted:{} - activated:{}]",
+                              userName, systemId, isAutonomyRequired, isAutonomyGranted, isUserActivated);
+
                     // the instrument on this facility requires autonomy before user access
                     if (isAutonomyRequired) {
                         if (isAutonomyGranted) {
@@ -211,6 +216,8 @@ public class DefaultPpmsService implements PpmsService {
 
             }
 
+        } else {
+            log.warn("[external_auth][ppms] No granted rights for username: {}", userName);
         }
 
         return result;

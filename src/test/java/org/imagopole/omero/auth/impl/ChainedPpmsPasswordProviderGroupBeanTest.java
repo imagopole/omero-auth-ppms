@@ -2,11 +2,13 @@ package org.imagopole.omero.auth.impl;
 
 import static org.imagopole.omero.auth.TestsUtil.autonomousRights;
 import static org.imagopole.omero.auth.TestsUtil.inactiveRights;
+import static org.imagopole.omero.auth.TestsUtil.newKnownUser;
 import static org.imagopole.omero.auth.TestsUtil.newOpenSystem;
 import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
 import static org.imagopole.omero.auth.TestsUtil.newRestrictedSystem;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUserB;
+import static org.imagopole.omero.auth.TestsUtil.newSystem;
 import static org.imagopole.omero.auth.TestsUtil.noviceRights;
 import static org.imagopole.omero.auth.TestsUtil.superUserRights;
 import static org.imagopole.omero.auth.TestsUtil.systemName;
@@ -14,6 +16,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -23,7 +26,9 @@ import ome.model.meta.Experimenter;
 import org.imagopole.omero.auth.TestsUtil.Env;
 import org.imagopole.omero.auth.TestsUtil.Groups;
 import org.imagopole.omero.auth.TestsUtil.LdapUnit;
+import org.imagopole.omero.auth.TestsUtil.OmeroUnit;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
+import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
 import org.testng.annotations.DataProvider;
@@ -221,6 +226,58 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpm
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER_B, LdapUnit.PPMS_PWD_B);
         pumapiClientMock.assertInvoked().getUserRights(LdapUnit.PPMS_USER_B);
         pumapiClientMock.assertInvoked().getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
+    }
+
+    /** Sync login of an existing user known to LDAP, PPMS and OMERO, with multiple granted instruments
+     *  and autonomy levels. */
+    @Test(groups = { Groups.INTEGRATION })
+    public void loginPpmsLdapAuthShouldIgnoreDuplicateGroupNames() {
+        String workDescription = "loginPpmsLdapAuthShouldIgnoreDuplicateGroupNames";
+
+        // test precondition: check experimenter exists beforehand
+        checkUserPresent(OmeroUnit.KNOWN_USER);
+
+        // test precondition: LDAP enabled
+        checkLdapDnPresent(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_USER_DN);
+
+        PpmsUser knownUser = newKnownUser();
+        knownUser.setActive(true);
+
+        pumapiClientMock.returns(knownUser).getUser(OmeroUnit.KNOWN_USER);
+        pumapiClientMock.returns(true).authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
+
+        PpmsSystem duplicateGroupNameSystem =
+            newSystem(PpmsUnit.DUPLICATE_SYSTEM_ID, OmeroUnit.PPMS_DUPLICATE_GROUP);
+
+        List<PpmsUserPrivilege> userRights = new ArrayList<PpmsUserPrivilege>();
+        userRights.addAll(superUserRights(PpmsUnit.RESTRICTED_SYSTEM_ID));
+        userRights.addAll(noviceRights(PpmsUnit.OPEN_SYSTEM_ID));
+        userRights.addAll(autonomousRights(PpmsUnit.DUPLICATE_SYSTEM_ID));
+
+        pumapiClientMock.returns(userRights).getUserRights(OmeroUnit.KNOWN_USER);
+        pumapiClientMock.returns(newRestrictedSystem()).getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
+        pumapiClientMock.returns(newOpenSystem()).getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+        pumapiClientMock.returns(duplicateGroupNameSystem).getSystem(PpmsUnit.DUPLICATE_SYSTEM_ID);
+
+        checkLoginSuccess(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD, workDescription);
+
+        // check granted memberships
+        Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.KNOWN_USER);
+
+        checkMemberships(experimenter,
+                         5,
+                         OmeroUnit.DEFAULT_GROUP,
+                         getRoles().getUserGroupName(),
+                         OmeroUnit.PPMS_DUPLICATE_GROUP,
+                         systemName(PpmsUnit.OPEN_SYSTEM_ID),
+                         systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
+
+        // check invocations
+        pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
+        pumapiClientMock.assertInvoked().getUserRights(OmeroUnit.KNOWN_USER);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.DUPLICATE_SYSTEM_ID);
     }
 
 }

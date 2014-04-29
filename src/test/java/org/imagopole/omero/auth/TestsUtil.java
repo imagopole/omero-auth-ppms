@@ -147,7 +147,7 @@ public class TestsUtil {
     public static final PpmsSystem newSystem(long systemId, String name) {
         PpmsSystem ppmsSystem = new PpmsSystem();
         ppmsSystem.setSystemId(systemId);
-        ppmsSystem.setName(systemName(systemId));
+        ppmsSystem.setName(name);
         ppmsSystem.setType(PpmsUnit.SYSTEM_TYPE);
         ppmsSystem.setCoreFacilityRef(PpmsUnit.FACILITY_ID);
         return ppmsSystem;
@@ -314,6 +314,7 @@ public class TestsUtil {
         public static final String OMERO_GROUP = "?";
 
         public static final long OPEN_SYSTEM_ID = 111L;
+        public static final long DUPLICATE_SYSTEM_ID = 222L;
         public static final long RESTRICTED_SYSTEM_ID = 333L;
         public static final long FACILITY_ID = 22L;
         public static final String SYSTEM_TYPE = "some.system.type";

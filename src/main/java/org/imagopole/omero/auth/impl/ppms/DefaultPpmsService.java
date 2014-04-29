@@ -189,7 +189,9 @@ public class DefaultPpmsService implements PpmsService {
                     boolean isAutonomyRequired =
                         (null != system.getAutonomyRequired() && system.getAutonomyRequired());
 
-                    boolean isAutonomyGranted = PpmsPrivilege.Autonomous.equals(systemPrivilege);
+                    boolean isAutonomyGranted =
+                        PpmsPrivilege.Autonomous.equals(systemPrivilege)
+                        || PpmsPrivilege.SuperUser.equals(systemPrivilege);
                     boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
 
                     // the instrument on this facility requires autonomy before user access

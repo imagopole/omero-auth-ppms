@@ -184,8 +184,8 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpm
         Experimenter experimenter = iAdmin.lookupExperimenter(LdapUnit.PPMS_USER);
 
         checkMemberships(experimenter,
-                         3, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName(),
-                         systemName(PpmsUnit.OPEN_SYSTEM_ID));
+                         3, LdapUnit.DEFAULT_GROUP,
+                         systemName(PpmsUnit.OPEN_SYSTEM_ID), getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
@@ -267,10 +267,10 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpm
         checkMemberships(experimenter,
                          5,
                          OmeroUnit.DEFAULT_GROUP,
-                         getRoles().getUserGroupName(),
                          OmeroUnit.PPMS_DUPLICATE_GROUP,
                          systemName(PpmsUnit.OPEN_SYSTEM_ID),
-                         systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
+                         systemName(PpmsUnit.RESTRICTED_SYSTEM_ID),
+                         getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);

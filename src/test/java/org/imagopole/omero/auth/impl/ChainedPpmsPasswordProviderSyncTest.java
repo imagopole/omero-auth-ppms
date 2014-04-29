@@ -126,7 +126,7 @@ public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPass
 
         // check default group membership
         checkMemberships(experimenter,
-                         3, LdapUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
+                         3, LdapUnit.DEFAULT_GROUP, PpmsUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(LdapUnit.PPMS_USER, LdapUnit.PPMS_PWD);
@@ -165,8 +165,8 @@ public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPass
         // check default group membership
         checkMemberships(experimenter,
                          4,
-                         OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(),
-                         OmeroUnit.PPMS_DUPLICATE_GROUP, PpmsUnit.DEFAULT_GROUP);
+                         OmeroUnit.DEFAULT_GROUP, OmeroUnit.PPMS_DUPLICATE_GROUP,
+                         PpmsUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
@@ -204,7 +204,7 @@ public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPass
 
         // check default group membership
         checkMemberships(experimenter,
-                         3, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName(), PpmsUnit.DEFAULT_GROUP);
+                         3, OmeroUnit.DEFAULT_GROUP, PpmsUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
@@ -292,7 +292,7 @@ public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPass
         Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.DEFAULT_USER);
 
         checkMemberships(experimenter,
-                         2, getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP);
+                         2, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.DEFAULT_USER, OmeroUnit.DEFAULT_PWD);

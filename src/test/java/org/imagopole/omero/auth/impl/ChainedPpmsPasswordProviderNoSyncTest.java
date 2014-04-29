@@ -138,8 +138,8 @@ public class ChainedPpmsPasswordProviderNoSyncTest extends AbstractChainedPpmsPa
         // check default group membership
         checkMemberships(experimenter,
                          3,
-                         getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP,
-                         OmeroUnit.PPMS_DUPLICATE_GROUP);
+                         OmeroUnit.DEFAULT_GROUP, OmeroUnit.PPMS_DUPLICATE_GROUP,
+                         getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
@@ -171,7 +171,7 @@ public class ChainedPpmsPasswordProviderNoSyncTest extends AbstractChainedPpmsPa
 
         // check default group membership
         checkMemberships(experimenter,
-                         2, getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP);
+                         2, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
@@ -251,7 +251,7 @@ public class ChainedPpmsPasswordProviderNoSyncTest extends AbstractChainedPpmsPa
         Experimenter experimenter = iAdmin.lookupExperimenter(OmeroUnit.DEFAULT_USER);
 
         checkMemberships(experimenter,
-                         2, getRoles().getUserGroupName(), OmeroUnit.DEFAULT_GROUP);
+                         2, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
 
         // check invocations
         pumapiClientMock.assertNotInvoked().authenticate(OmeroUnit.DEFAULT_USER, OmeroUnit.DEFAULT_PWD);

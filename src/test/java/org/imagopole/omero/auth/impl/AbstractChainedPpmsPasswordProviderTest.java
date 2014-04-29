@@ -6,6 +6,9 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ome.api.ILdap;
@@ -126,9 +129,24 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
                     int expectedCount,
                     String... expectedNames) {
 
-        List<ExperimenterGroup> memberships = experimenter.linkedExperimenterGroupList();
-        assertNotNull(memberships, "Non null results expected");
+        List<ExperimenterGroup> experimeterGroups = experimenter.linkedExperimenterGroupList();
+        assertNotNull(experimeterGroups, "Non null results expected");
+
+        List<ExperimenterGroup> memberships = new ArrayList<ExperimenterGroup>(experimeterGroups);
         assertEquals(memberships.size(), expectedCount, "Incorrect memberships count");
+
+        // sort groups by name prior to names checks
+        Collections.sort(memberships, new Comparator<ExperimenterGroup>() {
+
+            @Override
+            public int compare(ExperimenterGroup o1, ExperimenterGroup o2) {
+                String name1 = o1.getName();
+                String name2 = o2.getName();
+
+                return name1.compareTo(name2);
+            }
+
+        });
 
         for (int i = 0; i < expectedNames.length; ++i) {
             String actualGroupName = memberships.get(i).getName();

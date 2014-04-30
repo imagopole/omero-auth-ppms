@@ -144,26 +144,27 @@ public class TestsUtil {
         return result;
     }
 
-    public static final PpmsSystem newSystem(long systemId, String name) {
+    public static final PpmsSystem activeSystem(long systemId, String name) {
         PpmsSystem ppmsSystem = new PpmsSystem();
         ppmsSystem.setSystemId(systemId);
         ppmsSystem.setName(name);
         ppmsSystem.setType(PpmsUnit.SYSTEM_TYPE);
         ppmsSystem.setCoreFacilityRef(PpmsUnit.FACILITY_ID);
+        ppmsSystem.setActive(Boolean.TRUE);
         return ppmsSystem;
     }
 
     /** A PPMS system with no required autonomy. */
     public static final PpmsSystem newOpenSystem() {
         PpmsSystem ppmsSystem =
-            newSystem(PpmsUnit.OPEN_SYSTEM_ID, systemName(PpmsUnit.OPEN_SYSTEM_ID));
+            activeSystem(PpmsUnit.OPEN_SYSTEM_ID, systemName(PpmsUnit.OPEN_SYSTEM_ID));
         return ppmsSystem;
     }
 
     /** A PPMS system which requires autonomy for usage. */
     public static final PpmsSystem newRestrictedSystem() {
         PpmsSystem ppmsSystem =
-            newSystem(PpmsUnit.RESTRICTED_SYSTEM_ID, systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
+            activeSystem(PpmsUnit.RESTRICTED_SYSTEM_ID, systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
 
         ppmsSystem.setAutonomyRequired(true);
         return ppmsSystem;

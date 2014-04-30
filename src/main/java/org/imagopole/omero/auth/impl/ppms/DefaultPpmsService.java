@@ -153,7 +153,14 @@ public class DefaultPpmsService implements PpmsService {
                 PpmsSystem system = getPpmsClient().getSystem(systemId);
 
                 if (null != system) {
-                    result.add(system);
+                    boolean isSystemActive = (null != system.getActive() && system.getActive());
+
+                    if (isSystemActive) {
+                        result.add(system);
+                    } else {
+                        log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
+                                 system.getSystemId(), system.getName(), userName);
+                    }
                 }
             }
 
@@ -187,6 +194,8 @@ public class DefaultPpmsService implements PpmsService {
 
                 if (null != system) {
 
+                    boolean isSystemActive =
+                        (null != system.getActive() && system.getActive());
                     boolean isAutonomyRequired =
                         (null != system.getAutonomyRequired() && system.getAutonomyRequired());
 
@@ -195,21 +204,28 @@ public class DefaultPpmsService implements PpmsService {
                         || PpmsPrivilege.SuperUser.equals(systemPrivilege);
                     boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
 
-                    log.debug("[external_auth][ppms] Autonomy filters for: {} on system: {}"
-                              + "[required:{} - granted:{} - activated:{}]",
-                              userName, systemId, isAutonomyRequired, isAutonomyGranted, isUserActivated);
+                    log.debug(
+                        "[external_auth][ppms] Autonomy filters for: {} on system: {}-{} [required:{} - granted:{} - activated:{} - active:{}]",
+                        userName, systemId, system.getName(), isAutonomyRequired, isAutonomyGranted, isUserActivated, isSystemActive);
 
-                    // the instrument on this facility requires autonomy before user access
-                    if (isAutonomyRequired) {
-                        if (isAutonomyGranted) {
-                            result.add(system);
+                    if (isSystemActive) {
+
+                        // the instrument on this facility requires autonomy before user access
+                        if (isAutonomyRequired) {
+                            if (isAutonomyGranted) {
+                                result.add(system);
+                            }
+                        } else {
+                            // any user may access this instrument, regardless of whether they are autonomous
+                            // we only exclude deactivated users here
+                            if (isUserActivated) {
+                                result.add(system);
+                            }
                         }
+
                     } else {
-                        // any user may access this instrument, regardless of whether they are autonomous
-                        // we only exclude deactivated users here
-                        if (isUserActivated) {
-                            result.add(system);
-                        }
+                        log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
+                                 system.getSystemId(), system.getName(), userName);
                     }
 
                 }

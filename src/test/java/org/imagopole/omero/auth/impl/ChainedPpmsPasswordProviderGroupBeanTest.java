@@ -8,7 +8,7 @@ import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
 import static org.imagopole.omero.auth.TestsUtil.newRestrictedSystem;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUserB;
-import static org.imagopole.omero.auth.TestsUtil.newSystem;
+import static org.imagopole.omero.auth.TestsUtil.activeSystem;
 import static org.imagopole.omero.auth.TestsUtil.noviceRights;
 import static org.imagopole.omero.auth.TestsUtil.superUserRights;
 import static org.imagopole.omero.auth.TestsUtil.systemName;
@@ -247,7 +247,7 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpm
         pumapiClientMock.returns(true).authenticate(OmeroUnit.KNOWN_USER, OmeroUnit.KNOWN_PWD);
 
         PpmsSystem duplicateGroupNameSystem =
-            newSystem(PpmsUnit.DUPLICATE_SYSTEM_ID, OmeroUnit.PPMS_DUPLICATE_GROUP);
+            activeSystem(PpmsUnit.DUPLICATE_SYSTEM_ID, OmeroUnit.PPMS_DUPLICATE_GROUP);
 
         List<PpmsUserPrivilege> userRights = new ArrayList<PpmsUserPrivilege>();
         userRights.addAll(superUserRights(PpmsUnit.RESTRICTED_SYSTEM_ID));

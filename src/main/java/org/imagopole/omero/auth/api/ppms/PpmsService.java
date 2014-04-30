@@ -43,7 +43,8 @@ public interface PpmsService {
     List<NamedItem> findProjectsByUserName(String userName) throws PumapiException;
 
     /**
-     * Retrieves a PPMS groups (a.k.a Units) for a PPMS user.
+     * Retrieves the PPMS group (a.k.a Unit) for a PPMS user, regardless of the group's
+     * status (active or inactive).
      *
      * @param userName the username / PPMS identifier
      * @return a groups/unit or null if none found.

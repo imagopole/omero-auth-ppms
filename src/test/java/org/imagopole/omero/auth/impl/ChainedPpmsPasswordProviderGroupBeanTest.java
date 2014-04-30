@@ -1,14 +1,15 @@
 package org.imagopole.omero.auth.impl;
 
+import static org.imagopole.omero.auth.TestsUtil.activeSystem;
 import static org.imagopole.omero.auth.TestsUtil.autonomousRights;
 import static org.imagopole.omero.auth.TestsUtil.inactiveRights;
+import static org.imagopole.omero.auth.TestsUtil.inactiveSystem;
 import static org.imagopole.omero.auth.TestsUtil.newKnownUser;
 import static org.imagopole.omero.auth.TestsUtil.newOpenSystem;
 import static org.imagopole.omero.auth.TestsUtil.newPpmsUser;
 import static org.imagopole.omero.auth.TestsUtil.newRestrictedSystem;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUser;
 import static org.imagopole.omero.auth.TestsUtil.newSharedUserB;
-import static org.imagopole.omero.auth.TestsUtil.activeSystem;
 import static org.imagopole.omero.auth.TestsUtil.noviceRights;
 import static org.imagopole.omero.auth.TestsUtil.superUserRights;
 import static org.imagopole.omero.auth.TestsUtil.systemName;
@@ -278,6 +279,46 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractChainedPpm
         pumapiClientMock.assertInvoked().getSystem(PpmsUnit.RESTRICTED_SYSTEM_ID);
         pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
         pumapiClientMock.assertInvoked().getSystem(PpmsUnit.DUPLICATE_SYSTEM_ID);
+    }
+
+    /** Sync login of an existing user known to PPMS and OMERO, but not LDAP,
+     *  with inactive granted instruments. */
+    @Test(groups = { Groups.INTEGRATION })
+    public void loginPpmsLdapAuthShouldIgnoreInactiveGrantedSystems() {
+        String workDescription = "loginPpmsLdapAuthShouldIgnoreInactiveGrantedSystems";
+
+        // test precondition: check experimenter exists beforehand
+        checkUserPresent(PpmsUnit.OMERO_USER);
+
+        // test precondition: check existing memberships
+        Experimenter precondition = iAdmin.lookupExperimenter(PpmsUnit.OMERO_USER);
+        checkMemberships(precondition,
+                         2, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
+
+        PpmsUser knownUser = newKnownUser();
+        knownUser.setActive(true);
+
+        pumapiClientMock.returns(knownUser).getUser(PpmsUnit.OMERO_USER);
+        pumapiClientMock.returns(true).authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
+
+        PpmsSystem inactiveSystem =
+            inactiveSystem(PpmsUnit.INACTIVE_SYSTEM_ID, systemName(PpmsUnit.INACTIVE_SYSTEM_ID));
+
+        pumapiClientMock.returns(superUserRights(PpmsUnit.INACTIVE_SYSTEM_ID)).getUserRights(PpmsUnit.OMERO_USER);
+        pumapiClientMock.returns(inactiveSystem).getSystem(PpmsUnit.INACTIVE_SYSTEM_ID);
+
+        checkLoginSuccess(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD, workDescription);
+
+        // check granted memberships (unchanged)
+        Experimenter experimenter = iAdmin.lookupExperimenter(PpmsUnit.OMERO_USER);
+
+        checkMemberships(experimenter,
+                         2, OmeroUnit.DEFAULT_GROUP, getRoles().getUserGroupName());
+
+        // check invocations
+        pumapiClientMock.assertInvoked().authenticate(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD);
+        pumapiClientMock.assertInvoked().getUserRights(PpmsUnit.OMERO_USER);
+        pumapiClientMock.assertInvoked().getSystem(PpmsUnit.INACTIVE_SYSTEM_ID);
     }
 
 }

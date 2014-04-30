@@ -144,12 +144,17 @@ public class TestsUtil {
         return result;
     }
 
-    public static final PpmsSystem activeSystem(long systemId, String name) {
+    public static PpmsSystem inactiveSystem(long systemId, String name) {
         PpmsSystem ppmsSystem = new PpmsSystem();
         ppmsSystem.setSystemId(systemId);
         ppmsSystem.setName(name);
         ppmsSystem.setType(PpmsUnit.SYSTEM_TYPE);
         ppmsSystem.setCoreFacilityRef(PpmsUnit.FACILITY_ID);
+        return ppmsSystem;
+    }
+
+    public static final PpmsSystem activeSystem(long systemId, String name) {
+        PpmsSystem ppmsSystem = inactiveSystem(systemId, name);
         ppmsSystem.setActive(Boolean.TRUE);
         return ppmsSystem;
     }
@@ -317,6 +322,7 @@ public class TestsUtil {
         public static final long OPEN_SYSTEM_ID = 111L;
         public static final long DUPLICATE_SYSTEM_ID = 222L;
         public static final long RESTRICTED_SYSTEM_ID = 333L;
+        public static final long INACTIVE_SYSTEM_ID = 444L;
         public static final long FACILITY_ID = 22L;
         public static final String SYSTEM_TYPE = "some.system.type";
 

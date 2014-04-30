@@ -4,6 +4,9 @@
 package org.imagopole.omero.auth.impl.ppms.group;
 
 
+import static org.imagopole.omero.auth.impl.ppms.PpmsUtil.filterSystemsByFacilityAndType;
+import static org.imagopole.omero.auth.impl.ppms.PpmsUtil.toNamedItems;
+
 import java.util.List;
 
 import ome.security.auth.NewUserGroupBean;
@@ -13,7 +16,6 @@ import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
 import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
-import org.imagopole.omero.auth.impl.ppms.PpmsUtil;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +54,15 @@ public class PpmsSystemToGroupBean extends ConfigurableNameToGroupBean {
      */
     @Override
     protected List<NamedItem> listItemsByUserName(String username, ExternalAuthConfig config) {
-        log.debug("[external_auth][ppms] looking up PPMS systems available for username: {}", username);
+        log.debug("[external_auth][ppms] looking up active PPMS systems available for username: {}",
+                  username);
 
         List<PpmsSystem> grantedSystems = getPpmsService().findActiveSystemsByUserName(username);
 
         // only retain systems which belong to whitelists of enabled facilities and system types
-        List<PpmsSystem> filteredSystems = PpmsUtil.filterSystemsByFacilityAndType(grantedSystems, config);
+        List<PpmsSystem> filteredSystems = filterSystemsByFacilityAndType(grantedSystems, config);
 
-        return PpmsUtil.toNamedItems(filteredSystems);
+        return toNamedItems(filteredSystems);
     }
 
     /**

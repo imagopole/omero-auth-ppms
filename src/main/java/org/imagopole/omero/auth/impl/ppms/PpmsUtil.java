@@ -63,9 +63,10 @@ public class PpmsUtil {
                 if (includeSystem) {
                     result.add(system);
                 } else {
-                    LOG.debug("[external_auth][ppms] skipping PPMS system: {}-{} of facility: {} and type: {} [{}:{}]",
-                              system.getSystemId(), system.getName(), systemFacility, systemType,
-                              isFacilityIncluded, isSystemTypeIncluded);
+                    LOG.debug(
+                        "[external_auth][ppms] skipping PPMS system: {}-{} [{}] of facility: {} and type: {} [{}:{}]",
+                        system.getSystemId(), system.getName(), system.getActive(), systemFacility,
+                        systemType, isFacilityIncluded, isSystemTypeIncluded);
                 }
             }
 

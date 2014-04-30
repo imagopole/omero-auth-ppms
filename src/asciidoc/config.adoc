@@ -1,6 +1,9 @@
 = OMERO PPMS Auth Server Extension Configuration
 Imagopole
 :fluent_hc_executor_url: https://github.com/apache/httpclient/blob/4.3.3/fluent-hc/src/main/java/org/apache/http/client/fluent/Executor.java#L94-L97
+:bean_ref_context_url:   https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/beanRefContext.xml#L68
+:iadmin_context_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/ome/services/service-ome.api.IAdmin.xml#L47
+:password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
 :source-highlighter: coderay
 :toc:
 
@@ -57,3 +60,60 @@ NOTE: The underlying fluent HttpClient uses an +org.apache.http.impl.conn.Poolin
 <logger name="org.apache.http.client.fluent" level="info"/>
 <logger name="org.apache.http.impl.client" level="info"/>
 ----
+
+
+== OMERO.server installation
+
+=== Jar deployment
+
+Copy +omero-auth-ppms-<VERSION>-server-extension.jar+ to +$OMERO_PREFIX/lib/server/extensions.jar+ with
+the right ownership and permissions for the OMERO.server user.
+
+=== Grid configuration workaround
+
+WARNING: The {password_provider_url}[recommended configuration] for custom password providers deployment
+         seems to be via +classpath\*:ome/services/db-*.xml+. Due to circular bean reference issues with
+         the current spring context, deployment is performed via +classpath\*:ome/services/service-*.xml+.
+         As a result, other OMERO.server components (such as the full-text indexer or pixel data processor)
+         will not have access to the auth extension's application context. To avoid breaking them,
+         the +omero.security.password_provider+ defined in +etc/grid/config.xml+ via +bin/omero config+
+         *must* be one of the default PasswordProvider implementations shipped with OMERO, and the
+         custom PPMS PasswordProvider shipped with the auth extension should be overridden on the
+         +Blitz+ server configuration template _only_.
+
+[source,xml]
+.etc/grid/config.xml
+----
+# omero config set omero.security.password_provider chainedPasswordProvider431
+
+<properties id="__ACTIVE__">
+  <property name="omero.security.password_provider" value="chainedPasswordProvider431"/>
+</properties>
+----
+
+[source,xml]
+.etc/grid/templates.xml
+----
+<!-- Define custom properties for the Blitz server only -->
+<properties id="PpmsBlitzHackProps">
+  <property name="omero.security.password_provider" value="ppmsChainedPasswordProvider"/>
+</properties>
+
+<server-template id="BlitzTemplate">
+  <properties>
+    <properties refid="JavaServer"/>
+    <properties refid="Basics"/>
+    <properties refid="Blitz"/>
+    <properties refid="MultiThreaded"/>
+    <properties refid="Profile"/>
+
+    <!-- Override the bin/omero config password provider for the Blitz server -->
+    <properties refid="PpmsBlitzHackProps"/>
+  </properties>
+</server>
+----
+
+See also:
+
+- {bean_ref_context_url}[beanRefContext.xml]
+- {iadmin_context_url}[ome/services/service-ome.api.IAdmin.xml]

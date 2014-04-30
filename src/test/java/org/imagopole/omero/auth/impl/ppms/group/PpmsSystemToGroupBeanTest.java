@@ -45,7 +45,7 @@ public class PpmsSystemToGroupBeanTest extends UnitilsTestNG {
     @Test
     public void shouldReturnEmptyGroupsListForNullSystemsList() {
        // define behaviour
-       ppmsServiceMock.returns(null).findSystemsByUserName(Data.USERNAME);
+       ppmsServiceMock.returns(null).findActiveSystemsByUserName(Data.USERNAME);
 
        // run test
        List<Long> result =
@@ -54,7 +54,7 @@ public class PpmsSystemToGroupBeanTest extends UnitilsTestNG {
        // assert results + invocations
        assertNotNull(result, "Non null results expected");
        assertTrue(result.isEmpty(), "Empty results expected");
-       ppmsServiceMock.assertInvoked().findSystemsByUserName(Data.USERNAME);
+       ppmsServiceMock.assertInvoked().findActiveSystemsByUserName(Data.USERNAME);
        roleProviderMock.assertNotInvoked().createGroup(
                        null,
                        Permissions.USER_PRIVATE,

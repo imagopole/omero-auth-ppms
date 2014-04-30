@@ -53,7 +53,7 @@ public class PpmsSystemAutonomyToGroupBean extends ConfigurableNameToGroupBean {
     protected List<NamedItem> listItemsByUserName(String username, ExternalAuthConfig config) {
         log.debug("[external_auth][ppms] looking up PPMS systems with autonomy for username: {}", username);
 
-        List<PpmsSystem> grantedSystems = getPpmsService().findSystemsWithAutonomyByUserName(username);
+        List<PpmsSystem> grantedSystems = getPpmsService().findActiveSystemsWithAutonomyByUserName(username);
 
         // only retain systems which belong to whitelists of enabled facilities and system types
         List<PpmsSystem> filteredSystems = PpmsUtil.filterSystemsByFacilityAndType(grantedSystems, config);

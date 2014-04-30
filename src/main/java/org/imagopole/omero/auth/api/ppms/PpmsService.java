@@ -52,23 +52,23 @@ public interface PpmsService {
     PpmsGroup findGroupByUserName(String userName) throws PumapiException;
 
     /**
-     * Retrieves a list of PPMS instruments (a.k.a Systems) available to a given user.
+     * Retrieves a list of active PPMS instruments (a.k.a Systems) available to a given user.
      *
      * @param userName the username / PPMS identifier
      * @return a list of instrument attributes, or an empty list if none found
      * @throws PumapiException in case of an underlying error (API or technical)
      */
-    List<PpmsSystem> findSystemsByUserName(String userName) throws PumapiException;
+    List<PpmsSystem> findActiveSystemsByUserName(String userName) throws PumapiException;
 
     /**
-     * Retrieves a list of PPMS instruments (a.k.a Systems) available to a given user with an
+     * Retrieves a list of active PPMS instruments (a.k.a Systems) available to a given user with an
      * autonomy status on the instrument.
      *
      * @param userName the username / PPMS identifier
      * @return a list of granted instrument attributes, or an empty list if none found
      * @throws PumapiException
      */
-    List<PpmsSystem> findSystemsWithAutonomyByUserName(String userName) throws PumapiException;
+    List<PpmsSystem> findActiveSystemsWithAutonomyByUserName(String userName) throws PumapiException;
 
     /**
      * Validates password for a PPMS user.

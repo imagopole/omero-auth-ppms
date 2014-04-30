@@ -136,7 +136,7 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public List<PpmsSystem> findSystemsByUserName(String userName) throws PumapiException {
+    public List<PpmsSystem> findActiveSystemsByUserName(String userName) throws PumapiException {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
@@ -175,7 +175,7 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public List<PpmsSystem> findSystemsWithAutonomyByUserName(String userName) throws PumapiException {
+    public List<PpmsSystem> findActiveSystemsWithAutonomyByUserName(String userName) throws PumapiException {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user

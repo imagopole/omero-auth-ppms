@@ -16,6 +16,7 @@ import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@link ExternalNewUserService} implementation whereby the external source is "authoritative"/override always:
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author seb
  *
  */
+@Transactional
 public abstract class AuthoritativeExternalNewUserService extends BaseExternalNewUserService {
 
     /** Application logs. */

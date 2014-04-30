@@ -36,6 +36,10 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
     @Dummy
     private Experimenter dummyUser;
 
+    /** Always check password in RW mode.
+     * @see SessionManagerImpl#executePasswordCheck(String, String) */
+    private final boolean readOnly = false;
+
     @BeforeMethod
     public void setUp() {
         Mock<PasswordUtil> passwordUtilMock =
@@ -60,13 +64,19 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
             new SynchronizingPasswordProviders(ldapProviderMock.getMock(), ppmsPasswordProvider);
     }
 
+    @Test(expectedExceptions = { IllegalStateException.class },
+          expectedExceptionsMessageRegExp = "^This provider is expected to executeCheckPasswordRW")
+    public void chainShouldFailInReadOnlyMode() {
+        synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+    }
+
     @Test
     public void chainShouldBeSkippedWhenSecondaryUnsynchronizable() {
-        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
         ppmsNewUserServiceMock.returns(null).findExperimenterFromExternalSource(Data.USERNAME);
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNull(result, "Null result expected");
 
         ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
@@ -75,11 +85,11 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
     @Test
     public void secondaryProviderShouldCheckAuthWhenUserPrimarySuceeds() {
-        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
         ppmsNewUserServiceMock.returns(dummyUser).findExperimenterFromExternalSource(Data.USERNAME);
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNotNull(result, "Non-null result expected");
         assertTrue(result, "Incorrect result");
 
@@ -89,11 +99,11 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
     @Test
     public void secondaryProviderShouldCheckAuthWhenUserPrimaryFails() {
-        ldapProviderMock.returns(false).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(false).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
         ppmsNewUserServiceMock.returns(dummyUser).findExperimenterFromExternalSource(Data.USERNAME);
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNotNull(result, "Non-null result expected");
         assertFalse(result, "Incorrect result");
 
@@ -103,10 +113,10 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
     @Test
     public void secondaryProviderShouldNotCheckAuthWhenUserPrimaryDefaultsAndUserIsUnknown() {
-        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNull(result, "Null result expected");
 
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
@@ -115,12 +125,12 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
     @Test
     public void secondaryProviderShouldCheckAuthWhenUserPrimaryDefaultsAndUserIsKnownWithAuth() {
-        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
         ppmsNewUserServiceMock.returns(new Experimenter()).findExperimenterFromExternalSource(Data.USERNAME);
         ppmsNewUserServiceMock.returns(true).validatePassword(Data.USERNAME, Data.PASSWORD);
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNotNull(result, "Non-null result expected");
         assertTrue(result, "Incorrect result");
 
@@ -130,12 +140,12 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
     @Test
     public void secondaryProviderShouldCheckAuthWhenUserPrimaryDefaultsAndUserIsKnownWithoutAuth() {
-        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        ldapProviderMock.returns(null).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         ppmsNewUserServiceMock.returns(true).isEnabled();
         ppmsNewUserServiceMock.returns(new Experimenter()).findExperimenterFromExternalSource(Data.USERNAME);
         ppmsNewUserServiceMock.returns(false).validatePassword(Data.USERNAME, Data.PASSWORD);
 
-        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, true);
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
         assertNotNull(result, "Non-null result expected");
         assertFalse(result, "Incorrect result");
 

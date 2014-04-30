@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Base {@link ExternalNewUserService} class - provides implementation inheritance of common
@@ -47,6 +48,7 @@ import org.springframework.context.ApplicationContextAware;
  * @author seb
  *
  */
+@Transactional
 public abstract class BaseExternalNewUserService
        extends AbstractLevel2Service implements ExternalNewUserService, ApplicationContextAware {
 
@@ -130,7 +132,7 @@ public abstract class BaseExternalNewUserService
     *
     * @see LdapImpl#synchronizeLdapUser(String)
     */
-   public abstract void synchronizeGroupsMemberships(
+    public abstract void synchronizeGroupsMemberships(
                    final Experimenter omeroExperimenter,
                    final Set<Long> omeroGroups,
                    final List<Long> externalGroups);
@@ -368,7 +370,7 @@ public abstract class BaseExternalNewUserService
      * @param minus
      * @param add
      */
-    protected void modifyGroups(
+    public void modifyGroups(
                     final Experimenter experimenter,
                     final Collection<Long> base,
                     final Collection<Long> minus,

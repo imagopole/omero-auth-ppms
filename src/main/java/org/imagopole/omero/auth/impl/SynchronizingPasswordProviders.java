@@ -135,6 +135,12 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
     public Boolean checkPassword(String user, String password, boolean readOnly) {
         Boolean chainResult = null;
 
+        // fail-fast on initial RO calls from SessionManagerImpl#executeCheckPassword and make sure
+        // that the @Transactional context is applied accordingly via SessionManagerImpl#executeCheckPasswordRW
+        if (readOnly == true) {
+            throw new IllegalStateException("This provider is expected to executeCheckPasswordRW");
+        }
+
         // 0 - check the synchronizing provider "knows" about the user
         boolean isUsernameSynchronizable = synchronizingProvider.hasUsername(user);
 

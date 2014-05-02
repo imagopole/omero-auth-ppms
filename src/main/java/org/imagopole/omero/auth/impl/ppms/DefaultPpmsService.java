@@ -148,15 +148,20 @@ public class DefaultPpmsService implements PpmsService {
 
             for (PpmsUserPrivilege grantedSystem : grantedIntruments) {
                 Long systemId = grantedSystem.getSystemId();
+                PpmsPrivilege systemPrivilege = grantedSystem.getPrivilege();
 
                 // lookup the systems' details (name, description...)
                 PpmsSystem system = getPpmsClient().getSystem(systemId);
 
                 if (null != system) {
                     boolean isSystemActive = (null != system.getActive() && system.getActive());
+                    boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
 
                     if (isSystemActive) {
-                        result.add(system);
+                        // exclude deactivated users for this system
+                        if (isUserActivated) {
+                            result.add(system);
+                        }
                     } else {
                         log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
                                  system.getSystemId(), system.getName(), userName);

@@ -20,19 +20,27 @@ import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
  */
 public class TestsUtil {
 
+    /** Default "protected" OMERO group names. */
     public static final List<String> OMERO_SYSTEM_GROUPS =
         Arrays.asList(new String[] { "system", "guest", "user", "default" });
 
+    /** Test cases OMERO event. */
     public static final String TEST_EVENT_TYPE = "Test";
 
-    public static final String WRANGLE_PREFIX = "ppms+";
+    /** Default naming prefix for PPMS instruments fixtures. */
     public static final String SYSTEM_PREFIX = "ppms_system_";
 
-    public static final PpmsGroup newPpmsUnit(String name) {
-        PpmsGroup unit = new PpmsGroup();
-        unit.setUnitname(name);
-        unit.setUnitlogin("testng::" + name);
+    /** Default naming prefix for PPMS groups fixtures. */
+    public static final String UNIT_PREFIX = "ppms_unit_";
 
+    /** Modified naming prefix for PPMS instruments sync fixtures. */
+    public static final String WRANGLE_PREFIX = "ppms+";
+
+    /** An inactive PPMS group/unit. */
+    public static final PpmsGroup inactiveUnit(String unitLogin) {
+        PpmsGroup unit = new PpmsGroup();
+        unit.setUnitlogin(unitLogin);
+        unit.setUnitname(unitName(unitLogin));
         return unit;
     }
 
@@ -86,6 +94,7 @@ public class TestsUtil {
         return sharedUser;
     }
 
+    /** Another user supposed missing in the OMERO database, and present in LDAP and PPMS. */
     public static final PpmsUser newSharedUserB() {
         PpmsUser sharedUser = new PpmsUser();
         sharedUser.setLogin(LdapUnit.PPMS_USER_B);
@@ -121,22 +130,27 @@ public class TestsUtil {
         return fooUser;
     }
 
+    /** {@link PpmsPrivilege.Deactivated} */
     public static final List<PpmsUserPrivilege> inactiveRights(long systemId) {
         return rightsList(systemId, PpmsPrivilege.Deactivated);
     }
 
+    /** {@link PpmsPrivilege.Novice} */
     public static final List<PpmsUserPrivilege> noviceRights(long systemId) {
         return rightsList(systemId, PpmsPrivilege.Novice);
     }
 
+    /** {@link PpmsPrivilege.Autonomous} */
     public static final List<PpmsUserPrivilege> autonomousRights(long systemId) {
         return rightsList(systemId, PpmsPrivilege.Autonomous);
     }
 
+    /** {@link PpmsPrivilege.SuperUser} */
     public static final List<PpmsUserPrivilege> superUserRights(long systemId) {
         return rightsList(systemId, PpmsPrivilege.SuperUser);
     }
 
+    /** Expose a single system privilege as a list. */
     public static List<PpmsUserPrivilege> rightsList(long systemId, PpmsPrivilege privilegeLevel) {
         List<PpmsUserPrivilege> result = new ArrayList<PpmsUserPrivilege>();
         PpmsUserPrivilege privilege = new PpmsUserPrivilege(systemId, privilegeLevel);
@@ -144,6 +158,7 @@ public class TestsUtil {
         return result;
     }
 
+    /** An inactive PPMS system with no required autonomy. */
     public static PpmsSystem inactiveSystem(long systemId, String name) {
         PpmsSystem ppmsSystem = new PpmsSystem();
         ppmsSystem.setSystemId(systemId);
@@ -153,20 +168,28 @@ public class TestsUtil {
         return ppmsSystem;
     }
 
+    /** An active PPMS system with no required autonomy. */
     public static final PpmsSystem activeSystem(long systemId, String name) {
         PpmsSystem ppmsSystem = inactiveSystem(systemId, name);
         ppmsSystem.setActive(Boolean.TRUE);
         return ppmsSystem;
     }
 
-    /** A PPMS system with no required autonomy. */
+    /** An inactive PPMS  system, with no required autonomy and a default ID/facility ID. */
+    public static final PpmsSystem inactiveSystem() {
+        PpmsSystem ppmsSystem =
+            inactiveSystem(PpmsUnit.INACTIVE_SYSTEM_ID, systemName(PpmsUnit.INACTIVE_SYSTEM_ID));
+        return ppmsSystem;
+    }
+
+    /** An active PPMS system with no required autonomy and a default ID/facility ID. */
     public static final PpmsSystem newOpenSystem() {
         PpmsSystem ppmsSystem =
             activeSystem(PpmsUnit.OPEN_SYSTEM_ID, systemName(PpmsUnit.OPEN_SYSTEM_ID));
         return ppmsSystem;
     }
 
-    /** A PPMS system which requires autonomy for usage. */
+    /** A PPMS system which requires autonomy, and a default ID/facility ID.  */
     public static final PpmsSystem newRestrictedSystem() {
         PpmsSystem ppmsSystem =
             activeSystem(PpmsUnit.RESTRICTED_SYSTEM_ID, systemName(PpmsUnit.RESTRICTED_SYSTEM_ID));
@@ -175,10 +198,17 @@ public class TestsUtil {
         return ppmsSystem;
     }
 
+    /** Default naming convention for PPMS instruments fixtures. */
     public static String systemName(long systemId) {
         return SYSTEM_PREFIX + systemId;
     }
 
+    /** Default naming convention for PPMS groups fixtures. */
+    public static String unitName(String unitLogin) {
+        return UNIT_PREFIX + unitLogin;
+    }
+
+    /** Modified naming convention for PPMS instruments sync fixtures. */
     public static final String wrangle(String input) {
         String result = null;
 
@@ -191,7 +221,12 @@ public class TestsUtil {
         return result;
     }
 
-    // test fixtures data
+    /**
+     * Test fixtures data.
+     *
+     * @author seb
+     *
+     */
     public static final class Data {
         public static final String USERNAME = "some.username";
         public static final String PASSWORD = "some.password";
@@ -325,6 +360,7 @@ public class TestsUtil {
         public static final long INACTIVE_SYSTEM_ID = 444L;
         public static final long FACILITY_ID = 22L;
         public static final String SYSTEM_TYPE = "some.system.type";
+        public static final String UNIT_LOGIN = "some.unit.login";
 
         public static final String AUTONOMY_GROUP_BEAN = ":bean:ppmsSystemAutonomyToGroupBean";
         public static final String FACILITIES_WHITELIST = "," + FACILITY_ID;

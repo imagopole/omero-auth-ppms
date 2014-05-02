@@ -1,8 +1,13 @@
-= OMERO PPMS Auth Server Extension Configuration
+= OMERO PPMS Auth Extension Configuration
 Imagopole
-:fluent_hc_executor_url: https://github.com/apache/httpclient/blob/4.3.3/fluent-hc/src/main/java/org/apache/http/client/fluent/Executor.java#L94-L97
-:bean_ref_context_url:   https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/beanRefContext.xml#L68
-:iadmin_context_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/ome/services/service-ome.api.IAdmin.xml#L47
+:fluent_hc_executor_url:  https://github.com/apache/httpclient/blob/4.3.3/fluent-hc/src/main/java/org/apache/http/client/fluent/Executor.java#L94-L97
+:bean_ref_context_url:    https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/beanRefContext.xml#L68
+:pool_client_cnx_mgr_url: https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/impl/conn/PoolingHttpClientConnectionManager.java
+:bean_ref_context_url:    https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/beanRefContext.xml#L68
+:iadmin_context_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/resources/ome/services/service-ome.api.IAdmin.xml#L47
+:bean_group_spec_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/etc/omero.properties#L387-L389
+:request_so_timeout_url:  https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L252-L264
+:request_con_timeout_url: https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L239-L250
 :password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
 :source-highlighter: coderay
 :toc:
@@ -15,35 +20,36 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 
 === OMERO auth extension
 
-[width="100%", options="header"]
-|===================================================================================================
-|Setting                            |Format               |Description
-|+omero.ppms.config+                |true,false           |
-|+omero.ppms.new_user_group+        |:bean: or string     |
-|+omero.ppms.sync_groups+           |true,false           |
-|+omero.ppms.sync_user+             |true,false           |
-|+omero.ppms.include_facilities+    |1,2,3                |
-|+omero.ppms.include_system_types+  |confocal,biphoton    |
-|+omero.ppms.add_user_groups+       |Default,Shared       |
-|+omero.ppms.client_impl+           |spring bean name     |
-|===================================================================================================
+[width="100%", cols="25,25,50" options="header"]
+|============================================================================================================================
+|Setting                            |Format                     |Description
+|+omero.ppms.config+                |true,false                 |(De)activate the PPMS auth extension
+|+omero.ppms.new_user_group+        |_:bean:_ or string literal |{bean_group_spec_url}[GroupSpec] for memberships assignment
+|+omero.ppms.sync_groups+           |true,false                 |Synchronize groups upon login
+|+omero.ppms.sync_user+             |true,false                 |Synchronize user fields upon login
+|+omero.ppms.include_facilities+    |1,2,3                      |PPMS facilities IDs whitelist
+|+omero.ppms.include_system_types+  |confocal,biphoton          |PPMS instrument types names whitelist
+|+omero.ppms.add_user_groups+       |Default,Shared             |CSV groups for _:bean:listToGroupsBean_ GroupSpec
+|+omero.ppms.client_impl+           |spring bean name           |PUMAPI client implementation bean
+|============================================================================================================================
 
 === PPMS HTTP client
 
-[width="100%", options="header"]
-|===================================================================================================
-|Setting                            |Format           |Description
-|+omero.ppms.endpoint+              |https://api.tld/ |
-|+omero.ppms.api_key+               |string           |
-|+omero.ppms.proxy_host+            |localhost        |
-|+omero.ppms.proxy_port+            |8080             |
-|+omero.ppms.connect_timeout+       |3000             |
-|+omero.ppms.socket_timeout+        |1000             |
-|===================================================================================================
+[width="100%", cols="25,25,50", options="header"]
+|==========================================================================================================================================
+|Setting                            |Format                        |Description
+|+omero.ppms.endpoint+              |https://some.host.tld/pumapi/ |PUMAPI service URL
+|+omero.ppms.api_key+               |string                        |PUMAPI multi-facilities API key
+|+omero.ppms.proxy_host+            |localhost                     |HTTP(S) proxy hostname
+|+omero.ppms.proxy_port+            |8080                          |HTTP(S) proxy port number
+|+omero.ppms.connect_timeout+       |3000                          |HTTP request {request_con_timeout_url}[connect timeout] in milliseconds
+|+omero.ppms.socket_timeout+        |1000                          |HTTP request {request_so_timeout_url}[socket timeout] in milliseconds
+|==========================================================================================================================================
 
-NOTE: The underlying fluent HttpClient uses an +org.apache.http.impl.conn.PoolingHttpClientConnectionManager+
+NOTE: The underlying fluent HttpClient uses an
+      {pool_client_cnx_mgr_url}[+org.apache.http.impl.conn.PoolingHttpClientConnectionManager+]
       by default, with a maximum of 100 connections per route and 200 maximum total number of connections.
-      See {fluent_hc_executor_url}.
+      See: {fluent_hc_executor_url}[Executor].
 
 === Logging
 

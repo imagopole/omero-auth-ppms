@@ -3,7 +3,7 @@
  */
 package org.imagopole.omero.auth.impl.ppms;
 
-import static org.imagopole.ppms.util.Check.empty;
+import static org.imagopole.omero.auth.util.Check.empty;
 
 import java.util.ArrayList;
 import java.util.List;

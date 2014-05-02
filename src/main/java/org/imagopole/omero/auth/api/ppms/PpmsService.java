@@ -31,7 +31,8 @@ public interface PpmsService {
     PpmsUser findUserByName(String userName) throws PumapiException;
 
     /**
-     * Retrieves a PPMS user by login, with affiliation details.
+     * Retrieves a PPMS user by login, with affiliation details, regardless of the group's or
+     * the user's statuses (active or inactive).
      *
      * @param userName the username / PPMS identifier
      * @return the user attributes or null if not found.
@@ -43,8 +44,8 @@ public interface PpmsService {
     List<NamedItem> findProjectsByUserName(String userName) throws PumapiException;
 
     /**
-     * Retrieves the PPMS group (a.k.a Unit) for a PPMS user, regardless of the group's
-     * status (active or inactive).
+     * Retrieves the PPMS group (a.k.a Unit) for a PPMS user, regardless of the group's or
+     * the user's statuses (active or inactive).
      *
      * @param userName the username / PPMS identifier
      * @return a groups/unit or null if none found.
@@ -53,7 +54,10 @@ public interface PpmsService {
     PpmsGroup findGroupByUserName(String userName) throws PumapiException;
 
     /**
-     * Retrieves a list of active PPMS instruments (a.k.a Systems) available to a given user.
+     * Retrieves a list of active PPMS instruments (a.k.a Systems) available to a given user with
+     * a status other than deactivated on the instrument.
+     *
+     * The instrument's autonomy requirements are not taken into account.
      *
      * @param userName the username / PPMS identifier
      * @return a list of instrument attributes, or an empty list if none found
@@ -63,7 +67,9 @@ public interface PpmsService {
 
     /**
      * Retrieves a list of active PPMS instruments (a.k.a Systems) available to a given user with an
-     * autonomy status on the instrument.
+     * autonomy status (or super user status) on the instrument.
+     *
+     * The instrument's autonomy requirements are taken into account.
      *
      * @param userName the username / PPMS identifier
      * @return a list of granted instrument attributes, or an empty list if none found

@@ -102,7 +102,7 @@ WARNING: The {password_provider_url}[recommended configuration] for custom passw
 ----
 <!-- Define custom properties for the Blitz server only -->
 <properties id="PpmsBlitzHackProps">
-  <property name="omero.security.password_provider" value="ppmsChainedPasswordProvider"/>
+  <property name="omero.security.password_provider" value="ppmsChainedPasswordProvider431"/>
 </properties>
 
 <server-template id="BlitzTemplate">

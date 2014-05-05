@@ -54,7 +54,7 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
         super.setUpAfterServerStartup(omeroContext);
 
         //-- test case services
-        this.passwordProvider = (PasswordProvider) omeroContext.getBean("ppmsChainedPasswordProvider");
+        this.passwordProvider = (PasswordProvider) omeroContext.getBean("ppmsChainedPasswordProvider431");
         this.ppmsConfig = (ExternalAuthConfig) omeroContext.getBean("externalAuthConfiguration");
         this.ldapConfig = (LdapConfig) omeroContext.getBean("ldapConfig");
 

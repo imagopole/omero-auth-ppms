@@ -315,7 +315,7 @@
        * it enables working around the PUMAPI password checking response times when authenticating LDAP users
        * it enables DN seeding by default for PPMS LDAP users
    -->
-  <bean id="ppmsLdapChainedPasswordProvider" class="org.imagopole.omero.auth.impl.SynchronizingPasswordProviders">
+  <bean id="ppmsLdapChainedPasswordProvider431" class="org.imagopole.omero.auth.impl.SynchronizingPasswordProviders">
      <description>
         Chained PasswordProvider with LDAP as a first authentication source, and PPMS as an external
         data source for both authentication and accounts/roles synchronization.
@@ -324,13 +324,13 @@
      <constructor-arg name="synchronizingProvider" ref="ppmsPasswordProvider"/>
   </bean>
 
-  <bean id="ppmsChainedPasswordProvider" class="ome.security.auth.PasswordProviders">
+  <bean id="ppmsChainedPasswordProvider431" class="ome.security.auth.PasswordProviders">
     <description>
         Default PPMS password providers chain: LDAP -> PPMS -> OMERO database.
     </description>
     <constructor-arg>
       <list>
-        <ref bean="ppmsLdapChainedPasswordProvider"/>
+        <ref bean="ppmsLdapChainedPasswordProvider431"/>
         <ref bean="jdbcPasswordProvider"/>
       </list>
     </constructor-arg>

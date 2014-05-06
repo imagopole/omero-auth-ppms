@@ -116,20 +116,26 @@ public class ExternalConfigurablePasswordProvider
 
         boolean result = false;
 
-        boolean hasUsername = hasUsername(user);
-        if (hasUsername) {
-            // similar logic to that of LdapPasswordProviders
-            // as per javadoc: "this is typically only of importance during checkPassword,
-            // [..] before a provider has not created a user, it is also not responsible."
-            Long id = util.userId(user);
-            log.debug("[external_auth] verifying local existence for user: {} - {}", user, id);
+        if (externalNewUserService.isEnabled()) {
+            Boolean hasUsername = hasUsername(user);
+            boolean isUsernameFound = (null != hasUsername && hasUsername);
 
-            if (null != id) {
-                result = true;
+            if (isUsernameFound) {
+                // similar logic to that of LdapPasswordProviders
+                // as per javadoc: "this is typically only of importance during checkPassword,
+                // [..] before a provider has not created a user, it is also not responsible."
+                Long id = util.userId(user);
+                log.debug("[external_auth] verifying local existence for user: {} - {}", user, id);
+
+                if (null != id) {
+                    result = true;
+                }
             }
+
+            log.debug("[external_auth] hasPassword result for username: {}:{} [{}]",
+                      user, result, hasUsername);
         }
 
-        log.debug("[external_auth] hasPassword result for username: {}:{}", user, result);
         return result;
     }
 
@@ -137,10 +143,10 @@ public class ExternalConfigurablePasswordProvider
      * {@inheritDoc}
      */
     @Override
-    public boolean hasUsername(String user) {
+    public Boolean hasUsername(String user) {
         Check.notEmpty(user, "user");
 
-        boolean result = false;
+        Boolean result = null;
 
         if (externalNewUserService.isEnabled()) {
             log.debug("[external_auth] service enabled - verifying hasUsername status for user: {}", user);
@@ -150,9 +156,7 @@ public class ExternalConfigurablePasswordProvider
                 result = false;
             } else {
                 Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
-                if (null != externalUser) {
-                    result = true;
-                }
+                result = (null != externalUser);
             }
         }
 
@@ -261,8 +265,10 @@ public class ExternalConfigurablePasswordProvider
     public void synchronizeUser(String username) {
         Check.notEmpty(username, "username");
 
-        log.debug("[external_auth] Attempting synchronization from remote source for user: {}", username);
-        externalNewUserService.synchronizeUserFromExternalSource(username);
+        if (externalNewUserService.isEnabled()) {
+            log.debug("[external_auth] Attempting synchronization from remote source for user: {}", username);
+            externalNewUserService.synchronizeUserFromExternalSource(username);
+        }
     }
 
     private boolean isProtectedAccount(String username) {

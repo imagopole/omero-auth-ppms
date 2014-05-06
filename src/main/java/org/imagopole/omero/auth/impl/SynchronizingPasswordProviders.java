@@ -83,14 +83,16 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
         boolean chainResult = false;
 
         // 0 - check the synchronizing provider "knows" about the user
-        boolean isUsernameSynchronizable = synchronizingProvider.hasUsername(user);
+        Boolean hasUsername = synchronizingProvider.hasUsername(user);
+        boolean isUsernameSynchronizable = (null != hasUsername && hasUsername);
 
         if (isUsernameSynchronizable) {
             // the user is present in the reference data source - proceed with the chained password verification
             chainResult = hasPasswordChain(user);
         } else {
             // the (reference) synchronizing provider is not aware of this username: disallow password ownership
-            log.info("[external_auth][chain] Chain hasPassword - Skipping unknown username in secondary source: {}", user);
+            log.info("[external_auth][chain] Chain hasPassword - Skipping unknown username in secondary source: {}[{}]",
+                     user, hasUsername);
         }
 
         return chainResult;
@@ -142,14 +144,17 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
         }
 
         // 0 - check the synchronizing provider "knows" about the user
-        boolean isUsernameSynchronizable = synchronizingProvider.hasUsername(user);
+        Boolean hasUsername = synchronizingProvider.hasUsername(user);
+        boolean isUsernameSynchronizable = (null != hasUsername && hasUsername);
 
         if (isUsernameSynchronizable) {
             // the user is present in the reference data source - proceed with the chained password verification
             chainResult = checkPasswordChain(user, password, readOnly);
         } else {
-            // the (reference) synchronizing provider is not aware of this username: disallow authentication
-            log.info("[external_auth][chain] Chain step-0 - Skipping unknown username in secondary source: {}", user);
+            // the (reference) synchronizing provider is not aware of this username: disallow authentication,
+            // or fallback onto the next configured step in the chain
+            log.info("[external_auth][chain] Chain step-0 - Skipping unknown username in secondary source: {}[{}]",
+                     user, hasUsername);
         }
 
         return chainResult;

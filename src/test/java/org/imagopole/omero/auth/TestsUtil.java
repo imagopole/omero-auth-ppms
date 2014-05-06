@@ -274,6 +274,7 @@ public class TestsUtil {
         public static final String FLYWAY_DB_INIT_ON_MIGRATE  = "flyway.db.init_on_migrate";
         public static final String FLYWAY_DB_CLEAN_ON_MIGRATE = "flyway.db.clean_on_migrate";
 
+        public static final String PPMS_CONFIG               = "omero.ppms.config";
         public static final String PPMS_NEW_USER_GROUP       = "omero.ppms.new_user_group";
         public static final String PPMS_SYNC_GROUPS          = "omero.ppms.sync_groups";
         public static final String PPMS_SYNC_USER            = "omero.ppms.sync_user";

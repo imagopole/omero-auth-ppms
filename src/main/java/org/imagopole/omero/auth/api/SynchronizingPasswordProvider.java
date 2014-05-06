@@ -23,15 +23,19 @@ public interface SynchronizingPasswordProvider extends PasswordProvider {
      * This gives strictly no indication whether this provider "considers itself responsible for
      * the given user name", as this is handled by {@link #hasPassword(String)}.
      * It merely checks for presence of the user account (and possibly its validity - eg.
-     * expiration, locking, etc.)
+     * expiration, locking, etc.).
+     * Similarly to {@link #checkPassword(String, String, boolean)}, if the implementation is
+     * not able to make a decision on the username (eg. if the account service is disabled), a
+     * call to this method may return <code>null</code>.
      *
      * Despite some overlap with its password counterpart, this method allows to verify the
      * existence of an account independently of the account/password ownership rules.
      *
      * @param user the experimenter login
-     * @return true if a valid user account is known by this provider, false otherwise
+     * @return null if the provider cannot provide the information, true if a valid user account
+     * is known by this provider, false otherwise
      */
-    boolean hasUsername(String user);
+    Boolean hasUsername(String user);
 
     /**
      * Replicates additional information for the given user into OMERO.

@@ -18,8 +18,10 @@ import java.util.List;
 
 import org.imagopole.omero.auth.TestsUtil.Data;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.ppms.PpmsUserDetails;
 import org.imagopole.ppms.api.PumapiClient;
+import org.imagopole.ppms.api.PumapiException;
 import org.imagopole.ppms.api.dto.PpmsGroup;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
@@ -32,6 +34,9 @@ import org.unitils.inject.annotation.TestedObject;
 import org.unitils.mock.Mock;
 
 public class DefaultPpmsServiceTest extends UnitilsTestNG {
+
+    /** Fixture exception message. */
+    private static final String PUMAPI_EXCEPTION_MSG = "should.be.translated";
 
     /** PPMS service layer */
     @TestedObject
@@ -237,6 +242,61 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
         assertEquals(result.getLname(), PpmsUnit.OMERO_USER_SN, "Incorrect results");
         assertEquals(result.getEmail(), PpmsUnit.OMERO_USER_EMAIL, "Incorrect results");
         pumapiClientMock.assertInvoked().getUser(PpmsUnit.OMERO_USER);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void checkAuthenticationShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).authenticate(Data.USERNAME, Data.PASSWORD);
+
+        ppmsService.checkAuthentication(Data.USERNAME, Data.PASSWORD);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void findActiveSystemsByUserNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUserRights(Data.USERNAME);
+
+        ppmsService.findActiveSystemsByUserName(Data.USERNAME);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void findActiveSystemsWithAutonomyByUserNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUserRights(Data.USERNAME);
+
+        ppmsService.findActiveSystemsWithAutonomyByUserName(Data.USERNAME);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void findGroupByUserNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUser(Data.USERNAME);
+
+        ppmsService.findGroupByUserName(Data.USERNAME);
+    }
+
+    @Test(expectedExceptions = { UnsupportedOperationException.class })
+    public void findProjectsByUserNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUser(Data.USERNAME);
+
+        ppmsService.findProjectsByUserName(Data.USERNAME);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void findUserAndGroupByNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUser(Data.USERNAME);
+
+        ppmsService.findUserAndGroupByName(Data.USERNAME);
+    }
+
+    @Test(expectedExceptions = { ExternalServiceException.class },
+          expectedExceptionsMessageRegExp = PUMAPI_EXCEPTION_MSG)
+    public void findUserByNameShouldWrapExceptions() {
+        pumapiClientMock.raises(new PumapiException(PUMAPI_EXCEPTION_MSG)).getUser(Data.USERNAME);
+
+        ppmsService.findUserByName(Data.USERNAME);
     }
 
 }

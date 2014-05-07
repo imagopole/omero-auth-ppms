@@ -6,8 +6,10 @@ package org.imagopole.omero.auth.impl.ppms;
 import static org.imagopole.omero.auth.util.Check.empty;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.api.ppms.PpmsUserDetails;
@@ -48,7 +50,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public PpmsUser findUserByName(String userName) throws PumapiException {
+    public PpmsUser findUserByName(String userName) throws ExternalServiceException {
+        PpmsUser result = null;
+
+        try {
+            result = this.findUserByNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private PpmsUser findUserByNameCall(String userName) throws PumapiException {
         // lookup the user basic info
         PpmsUser ppmsUser = getPpmsClient().getUser(userName);
 
@@ -59,7 +73,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public boolean checkAuthentication(String userName, String password) throws PumapiException {
+    public boolean checkAuthentication(String userName, String password) throws ExternalServiceException {
+        boolean result = false;
+
+        try {
+            result = this.checkAuthenticationCall(userName, password);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private boolean checkAuthenticationCall(String userName, String password) throws PumapiException {
         Boolean success = getPpmsClient().authenticate(userName, password);
 
         return success;
@@ -69,7 +95,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public List<NamedItem> findProjectsByUserName(String userName) throws PumapiException {
+    public List<NamedItem> findProjectsByUserName(String userName) throws ExternalServiceException {
+        List<NamedItem> result = Collections.emptyList();
+
+        try {
+            result = this.findProjectsByUserNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private List<NamedItem> findProjectsByUserNameCall(String userName) throws PumapiException {
         throw new UnsupportedOperationException("Projects lookup by login not implemented");
     }
 
@@ -77,7 +115,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public PpmsGroup findGroupByUserName(String userName) throws PumapiException {
+    public PpmsGroup findGroupByUserName(String userName) throws ExternalServiceException {
+        PpmsGroup result = null;
+
+        try {
+            result = this.findGroupByUserNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private PpmsGroup findGroupByUserNameCall(String userName) throws PumapiException {
         PpmsGroup result = null;
 
         // finding the group always requires looking up the user first to get hold of the "unitlogin"
@@ -96,7 +146,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public PpmsUserDetails findUserAndGroupByName(String userName) throws PumapiException {
+    public PpmsUserDetails findUserAndGroupByName(String userName) throws ExternalServiceException {
+        PpmsUserDetails result = null;
+
+        try {
+            result = this.findUserAndGroupByNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private PpmsUserDetails findUserAndGroupByNameCall(String userName) throws PumapiException {
         PpmsUserDetails result = null;
 
         // lookup the user basic info
@@ -136,7 +198,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public List<PpmsSystem> findActiveSystemsByUserName(String userName) throws PumapiException {
+    public List<PpmsSystem> findActiveSystemsByUserName(String userName) throws ExternalServiceException {
+        List<PpmsSystem> result = Collections.emptyList();
+
+        try {
+            result = this.findActiveSystemsByUserNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private List<PpmsSystem> findActiveSystemsByUserNameCall(String userName) throws PumapiException {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
@@ -180,7 +254,19 @@ public class DefaultPpmsService implements PpmsService {
      * {@inheritDoc}
      */
     @Override
-    public List<PpmsSystem> findActiveSystemsWithAutonomyByUserName(String userName) throws PumapiException {
+    public List<PpmsSystem> findActiveSystemsWithAutonomyByUserName(String userName) throws ExternalServiceException {
+        List<PpmsSystem> result = Collections.emptyList();
+
+        try {
+            result = this.findActiveSystemsWithAutonomyByUserNameCall(userName);
+        } catch(PumapiException pe) {
+            translateAndRethrow(pe);
+        }
+
+        return result;
+    }
+
+    private List<PpmsSystem> findActiveSystemsWithAutonomyByUserNameCall(String userName) throws PumapiException {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
@@ -242,6 +328,18 @@ public class DefaultPpmsService implements PpmsService {
         }
 
         return result;
+    }
+
+    /**
+     * Programmatic exception translation utility.
+     *
+     * May be replaced by an AOP/Spring interceptor later.
+     *
+     * @param pe {@link PumapiException} the exception from the underlying service
+     * @throws ExternalServiceException the wrapper exception to be retrown
+     */
+    private void translateAndRethrow(PumapiException pe) throws ExternalServiceException {
+        throw new ExternalServiceException(pe.getMessage(), pe);
     }
 
     /**

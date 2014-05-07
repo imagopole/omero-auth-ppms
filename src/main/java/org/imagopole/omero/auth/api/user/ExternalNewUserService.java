@@ -4,6 +4,7 @@
 package org.imagopole.omero.auth.api.user;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 
 import ome.api.ServiceInterface;
 import ome.model.meta.Experimenter;
@@ -39,10 +40,11 @@ public interface ExternalNewUserService extends ServiceInterface {
      *
      * @param username the username / external identifier
      * @return the experimenter, or null if none found
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see ome.logic.LdapImpl#findExperimenter(String)
      */
-    Experimenter findExperimenterFromExternalSource(String username);
+    Experimenter findExperimenterFromExternalSource(String username) throws ExternalServiceException;
 
     /**
      * Initializes a new user account in OMERO from the external source.
@@ -55,11 +57,12 @@ public interface ExternalNewUserService extends ServiceInterface {
      * @param username the username / external identifier
      * @param password the password
      * @return true if the password check succeeded, false otherwise
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see ome.logic.LdapImpl#createUserFromLdap(String, String)
      * @see ome.logic.LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
-    boolean createUserFromExternalSource(String username, String password);
+    boolean createUserFromExternalSource(String username, String password) throws ExternalServiceException;
 
     /**
      * Updates an existing OMERO user account from the external source.
@@ -72,10 +75,11 @@ public interface ExternalNewUserService extends ServiceInterface {
      * metadata synchronization will be triggered for the relevant attributes (name, email, institution).
      *
      * @param username the username / external identifier
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see ome.logic.LdapImpl#synchronizeLdapUser(String)
      */
-    void synchronizeUserFromExternalSource(String username);
+    void synchronizeUserFromExternalSource(String username) throws ExternalServiceException;
 
     /**
      * Checks the experimenter credentials.
@@ -83,9 +87,10 @@ public interface ExternalNewUserService extends ServiceInterface {
      * @param username the username / external identifier
      * @param password the password
      * @return true if the password check succeeded, false otherwise
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see ome.logic.LdapImpl#validatePassword(String, String)
      */
-    boolean validatePassword(String username, String password);
+    boolean validatePassword(String username, String password) throws ExternalServiceException;
 
 }

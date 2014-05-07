@@ -27,6 +27,7 @@ import ome.system.OmeroContext;
 import ome.system.Roles;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,7 +154,7 @@ public abstract class BaseExternalNewUserService
      * {@inheritDoc}
      */
     @Override
-    public boolean createUserFromExternalSource(String username, String password) {
+    public boolean createUserFromExternalSource(String username, String password) throws ExternalServiceException {
         log.info("[external_auth] Preparing to create experimenter: {}", username);
 
         Experimenter exp = findExperimenterFromExternalSource(username);
@@ -201,7 +202,7 @@ public abstract class BaseExternalNewUserService
      * {@inheritDoc}
      */
     @Override
-    public void synchronizeUserFromExternalSource(String username) {
+    public void synchronizeUserFromExternalSource(String username) throws ExternalServiceException {
         boolean syncGroupsOnLogin = config.syncGroupsOnLogin();
         boolean syncUserOnLogin = config.syncUserOnLogin();
         log.debug("[external_auth] Synchronization settings for user:{} [groups:{} - user:{}]",
@@ -318,10 +319,11 @@ public abstract class BaseExternalNewUserService
      *
      * @param username the OMERO username
      * @return the group identifiers for the user memberships
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
-    public List<Long> loadExternalGroups(String username) {
+    public List<Long> loadExternalGroups(String username) throws ExternalServiceException {
         final String grpSpec = config.getNewUserGroup();
         log.debug("[external_auth] loading externalNewUserGroup from spec: {}", grpSpec);
 

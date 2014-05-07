@@ -6,6 +6,7 @@ package org.imagopole.omero.auth.api.group;
 import java.util.List;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 
 import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.RoleProvider;
@@ -30,7 +31,8 @@ public interface ExternalNewUserGroupBean {
      * @param provider the OMERO role provider service
      * @return a list of OMERO group identifiers the user is a member of in the external source, or
      * an empty list if no memberships exist.
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
      */
-    List<Long> groups(String username, ExternalAuthConfig config, RoleProvider provider);
+    List<Long> groups(String username, ExternalAuthConfig config, RoleProvider provider) throws ExternalServiceException;
 
 }

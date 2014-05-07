@@ -10,6 +10,7 @@ import ome.security.auth.RoleProvider;
 import ome.system.Roles;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.imagopole.omero.auth.impl.ppms.PpmsUtil;
@@ -48,7 +49,7 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
      * {@inheritDoc}
      */
     @Override
-    public boolean validatePassword(String username, String password) {
+    public boolean validatePassword(String username, String password) throws ExternalServiceException {
         // See discussion on anonymous bind in LdapPasswordProvider
         if (username == null || username.trim().isEmpty() ||
             password == null || password.trim().isEmpty()) {
@@ -68,7 +69,7 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
      */
     @Override
     @RolesAllowed("system")
-    public Experimenter findExperimenterFromExternalSource(String username) {
+    public Experimenter findExperimenterFromExternalSource(String username) throws ExternalServiceException {
         Experimenter person = null;
 
         PpmsUser ppmsUser = getPpmsService().findUserByName(username);

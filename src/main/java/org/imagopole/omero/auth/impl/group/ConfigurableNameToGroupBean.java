@@ -11,6 +11,7 @@ import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.RoleProvider;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
 import org.imagopole.omero.auth.util.Check;
@@ -59,7 +60,7 @@ public abstract class ConfigurableNameToGroupBean extends NewUserGroupBeanAdapte
      * {@inheritDoc}
      */
     @Override
-    public List<Long> groups(String username, ExternalAuthConfig config, RoleProvider provider) {
+    public List<Long> groups(String username, ExternalAuthConfig config, RoleProvider provider) throws ExternalServiceException {
         Check.notEmpty(username, "username");
         Check.notNull(config, "authConfig");
         Check.notNull(provider, "roleProvider");

@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
  * account's existence. If no account is known to this provider, the authentication chain will be
  * skipped entirely so as to avoid account operations being issued from a potentially larger user
  * base via the primary provider, but subsequently unknown to the synchronizing provider.
+ * Additionally, if this chain is configured accordingly, a failover provider may be invoked as a
+ * degraded authentication mechanism in case the second provider is unavailable.
  * 1 - The first provider is used for authentication only (typically intended to be a LDAP provider,
  * which may perform the user account initialization).
  * 2 - If the first provider is not responsible for the account, then check the second provider
@@ -54,6 +56,9 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
     /** Fallback password provider (with account synchronization capabilities). */
     private final SynchronizingPasswordProvider synchronizingProvider;
 
+    /** Optional authentication provider to be used as failover if the second one is unavailable. */
+    private final PasswordProvider failoverProvider;
+
     /**
      * Full constructor.
      *
@@ -63,16 +68,32 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
     public SynchronizingPasswordProviders(
                     PasswordProvider primaryProvider,
                     SynchronizingPasswordProvider synchronizingProvider) {
+        this(primaryProvider, synchronizingProvider, null);
+    }
+
+    /**
+     * Full constructor with failover provider.
+     *
+     * @param primaryProvider the first provider (authentication only)
+     * @param synchronizingProvider the second provider (authentication fallback + replication)
+     * @param failoverProvider the (optional) failover provider (authentication only)
+     */
+    public SynchronizingPasswordProviders(
+                    PasswordProvider primaryProvider,
+                    SynchronizingPasswordProvider synchronizingProvider,
+                    PasswordProvider failoverProvider) {
         super();
 
         Check.notNull(primaryProvider, "primaryProvider");
         Check.notNull(synchronizingProvider, "synchronizingProvider");
         this.primaryProvider = primaryProvider;
         this.synchronizingProvider = synchronizingProvider;
+        this.failoverProvider = failoverProvider;
 
-        log.debug("[external_auth][chain] Initialized dual auth chain with providers: {} + {}",
+        log.debug("[external_auth][chain] Initialized dual auth chain with providers: {} + {}/{}",
                   primaryProvider.getClass().getSimpleName(),
-                  synchronizingProvider.getClass().getSimpleName());
+                  synchronizingProvider.getClass().getSimpleName(),
+                  this.failoverProvider);
     }
 
     /**
@@ -145,16 +166,26 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
 
         // 0 - check the synchronizing provider "knows" about the user
         Boolean hasUsername = synchronizingProvider.hasUsername(user);
-        boolean isUsernameSynchronizable = (null != hasUsername && hasUsername);
+        boolean isSyncProviderAvailable = (null != hasUsername);
+        boolean isUsernameSynchronizable = (isSyncProviderAvailable && hasUsername);
 
         if (isUsernameSynchronizable) {
             // the user is present in the reference data source - proceed with the chained password verification
             chainResult = checkPasswordChain(user, password, readOnly);
         } else {
-            // the (reference) synchronizing provider is not aware of this username: disallow authentication,
-            // or fallback onto the next configured step in the chain
-            log.info("[external_auth][chain] Chain step-0 - Unsynchronizable username result for: {}[{}]",
-                     user, hasUsername);
+            // the (reference) synchronizing provider may be disabled, or unable to provide information about
+            // this username. Then, if a failover provider is configured, we want to attempt a graceful degradation.
+            // Otherwise, if the synchronizing provider is not aware of this username, just disallow
+            // authentication (which may fallback onto the next configured step in the chain).
+            boolean shouldFailover = (!isSyncProviderAvailable && null != failoverProvider);
+
+            if (shouldFailover) {
+                log.warn("[external_auth][chain] Chain step-0 - Warning: attempting degraded mode for: {}", user);
+                chainResult = failoverProvider.checkPassword(user, password, readOnly);
+            }
+
+            log.info("[external_auth][chain] Chain step-0 - Unsynchronizable username result: {} for: {}[{}]",
+                     chainResult, user, hasUsername);
         }
 
         return chainResult;

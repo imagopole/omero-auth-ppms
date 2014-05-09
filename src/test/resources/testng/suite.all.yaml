@@ -34,3 +34,5 @@ tests:
       - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderSyncTest
       - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderNoSyncTest
       - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderGroupBeanTest
+      - org.imagopole.omero.auth.impl.ChainedPpmsPasswordProviderFaultTest
+      - org.imagopole.omero.auth.impl.FailoverPpmsPasswordProviderFaultTest

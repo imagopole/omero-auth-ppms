@@ -324,13 +324,44 @@
      <constructor-arg name="synchronizingProvider" ref="ppmsPasswordProvider"/>
   </bean>
 
+  <!-- This PPMS+LDAP chain is configured with a redundant LDAP provider so as to attempt a graceful
+       degradation in case the PPMS service becomes unavailable (or disabled).
+  -->
+  <bean id="ppmsLdapFailoverPasswordProvider431" class="org.imagopole.omero.auth.impl.SynchronizingPasswordProviders">
+     <description>
+        Failsafe PasswordProvider with a redundant LDAP provider for degraded mode authentication.
+     </description>
+     <constructor-arg name="primaryProvider" ref="ldapPasswordProvider431"/>
+     <constructor-arg name="synchronizingProvider" ref="ppmsPasswordProvider"/>
+     <constructor-arg name="failoverProvider" ref="ldapPasswordProvider431"/>
+  </bean>
+
+  <!-- This chain ensures that all accounts exist in PPMS before replication into OMERO is
+       performed, with LDAP taking precedence for creation and PPMS for synchronization.
+    -->
   <bean id="ppmsChainedPasswordProvider431" class="ome.security.auth.PasswordProviders">
     <description>
-        Default PPMS password providers chain: LDAP -> PPMS -> OMERO database.
+        Default PPMS password providers chain: (LDAP) -> PPMS -> OMERO database.
     </description>
     <constructor-arg>
       <list>
         <ref bean="ppmsLdapChainedPasswordProvider431"/>
+        <ref bean="jdbcPasswordProvider"/>
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- This chain allows failover onto LDAP in case of PPMS unavailability.
+       This would allow PPMS+LDAP users to login with an existing or default group; PPMS-only users
+       would be rejected; and OMERO-only users would still login via JDBC.
+   -->
+  <bean id="ppmsChainedFailoverPasswordProvider431" class="ome.security.auth.PasswordProviders">
+    <description>
+        Failsafe PPMS password providers chain: (LDAP) -> PPMS -> LDAP failover -> OMERO database.
+    </description>
+    <constructor-arg>
+      <list>
+        <ref bean="ppmsLdapFailoverPasswordProvider431"/>
         <ref bean="jdbcPasswordProvider"/>
       </list>
     </constructor-arg>

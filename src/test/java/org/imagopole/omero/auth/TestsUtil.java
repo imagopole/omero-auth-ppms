@@ -18,7 +18,7 @@ import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
  * @author seb
  *
  */
-public class TestsUtil {
+public final class TestsUtil {
 
     /** Default "protected" OMERO group names. */
     public static final List<String> OMERO_SYSTEM_GROUPS =

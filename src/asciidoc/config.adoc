@@ -8,6 +8,7 @@ Imagopole
 :bean_group_spec_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/etc/omero.properties#L387-L389
 :request_so_timeout_url:  https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L252-L264
 :request_con_timeout_url: https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L239-L250
+:request_config_url:      https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L334-L344
 :password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
 :source-highlighter: coderay
 :toc:
@@ -48,8 +49,9 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 
 NOTE: The underlying fluent HttpClient uses an
       {pool_client_cnx_mgr_url}[+org.apache.http.impl.conn.PoolingHttpClientConnectionManager+]
-      by default, with a maximum of 100 connections per route and 200 maximum total number of connections.
-      See: {fluent_hc_executor_url}[Executor].
+      by default, with a maximum of 100 connections per route and 200 maximum total number of connections,
+      and default system timeouts.
+      See: {fluent_hc_executor_url}[Executor] and {request_config_url}[RequestConfig].
 
 === Logging
 
@@ -103,6 +105,10 @@ WARNING: The {password_provider_url}[recommended configuration] for custom passw
 <!-- Define custom properties for the Blitz server only -->
 <properties id="PpmsBlitzHackProps">
   <property name="omero.security.password_provider" value="ppmsChainedPasswordProvider431"/>
+  <!--
+  <property name="omero.security.password_provider"
+            value="ppmsChainedFailoverPasswordProvider431"/>
+  -->
 </properties>
 
 <server-template id="BlitzTemplate">

@@ -153,7 +153,7 @@ public class ExternalConfigurablePasswordProvider
             log.debug("[external_auth] service enabled - verifying hasUsername status for user: {}", user);
 
             if (isProtectedAccount(user)) {
-                log.debug("[external_auth] skipping protected OMERO account: {}", user);
+                log.trace("[external_auth] skipping protected OMERO account: {}", user);
                 result = false;
             } else {
                 try {

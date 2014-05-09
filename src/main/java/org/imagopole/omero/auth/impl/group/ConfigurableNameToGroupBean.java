@@ -118,7 +118,7 @@ public abstract class ConfigurableNameToGroupBean extends NewUserGroupBeanAdapte
         if (null != excludedGroups) {
 
             result = excludedGroups.contains(groupName);
-            log.debug("[external_auth] isProtectedGroup? {} : {}", groupName, result);
+            log.trace("[external_auth] isProtectedGroup? {} : {}", groupName, result);
 
         }
 

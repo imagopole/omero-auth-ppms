@@ -153,7 +153,7 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
         } else {
             // the (reference) synchronizing provider is not aware of this username: disallow authentication,
             // or fallback onto the next configured step in the chain
-            log.info("[external_auth][chain] Chain step-0 - Skipping unknown username in secondary source: {}[{}]",
+            log.info("[external_auth][chain] Chain step-0 - Unsynchronizable username result for: {}[{}]",
                      user, hasUsername);
         }
 
@@ -187,7 +187,7 @@ public class SynchronizingPasswordProviders implements PasswordProvider {
 
         }
 
-        log.debug("[external_auth][chain] Chain authentication result: {} for user: {} [primary:{} - ext:{}]",
+        log.info("[external_auth][chain] Chain authentication result: {} for user: {} [primary:{} - ext:{}]",
                   chainResult, user, primaryResult, externalResult);
 
         // 3 - regardless of the source used for authentication, synchronize against the external source

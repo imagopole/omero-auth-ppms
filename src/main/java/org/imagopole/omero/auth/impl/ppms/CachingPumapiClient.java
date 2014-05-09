@@ -202,7 +202,7 @@ public class CachingPumapiClient implements PumapiClient {
     }
 
     private final void writeToCacheAlways(String key, Object value) {
-        log.debug("[external_auth][ppms][cache] Writing to cache for key: {}", key);
+        log.trace("[external_auth][ppms][cache] Writing to cache for key: {}", key);
         Ehcache cache = getCacheOrFail();
         Element element = new Element(key, value);
         cache.put(element);

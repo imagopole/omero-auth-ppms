@@ -37,9 +37,6 @@ import org.unitils.mock.core.MockObject;
 
 public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTest {
 
-    /** @TestedObject */
-    protected PasswordProvider passwordProvider;
-
     protected Mock<PumapiClient> pumapiClientMock;
 
     protected LocalAdmin iAdmin;
@@ -54,7 +51,6 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
         super.setUpAfterServerStartup(omeroContext);
 
         //-- test case services
-        this.passwordProvider = (PasswordProvider) omeroContext.getBean("ppmsChainedPasswordProvider431");
         this.ppmsConfig = (ExternalAuthConfig) omeroContext.getBean("externalAuthConfiguration");
         this.ldapConfig = (LdapConfig) omeroContext.getBean("ldapConfig");
 
@@ -72,6 +68,9 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
 
     /** Some sanity checks to assert the configuration expectations for the configuration settings. */
     protected abstract void checkSetupConfig();
+
+    /** Each subclass may test a different password provider flavor. */
+    protected abstract PasswordProvider getPasswordProvider();
 
     protected void checkUserAbsent(String username) {
         String expectedExceptionMessage = "^No such experimenter: " + username;
@@ -177,7 +176,7 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
            @Override
            @Transactional(readOnly = false)
            public Object doWork(org.hibernate.Session session, ServiceFactory serviceFactory) {
-               Boolean result = passwordProvider.checkPassword(username, password, false);
+               Boolean result = getPasswordProvider().checkPassword(username, password, false);
                return result;
            }
 

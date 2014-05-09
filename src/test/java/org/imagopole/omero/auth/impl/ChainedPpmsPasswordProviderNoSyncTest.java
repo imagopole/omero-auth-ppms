@@ -13,6 +13,8 @@ import static org.testng.Assert.assertTrue;
 import java.util.Properties;
 
 import ome.model.meta.Experimenter;
+import ome.security.auth.PasswordProvider;
+import ome.system.OmeroContext;
 
 import org.imagopole.omero.auth.TestsUtil.Env;
 import org.imagopole.omero.auth.TestsUtil.Groups;
@@ -23,6 +25,23 @@ import org.imagopole.ppms.api.dto.PpmsUser;
 import org.testng.annotations.Test;
 
 public class ChainedPpmsPasswordProviderNoSyncTest extends AbstractChainedPpmsPasswordProviderTest {
+
+    /** @TestedObject */
+    private PasswordProvider passwordProvider;
+
+    @Override
+    protected void setUpAfterServerStartup(OmeroContext omeroContext) {
+        //-- test case services
+        this.passwordProvider = (PasswordProvider) omeroContext.getBean("ppmsChainedPasswordProvider431");
+
+        //-- OMERO server boilerplate
+        super.setUpAfterServerStartup(omeroContext);
+    }
+
+    @Override
+    protected PasswordProvider getPasswordProvider() {
+        return this.passwordProvider;
+    }
 
     @Override
     protected void setUpBeforeServerStartup(Properties systemProps) {

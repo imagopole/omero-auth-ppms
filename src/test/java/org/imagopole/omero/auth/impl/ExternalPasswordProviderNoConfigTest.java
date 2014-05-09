@@ -9,6 +9,7 @@ import ome.system.OmeroContext;
 
 import org.imagopole.omero.auth.AbstractOmeroServerTest;
 import org.imagopole.omero.auth.TestsUtil.Env;
+import org.imagopole.omero.auth.TestsUtil.Groups;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.testng.annotations.Test;
 
@@ -28,21 +29,21 @@ public class ExternalPasswordProviderNoConfigTest extends AbstractOmeroServerTes
         this.passwordProvider = (ExternalConfigurablePasswordProvider) omeroContext.getBean("ppmsPasswordProvider");
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void hasUsernameShouldReturnNullWhenServiceIsDisabled() {
         Boolean result = passwordProvider.hasUsername(PpmsUnit.OMERO_USER);
 
         assertNull(result, "Null result expected");
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void checkPasswordShouldReturnNullWhenServiceIsDisabled() {
         Boolean result = passwordProvider.checkPassword(PpmsUnit.OMERO_USER, PpmsUnit.OMERO_PWD, true);
 
         assertNull(result, "Null result expected");
     }
 
-    @Test
+    @Test(groups = { Groups.INTEGRATION })
     public void hasPasswordShouldReturnFalseWhenServiceIsDisabled() {
         // TODO: ideally we would need to check that the user is present both in PPMS and OMERO
         // as a precondition (ie. have an active root session on the server, get hold of iAdmin

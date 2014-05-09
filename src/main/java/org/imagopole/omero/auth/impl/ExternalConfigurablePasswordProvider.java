@@ -16,6 +16,7 @@ import ome.security.auth.RoleProvider;
 import ome.security.auth.SimpleRoleProvider;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.SynchronizingPasswordProvider;
 import org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
@@ -155,8 +156,13 @@ public class ExternalConfigurablePasswordProvider
                 log.debug("[external_auth] skipping protected OMERO account: {}", user);
                 result = false;
             } else {
-                Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
-                result = (null != externalUser);
+                try {
+                    Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
+                    result = (null != externalUser);
+                } catch(ExternalServiceException ese) {
+                    log.error("[external_auth] External service failure - fallback on hasUsername for: {}",
+                              user, ese);
+                }
             }
         }
 
@@ -221,7 +227,10 @@ public class ExternalConfigurablePasswordProvider
                     return true;
                 }
             } catch (ApiUsageException e) {
-                log.warn("[external_auth] Default choice on create user: {} {}", user, e);
+                log.warn("[external_auth] Default choice on create user: {}", user, e);
+            } catch (ExternalServiceException ese) {
+                log.error("[external_auth] External service failure - fallback on create default for: {}",
+                          user, ese);
             }
 
         }
@@ -239,22 +248,24 @@ public class ExternalConfigurablePasswordProvider
                     return loginAttempt(user, externalNewUserService.validatePassword(user, password));
 
                 } else {
-
                     // user not found in remote source
                     log.debug("[external_auth] User not in remote - skipping check from remote source for: {}-{}", id, user);
-
                 }
 
-            } catch (ApiUsageException e) { // TODO: other exceptions too?
-                log.warn("[external_auth] Default choice on check external password: " + user, e);
+            } catch (ApiUsageException e) {
+                log.warn("[external_auth] Default choice on check external password: {}", user, e);
+            } catch(ExternalServiceException ese) {
+                log.error("[external_auth] External service failure - fallback on check default for: {}",
+                          user, ese);
             }
 
         }
 
-        // If anything goes wrong or no LDAP is found in OMERO,
+        // If anything goes wrong or no external user service is found in OMERO,
         // then use the default (configurable) logic, which will
         // probably return null in order to check JDBC for the password.
-        log.debug("[external_auth] Delegating password check logic for user: {}-{}", id, user);
+        // (or the next provider in the chain).
+        log.info("[external_auth] Delegating password check logic for user: {}-{}", id, user);
         return super.checkPassword(user, password, readOnly);
     }
 
@@ -267,7 +278,12 @@ public class ExternalConfigurablePasswordProvider
 
         if (externalNewUserService.isEnabled()) {
             log.debug("[external_auth] Attempting synchronization from remote source for user: {}", username);
-            externalNewUserService.synchronizeUserFromExternalSource(username);
+            try {
+                externalNewUserService.synchronizeUserFromExternalSource(username);
+            } catch(ExternalServiceException ese) {
+                log.error("[external_auth] External service failure - fallback on sync for: {}",
+                          username, ese);
+            }
         }
     }
 

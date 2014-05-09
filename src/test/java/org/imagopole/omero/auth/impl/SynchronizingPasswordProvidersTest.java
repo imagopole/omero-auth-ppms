@@ -11,6 +11,7 @@ import ome.system.OmeroContext;
 
 import org.imagopole.omero.auth.TestsUtil.Data;
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
+import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserService;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -81,6 +82,38 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertNotInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+    }
+
+    @Test
+    public void chainShouldBeSkippedWhenSecondaryDisabled() {
+        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+        ppmsNewUserServiceMock.returns(false).isEnabled();
+        ppmsNewUserServiceMock.returns(dummyUser).findExperimenterFromExternalSource(Data.USERNAME);
+
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+        assertNull(result, "Null result expected");
+
+        ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
+        ppmsNewUserServiceMock.assertNotInvoked().findExperimenterFromExternalSource(Data.USERNAME);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertNotInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+    }
+
+    @Test
+    public void chainShouldBeSkippedWhenSecondaryUnavailable() {
+        ldapProviderMock.returns(true).checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+        ppmsNewUserServiceMock.returns(true).isEnabled();
+        ppmsNewUserServiceMock.raises(ExternalServiceException.class).findExperimenterFromExternalSource(Data.USERNAME);
+
+        Boolean result = synchronizingProviders.checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
+        assertNull(result, "Null result expected");
+
+        ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
+        ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertNotInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
     @Test
@@ -95,6 +128,8 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
+        ppmsNewUserServiceMock.assertInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
     @Test
@@ -109,6 +144,8 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
     @Test
@@ -121,6 +158,8 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
         ppmsNewUserServiceMock.assertNotInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertNotInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
     @Test
@@ -136,6 +175,8 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
         ppmsNewUserServiceMock.assertInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
+        ppmsNewUserServiceMock.assertInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
     @Test
@@ -151,6 +192,8 @@ public class SynchronizingPasswordProvidersTest extends UnitilsTestNG {
 
         ppmsNewUserServiceMock.assertInvoked().findExperimenterFromExternalSource(Data.USERNAME);
         ppmsNewUserServiceMock.assertInvoked().validatePassword(Data.USERNAME, Data.PASSWORD);
+        ppmsNewUserServiceMock.assertNotInvoked().synchronizeUserFromExternalSource(Data.USERNAME);
+        ldapProviderMock.assertInvoked().checkPassword(Data.USERNAME, Data.PASSWORD, readOnly);
     }
 
 }

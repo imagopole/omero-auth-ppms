@@ -130,6 +130,13 @@ public class TestsUtil {
         return fooUser;
     }
 
+    public static final PpmsUser activate(PpmsUser user) {
+        if (null != user) {
+            user.setActive(Boolean.TRUE);
+        }
+        return user;
+    }
+
     /** {@link PpmsPrivilege.Deactivated} */
     public static final List<PpmsUserPrivilege> inactiveRights(long systemId) {
         return rightsList(systemId, PpmsPrivilege.Deactivated);

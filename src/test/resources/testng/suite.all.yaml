@@ -26,6 +26,7 @@ tests:
     classes:
       - org.imagopole.omero.auth.impl.DefaultExternalAuthConfigTest
       - org.imagopole.omero.auth.impl.ExternalPasswordProviderNoConfigTest
+      - org.imagopole.omero.auth.impl.ExternalPasswordProviderFaultTest
 
   - name: Chain
     classes:

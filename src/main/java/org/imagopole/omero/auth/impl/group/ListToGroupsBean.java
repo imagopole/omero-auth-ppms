@@ -6,21 +6,17 @@ package org.imagopole.omero.auth.impl.group;
 
 import java.util.List;
 
-import ome.security.auth.NewUserGroupBean;
-
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig;
-import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
-import org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider;
 import org.imagopole.omero.auth.util.ConvertUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A {@link NewUserGroupBean} implementation which allows a CSV list of group names to be specified
- * (similar to LdapImpl behaviour, only with support for multiple values).
+ * A {@link ome.security.auth.NewUserGroupBean} implementation which allows a CSV list of group
+ * names to be specified (similar to LdapImpl behaviour, only with support for multiple values).
  *
  * Group names exclusions are applied, so any name clash will result in the name being skipped.
  *
@@ -33,7 +29,7 @@ public class ListToGroupsBean extends ConfigurableNameToGroupBean {
 
     /** Configurable permission level enumeration for use at group creation time.
      *
-     *  @see ConfigValues */
+     *  @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues */
     private String permissionLevel;
 
     public ListToGroupsBean() {
@@ -72,7 +68,7 @@ public class ListToGroupsBean extends ConfigurableNameToGroupBean {
      * Keys for configuration settings defined in the application context.
      *
      * @see ConfigurableNameToGroupBean
-     * @see ExternalConfigurablePasswordProvider
+     * @see org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider
      */
     public class CsvListConfigKeys {
         /** Common namespace for all settings related to external auth. */

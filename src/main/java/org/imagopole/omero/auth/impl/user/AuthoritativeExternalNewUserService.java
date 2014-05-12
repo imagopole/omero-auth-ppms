@@ -6,25 +6,23 @@ package org.imagopole.omero.auth.impl.user;
 import java.util.List;
 import java.util.Set;
 
-import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
-import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.RoleProvider;
 import ome.system.Roles;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
-import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link ExternalNewUserService} implementation whereby the external source is "authoritative"/override always:
+ * {@link org.imagopole.omero.auth.api.user.ExternalNewUserService} implementation whereby
+ * the external source is "authoritative"/override always:
  * - group memberships already present in OMERO but missing from the external data source are unlinked.
  * - group memberships missing in OMERO but present in the external source are added.
  *
- * This emulates the {@link LdapImpl} behaviour when used with {@link LdapPasswordProvider} and
- * <code>omero.ldap.sync_on_login=true</code>.
+ * This emulates the {@link ome.logic.LdapImpl} behaviour when used with
+ * {@link ome.security.auth.LdapPasswordProvider} and <code>omero.ldap.sync_on_login=true</code>.
  *
  * @author seb
  *

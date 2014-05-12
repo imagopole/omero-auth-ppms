@@ -7,27 +7,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.model.internal.Permissions;
-import ome.security.auth.NewUserGroupBean;
 import ome.security.auth.RoleProvider;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.dto.NamedItem;
-import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
 import org.imagopole.omero.auth.util.Check;
 import org.imagopole.omero.auth.util.ConvertUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link NewUserGroupBean} implementation which provides additional configuration settings:
+ * A {@link ome.security.auth.NewUserGroupBean} implementation which provides additional
+ * configuration settings:
  * - a permission level to be applied to the created groups (currently supports private, read-only
  * and read-annotate)
- * - filtering of group names (currently the default list excludes OMERO system groups: system, guest, user, default)
+ * - filtering of group names (currently the default list excludes OMERO system groups: system,
+ * guest, user, default)
  *
  * @author seb
  *
- * @see ConfigValues
+ * @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues
  */
 public abstract class ConfigurableNameToGroupBean extends NewUserGroupBeanAdapter {
 
@@ -49,10 +49,10 @@ public abstract class ConfigurableNameToGroupBean extends NewUserGroupBeanAdapte
      * of the OMERO group.
      *
      * May return null - if so, the group will be considered private.
-     * Supported configuration values are: private | read_only | read_annotate
+     * Supported configuration values are: private | read-only | read-annotate
      *
-     * @return null to indicate a private group, or one of private | read_only | read_annotate
-     * @see ConfigValues
+     * @return null to indicate a private group, or one of private | read-only | read-annotate
+     * @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues
      */
     protected abstract String getPermissionLevel();
 

@@ -12,7 +12,6 @@ import java.util.Set;
 import ome.security.auth.AttributeSet;
 import ome.security.auth.LdapConfig;
 import ome.security.auth.NewUserGroupBean;
-import ome.security.auth.PasswordProviders;
 import ome.security.auth.RoleProvider;
 
 import org.slf4j.Logger;
@@ -25,7 +24,7 @@ import org.springframework.ldap.core.LdapOperations;
  * Accumulates all group identifiers (excluding duplicates) to allow for multiple external role
  * sources to be combined.
  *
- * Follows a chaining approach similar to {@link PasswordProviders}.
+ * Follows a chaining approach similar to {@link ome.security.auth.PasswordProviders}.
  *
  * @author seb
  *
@@ -36,7 +35,7 @@ public class NewUserGroupBeans implements NewUserGroupBean {
     private final Logger log = LoggerFactory.getLogger(NewUserGroupBeans.class);
 
     /** The @link {@link NewUserGroupBean}s sequence to invoke. */
-    final private List<NewUserGroupBean> groupBeans;
+    private final List<NewUserGroupBean> groupBeans;
 
     /**
      * Parameterized constructor.

@@ -3,10 +3,8 @@
  */
 package org.imagopole.omero.auth.impl;
 
-import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.PasswordChangeException;
 import ome.security.auth.PasswordProvider;
-import ome.security.auth.PasswordProviders;
 
 import org.imagopole.omero.auth.api.SynchronizingPasswordProvider;
 import org.imagopole.omero.auth.util.Check;
@@ -31,9 +29,10 @@ import org.slf4j.LoggerFactory;
  * 3 - If authentication was successful with either provider, then also synchronize the account via
  * the second provider.
  *
- * This chaining logic differs from the default {@link PasswordProviders} mostly through the
- * separation of authentication and synchronization - which are typically performed together
- * at authentication time in {@link LdapPasswordProvider} and {@link LdapPasswordProvider431}.
+ * This chaining logic differs from the default {@link ome.security.auth.PasswordProviders} mostly
+ * ome.security.auth.PasswordProviders separation of authentication and synchronization - which are
+ * typically performed together at authentication time in {@link ome.security.auth.LdapPasswordProvider}
+ * and {@link ome.security.auth.providers.LdapPasswordProvider431}.
  *
  * Note: if the first provider supports account synchronization as part of its
  * {@link #checkPassword(String, String, boolean)} operation, it may require disabling to avoid

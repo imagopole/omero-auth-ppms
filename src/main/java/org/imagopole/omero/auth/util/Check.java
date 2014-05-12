@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public final class Check {
 
-    /** Private constructor (utility class) */
+    /** Private constructor (utility class). */
     private Check() {
         super();
     }
@@ -32,7 +32,7 @@ public final class Check {
     public static final void notEmpty(String obj, String argName) {
         Check.notNull(obj, argName);
 
-        if (obj.trim().length() == 0) {
+        if (obj.trim().isEmpty()) {
              rejectEmptyParam(argName);
         }
     }
@@ -59,6 +59,6 @@ public final class Check {
     }
 
     public static final boolean empty(String input) {
-        return (null == input || input.isEmpty());
+        return (null == input || input.trim().isEmpty());
     }
 }

@@ -12,7 +12,6 @@ import ome.system.Roles;
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
-import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.imagopole.omero.auth.impl.ppms.PpmsUtil;
 import org.imagopole.omero.auth.impl.user.AdditiveExternalNewUserService;
 import org.imagopole.ppms.api.dto.PpmsUser;
@@ -20,7 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link ExternalNewUserService} implementation whereby the external source is a PPMS instance.
+ * {@link org.imagopole.omero.auth.api.user.ExternalNewUserService} implementation whereby
+ * the external source is a PPMS instance.
  *
  * @author seb
  *
@@ -51,8 +51,8 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
     @Override
     public boolean validatePassword(String username, String password) throws ExternalServiceException {
         // See discussion on anonymous bind in LdapPasswordProvider
-        if (username == null || username.trim().isEmpty() ||
-            password == null || password.trim().isEmpty()) {
+        if (username == null || username.trim().isEmpty()
+            || password == null || password.trim().isEmpty()) {
             throw new SecurityViolation("Refused to authenticate without username and password!");
         }
 

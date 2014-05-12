@@ -7,12 +7,8 @@ import java.util.List;
 
 import ome.security.auth.AttributeSet;
 import ome.security.auth.LdapConfig;
-import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.NewUserGroupBean;
-import ome.security.auth.OrgUnitNewUserGroupBean;
 import ome.security.auth.RoleProvider;
-import ome.security.auth.SimpleRoleProvider;
-import ome.security.auth.providers.LdapPasswordProvider431;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean;
@@ -26,7 +22,8 @@ import org.springframework.ldap.core.LdapOperations;
  * to the {@link ExternalNewUserGroupBean}.
  *
  * This allows {@link ExternalNewUserGroupBean} implementations to be used together with some of
- * OMERO's LDAP password providers such as {@link LdapPasswordProvider} and {@link LdapPasswordProvider431}.
+ * OMERO's LDAP password providers such as {@link ome.security.auth.LdapPasswordProvider} and
+ * {@link ome.security.auth.providers.LdapPasswordProvider431}.
  * This would typically be used to let the LDAP be the authentication source, while fetching
  * roles/groups from an external source.
  *
@@ -49,10 +46,10 @@ public abstract class NewUserGroupBeanAdapter implements NewUserGroupBean, Exter
      * {@link ExternalAuthConfig} is looked up from the Spring application context, and may or not
      * be present.
      *
-     * Like {@link OrgUnitNewUserGroupBean} and friends, the implementation may create
-     * the OMERO group.
+     * Like {@link ome.security.auth.OrgUnitNewUserGroupBean} and friends, the implementation may
+     * create the OMERO group.
      *
-     * @see SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean)
+     * @see ome.security.auth.SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean)
      */
     @Override
     public List<Long> groups(

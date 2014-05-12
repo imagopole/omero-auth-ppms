@@ -10,8 +10,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
-import ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean;
-
 import org.imagopole.ppms.api.PumapiClient;
 import org.imagopole.ppms.api.PumapiException;
 import org.imagopole.ppms.api.config.PumapiConfig;
@@ -32,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * @author seb
  *
  * @see http://ehcache.org/documentation/get-started/getting-started#cache-aside
- * @see ShutdownSafeEhcacheManagerFactoryBean
+ * @see ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean
  */
 public class CachingPumapiClient implements PumapiClient {
 
-    /** Application logs */
+    /** Application logs. */
     private final Logger log = LoggerFactory.getLogger(CachingPumapiClient.class);
 
     /** "Actual" PPMS client delegate. */
@@ -227,16 +225,16 @@ public class CachingPumapiClient implements PumapiClient {
      */
     private final class CacheConfig {
         /** Main cache name, as configured in pumapi-ehcache.xml. */
-        private final static String CACHE_NAME     = "pumapiClientCache";
+        private static final String CACHE_NAME     = "pumapiClientCache";
 
         /** Key format for {@link PumapiClient#getUser(String)} calls. */
-        private final static String GET_USER_KEY   = "getUser-%s";
+        private static final String GET_USER_KEY   = "getUser-%s";
 
         /** Key format for {@link PumapiClient#getGroup(String)} calls. */
-        private final static String GET_GROUP_KEY  = "getGroup-%s";
+        private static final String GET_GROUP_KEY  = "getGroup-%s";
 
         /** Key format for {@link PumapiClient#getSystem(Long)} calls. */
-        private final static String GET_SYSTEM_KEY = "getSystem-%d";
+        private static final String GET_SYSTEM_KEY = "getSystem-%d";
 
         /** Constants class. */
         private CacheConfig() {

@@ -6,14 +6,10 @@ package org.imagopole.omero.auth.api;
 import java.util.List;
 import java.util.Map;
 
-import ome.logic.LdapImpl;
-import ome.security.auth.LdapConfig;
-import ome.security.auth.SimpleRoleProvider;
-
 /**
  * Configuration holder for an external OMERO authentication extension.
  *
- * Modeled after the existing {@link LdapConfig}, with the following differences:
+ * Modeled after the existing {@link ome.security.auth.LdapConfig}, with the following differences:
  * - retains a subset of shared settings with the LDAP config (ie. <code>enabled</code> and
  *   <code>newUserGroup</code>).
  * - replaces <code>syncOnLogin</code> with two distinct settings to independently control the
@@ -21,8 +17,8 @@ import ome.security.auth.SimpleRoleProvider;
  *   attributes, or both.
  * - adds extra methods to allow filtering of user and group accounts - typically to
  *   exclude "protected" OMERO internal accounts (but not restricted to).
- * - adds other settings with implicit use in {@link LdapConfig} but without configurable
- *   control (eg. strict mode for groups creation)
+ * - adds other settings with implicit use in {@link ome.security.auth.LdapConfig} but without
+ *   configurable control (eg. strict mode for groups creation)
  * - adds a generic <code>configMap</code> to expose other implementation specific settings.
  *
  * @author seb
@@ -33,10 +29,10 @@ public interface ExternalAuthConfig {
     /** Should the authentication extension be activated in OMERO.server? */
     boolean isEnabled();
 
-    /** Group specifier as already in use by {@link LdapConfig} and {@link LdapImpl}.
+    /** Group specifier as already in use by {@link ome.security.auth.LdapConfig} and {@link ome.logic.LdapImpl}.
      *  Only supports non-LDAP specific parameters, ie:
      *  literal group name and <code>:bean:<spring_bean_name></code> constructs.
-     *  @see LdapConfig#getNewUserGroup() */
+     *  @see ome.security.auth.LdapConfig#getNewUserGroup() */
     String getNewUserGroup();
 
    /**
@@ -53,19 +49,19 @@ public interface ExternalAuthConfig {
 
     /**
      * Indicates whether "strict" group creation mode should be used.
-     * @see SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean)
+     * @see ome.security.auth.SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean)
      */
     boolean failOnDuplicateGroups();
 
     /**
      * Indicates whether the groups and memberships for this user should be synchronized upon login.
-     * @see LdapConfig#isSyncOnLogin() */
+     * @see ome.security.auth.LdapConfig#isSyncOnLogin() */
     boolean syncGroupsOnLogin();
 
     /**
      * Indicates whether the attributes (first name, last name, email, etc.) for this user should
      * be synchronized upon login.
-     * @see LdapConfig#isSyncOnLogin() */
+     * @see ome.security.auth.LdapConfig#isSyncOnLogin() */
     boolean syncUserOnLogin();
 
     /** Additional implementation-specific configuration settings for management by the client. */

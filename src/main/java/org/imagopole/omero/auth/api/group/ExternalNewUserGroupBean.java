@@ -5,16 +5,15 @@ package org.imagopole.omero.auth.api.group;
 
 import java.util.List;
 
+import ome.security.auth.RoleProvider;
+
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
-
-import ome.security.auth.NewUserGroupBean;
-import ome.security.auth.RoleProvider;
 
 /**
  * Strategy for finding the appropriate groups for a given user in an external roles data source.
  *
- * Modelled after the {@link NewUserGroupBean} API in use with an LDAP source, with the only
+ * Modeled after the {@link ome.security.auth.NewUserGroupBean} API in use with an LDAP source, with the only
  * differences being the removal or replacement of LDAP-specific arguments.
  *
  * @author seb

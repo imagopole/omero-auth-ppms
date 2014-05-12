@@ -11,9 +11,6 @@ import ome.model.meta.Experimenter;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
-import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig;
-import org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider;
-import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
 import org.imagopole.omero.auth.util.ConvertUtil;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.imagopole.ppms.api.dto.PpmsUser;
@@ -25,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author seb
  *
  */
-public class PpmsUtil {
+public final class PpmsUtil {
 
     /** Application logs. */
     private static final Logger LOG = LoggerFactory.getLogger(PpmsUtil.class);
@@ -152,9 +149,9 @@ public class PpmsUtil {
     /**
      * Keys for configuration settings defined in the application context.
      *
-     * @see DefaultExternalAuthConfig
-     * @see ConfigurableNameToGroupBean
-     * @see ExternalConfigurablePasswordProvider
+     * @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig
+     * @see org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean
+     * @see org.imagopole.omero.auth.impl.ExternalConfigurablePasswordProvider
      */
     private class PpmsExternalConfigKeys {
 

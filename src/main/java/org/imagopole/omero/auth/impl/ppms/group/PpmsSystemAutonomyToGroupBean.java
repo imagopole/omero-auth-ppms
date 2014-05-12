@@ -9,20 +9,18 @@ import static org.imagopole.omero.auth.impl.ppms.PpmsUtil.toNamedItems;
 
 import java.util.List;
 
-import ome.security.auth.NewUserGroupBean;
-
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
-import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
 import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
 import org.imagopole.ppms.api.dto.PpmsSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link NewUserGroupBean} implementation which allows mapping of a PPMS system (a.k.a instrument)
- * for which the user has been granted an "autonomous" privilege to an OMERO group.
+ * A {@link ome.security.auth.NewUserGroupBean} implementation which allows mapping
+ * of a PPMS system (a.k.a instrument) for which the user has been granted an
+ * "autonomous" privilege to an OMERO group.
  *
  * Additional filters may apply to restrict the available instruments by core facility or type.
  *
@@ -38,7 +36,7 @@ public class PpmsSystemAutonomyToGroupBean extends ConfigurableNameToGroupBean {
     private PpmsService ppmsService;
 
     /** Configurable permission level enumeration for use at group creation time.
-     *  @see ConfigValues */
+     *  @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues */
     private String permissionLevel;
 
     /**

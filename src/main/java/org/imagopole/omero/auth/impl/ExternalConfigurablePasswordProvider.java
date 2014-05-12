@@ -2,39 +2,31 @@ package org.imagopole.omero.auth.impl;
 
 import java.util.List;
 
-import ome.api.IUpdate;
-import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
-import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExternalInfo;
 import ome.security.auth.ConfigurablePasswordProvider;
-import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProvider;
 import ome.security.auth.PasswordUtil;
-import ome.security.auth.RoleProvider;
-import ome.security.auth.SimpleRoleProvider;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.SynchronizingPasswordProvider;
-import org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.imagopole.omero.auth.util.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@link PasswordProvider} which can create users and groups on {@link #checkPassword(String, String) request}
- * to synchronize with an external backend.
+ * {@link ome.security.auth.PasswordProvider} which can create users and groups on
+ * {@link #checkPassword(String, String) request} to synchronize with an external backend.
  *
- * This implementation has been largely inspired and carried over from {@link LdapPasswordProvider}
- * and {@link LdapPasswordProvider431}, but delegates the actual account synchronization tasks to a
- * pluggable {@link ExternalNewUserService} (which emulates/customizes the {@link LdapImpl} behaviour).
+ * This implementation has been largely inspired and carried over from {@link ome.security.auth.LdapPasswordProvider}
+ * and {@link ome.security.auth.providers.LdapPasswordProvider431}, but delegates the actual account
+ * synchronization tasks to a pluggable {@link ExternalNewUserService} (which emulates/customizes
+ * the {@link ome.logic.LdapImpl} behaviour).
  *
  * This class hence mostly defines one possible account management lifecycle, with specific policies
  * for users and their group memberships being handled by {@link ExternalNewUserService} and
- * {@link ExternalNewUserGroupBean} implementations, respectively.
+ * {@link org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean} implementations, respectively.
  *
  * Additionally, user names belonging to "protected" (eg. OMERO system/internal) accounts may be
  * skipped by this provider - ie. {@link ExternalConfigurablePasswordProvider#hasPassword(String)}
@@ -42,10 +34,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author seb
  *
- * @see LdapPasswordProvider
- * @see LdapImpl
+ * @see ome.security.auth.LdapPasswordProvider
+ * @see ome.logic.LdapImpl
  * @see ExternalNewUserService
- * @see ExternalNewUserGroupBean
+ * @see org.imagopole.omero.auth.api.group.ExternalNewUserGroupBean
  */
 
 public class ExternalConfigurablePasswordProvider
@@ -55,10 +47,10 @@ public class ExternalConfigurablePasswordProvider
     private final Logger log = LoggerFactory.getLogger(ExternalConfigurablePasswordProvider.class);
 
     /** User management service for external accounts synchronization. */
-    final protected ExternalNewUserService externalNewUserService;
+    protected final ExternalNewUserService externalNewUserService;
 
     /** Configuration settings for the external accounts extension module. */
-    final protected ExternalAuthConfig config;
+    protected final ExternalAuthConfig config;
 
     /**
      * Dependencies constructor.
@@ -93,23 +85,25 @@ public class ExternalConfigurablePasswordProvider
     /**
      * Default implementation for external password ownership checking.
      *
-     * Currently mimicks behaviour implemented in {@link LdapPasswordProvider} and
-     * {@link LdapPasswordProvider431}, with the following differences:
+     * Currently mimicks behaviour implemented in {@link ome.security.auth.LdapPasswordProvider} and
+     * {@link ome.security.auth.providers.LdapPasswordProvider431}, with the following differences:
      * - protected OMERO accounts (typically system users) are excluded
      * - unlike the LDAP password provider flavours, no information such as the user's DN
      *   is present in OMERO to indicate which provider is responsible for the password. Therefore
      *   the default is to return true if the user exists in both data stores (ie. OMERO and remote).
      *
-     * Note: this checking might be improved if persisting {@link ExternalInfo} as part of
-     * the user's details. This would require:
+     * Note: this checking might be improved if persisting {@link ome.model.meta.ExternalInfo}
+     * part of the user's details. This would require:
      * - the external user source to provide numeric identifiers for users (and groups)
-     * - possibly a custom {@link RoleProvider} implementation capable of handling deeper object
-     *   copying so as to include external details.
+     * - possibly a custom {@link ome.security.auth.RoleProvider} implementation capable of handling
+     *   deeper object copying so as to include external details.
      * - a custom hql query to detect the persisted entity's origin
      *
-     * @see SimpleRoleProvider#copyUser and SimpleRoleProvider#copyGroup
-     * @see LocalUpdate#flush()
-     * @see IUpdate
+     * @param user the experimenter login
+     * @see ome.security.auth.SimpleRoleProvider#copyUser
+     * @see ome.security.auth.SimpleRoleProvider#copyGroup
+     * @see ome.api.local.LocalUpdate#flush()
+     * @see ome.api.IUpdate
      */
     @Override
     public boolean hasPassword(String user) {
@@ -159,7 +153,7 @@ public class ExternalConfigurablePasswordProvider
                 try {
                     Experimenter externalUser = externalNewUserService.findExperimenterFromExternalSource(user);
                     result = (null != externalUser);
-                } catch(ExternalServiceException ese) {
+                } catch (ExternalServiceException ese) {
                     log.error("[external_auth] External service failure - fallback on hasUsername for: {}",
                               user, ese);
                 }
@@ -254,7 +248,7 @@ public class ExternalConfigurablePasswordProvider
 
             } catch (ApiUsageException e) {
                 log.warn("[external_auth] Default choice on check external password: {}", user, e);
-            } catch(ExternalServiceException ese) {
+            } catch (ExternalServiceException ese) {
                 log.error("[external_auth] External service failure - fallback on check default for: {}",
                           user, ese);
             }
@@ -280,7 +274,7 @@ public class ExternalConfigurablePasswordProvider
             log.debug("[external_auth] Attempting synchronization from remote source for user: {}", username);
             try {
                 externalNewUserService.synchronizeUserFromExternalSource(username);
-            } catch(ExternalServiceException ese) {
+            } catch (ExternalServiceException ese) {
                 log.error("[external_auth] External service failure - fallback on sync for: {}",
                           username, ese);
             }

@@ -7,24 +7,23 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.meta.Experimenter;
-import ome.security.auth.LdapPasswordProvider;
 import ome.security.auth.RoleProvider;
 import ome.system.Roles;
 
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
-import org.imagopole.omero.auth.api.user.ExternalNewUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * {@link ExternalNewUserService} implementation whereby the external source is "conservative"/append only:
+ * {@link org.imagopole.omero.auth.api.user.ExternalNewUserService} implementation whereby
+ * the external source is "conservative"/append only:
  * - group memberships already present in OMERO but missing from the external data source are preserved
  * rather than being unlinked.
  * - group memberships missing in OMERO but present in the external source are added.
  *
- * This differs from the {@link LdapPasswordProvider} behaviour in that it allows for local OMERO
- * data to be preserved upon synchronization.
+ * This differs from the {@link ome.security.auth.LdapPasswordProvider} behaviour in that it allows
+ *  for local OMERO data to be preserved upon synchronization.
  *
  * @author seb
  *

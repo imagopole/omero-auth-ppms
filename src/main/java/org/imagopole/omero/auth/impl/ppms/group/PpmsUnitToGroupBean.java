@@ -7,8 +7,6 @@ package org.imagopole.omero.auth.impl.ppms.group;
 import java.util.ArrayList;
 import java.util.List;
 
-import ome.security.auth.NewUserGroupBean;
-
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
@@ -19,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * A {@link NewUserGroupBean} implementation which allows mapping of a PPMS unit (a.k.a group) to an OMERO group.
+ * A {@link ome.security.auth.NewUserGroupBean} implementation which allows mapping
+ * of a PPMS unit (a.k.a group) to an OMERO group.
  *
  * @author seb
  *
@@ -33,7 +32,7 @@ public class PpmsUnitToGroupBean extends ConfigurableNameToGroupBean {
     private PpmsService ppmsService;
 
     /** Configurable permission level enumeration for use at group creation time.
-     *  @see ConfigValues */
+     *  @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues */
     private String permissionLevel;
 
     /**

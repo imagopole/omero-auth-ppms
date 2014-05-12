@@ -33,10 +33,10 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultPpmsService implements PpmsService {
 
-    /** Application logs */
+    /** Application logs. */
     private final Logger log = LoggerFactory.getLogger(DefaultPpmsService.class);
 
-    /** PPMS web client */
+    /** PPMS web client. */
     private PumapiClient ppmsClient;
 
     /**
@@ -55,7 +55,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findUserByNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -78,7 +78,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.checkAuthenticationCall(userName, password);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -100,7 +100,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findProjectsByUserNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -120,7 +120,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findGroupByUserNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -151,7 +151,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findUserAndGroupByNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -203,7 +203,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findActiveSystemsByUserNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 
@@ -259,7 +259,7 @@ public class DefaultPpmsService implements PpmsService {
 
         try {
             result = this.findActiveSystemsWithAutonomyByUserNameCall(userName);
-        } catch(PumapiException pe) {
+        } catch (PumapiException pe) {
             translateAndRethrow(pe);
         }
 

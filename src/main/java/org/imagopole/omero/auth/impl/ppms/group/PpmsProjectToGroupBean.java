@@ -6,19 +6,17 @@ package org.imagopole.omero.auth.impl.ppms.group;
 
 import java.util.List;
 
-import ome.security.auth.NewUserGroupBean;
-
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
-import org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues;
 import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A {@link NewUserGroupBean} implementation which allows mapping of a PPMS Project to an OMERO group.
+ * A {@link ome.security.auth.NewUserGroupBean} implementation which allows mapping of
+ * a PPMS Project to an OMERO group.
  *
  * @author seb
  *
@@ -33,7 +31,7 @@ public class PpmsProjectToGroupBean extends ConfigurableNameToGroupBean {
 
     /** Configurable permission level enumeration for use at group creation time.
      *
-     *  @see ConfigValues */
+     *  @see org.imagopole.omero.auth.impl.DefaultExternalAuthConfig.ConfigValues */
     private String permissionLevel;
 
     /**

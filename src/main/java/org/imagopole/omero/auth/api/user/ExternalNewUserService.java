@@ -3,25 +3,22 @@
  */
 package org.imagopole.omero.auth.api.user;
 
-import org.imagopole.omero.auth.api.ExternalAuthConfig;
-import org.imagopole.omero.auth.api.ExternalServiceException;
-
 import ome.api.ServiceInterface;
 import ome.model.meta.Experimenter;
-import ome.security.auth.LdapPasswordProvider;
-import ome.security.auth.PasswordProvider;
+
+import org.imagopole.omero.auth.api.ExternalServiceException;
 
 
 /**
  * OMERO service for user accounts synchronization from an external authentication/authorisation source.
  *
- * Intended for use in combination with a {@link PasswordProvider} implementation.
+ * Intended for use in combination with a {@link ome.security.auth.PasswordProvider} implementation.
  * Also marked as a {@link ServiceInterface} to enable deployment as an
  * OMERO {@link ome.system.SelfConfigurableService}, as is the case for {@link ome.logic.LdapImpl}.
  *
  * The public API has been modeled after and extracted from the account creation/replication
- * lifecycle currently in use with the combination of {@link LdapPasswordProvider} and
- * {@link ome.logic.LdapImpl}, so all "external" methods reflect an "ldap impl" equivalent.
+ * lifecycle currently in use with the combination of {@link ome.security.auth.LdapPasswordProvider}
+ * and {@link ome.logic.LdapImpl}, so all "external" methods reflect an "ldap impl" equivalent.
  *
  * @author seb
  *
@@ -68,7 +65,8 @@ public interface ExternalNewUserService extends ServiceInterface {
      * Updates an existing OMERO user account from the external source.
      *
      * Note that the synchronization is performed only if the service is configured accordingly
-     * via {@link ExternalAuthConfig#isSyncOnLogin()}, and if a user is present in the remote source.
+     * via {@link org.imagopole.omero.auth.api.ExternalAuthConfig#isSyncOnLogin()}, and if a user
+     * is present in the remote source.
      *
      * This synchronization will subsequently trigger groups and memberships creation and assignment
      * as done upon {@link #createUserFromExternalSource(String, String)}. Besides, the experimenter's

@@ -7,16 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import ome.logic.LdapImpl;
-import ome.model.internal.Permissions;
-import ome.security.auth.LdapConfig;
-import ome.security.auth.SimpleRoleProvider;
-
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
-import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
 
 /**
- * Default external auth config implementation, modeled after the existing {@link LdapConfig},
+ * Default external auth config implementation, modeled after the existing {@link ome.security.auth.LdapConfig},
  * with the following differences:
  * - retains a subset of shared settings with the LDAP config (ie. <code>enabled</code> and
  *   <code>newUserGroup</code>).
@@ -27,8 +21,8 @@ import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
  *   exclude "protected" OMERO internal accounts (but not restricted to).
  * - adds optional extra methods to allow pre-seeding of LDAP-aware accounts - allows switching
  *   back to a LDAP-based PasswordProvider with no database migration.
- * - adds other settings with implicit use in {@link LdapConfig} but without configurable
- *   control (eg. strict mode for groups creation).
+ * - adds other settings with implicit use in {@link ome.security.auth.LdapConfig} but without
+ *   configurable control (eg. strict mode for groups creation).
  * - adds a generic <code>configMap</code> to expose other implementation specific settings.
  *
  * @author seb
@@ -36,10 +30,10 @@ import org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean;
  */
 public class DefaultExternalAuthConfig implements ExternalAuthConfig {
 
-    /** Should the authentication extension be activated in OMERO.server */
+    /** Should the authentication extension be activated in OMERO.server ?*/
     private final Boolean enabled;
 
-    /** Group specifier as already in use by {@link LdapConfig} and {@link LdapImpl}.
+    /** Group specifier as already in use by {@link ome.security.auth.LdapConfig} and {@link ome.logic.LdapImpl}.
      *  Only supports non-LDAP specific parameters, ie:
      *  literal group name and <code>:bean:<spring_bean_name></code> constructs. */
     private final String newUserGroup;
@@ -59,7 +53,7 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
      * Groups and user synchronisation on login is disabled.
      *
      * @param enabled should the authentication extension be activated
-     * @param newUserGroup group specifier as already in use by {@link LdapConfig}
+     * @param newUserGroup group specifier as already in use by {@link ome.security.auth.LdapConfig}
      */
     public DefaultExternalAuthConfig(Boolean enabled, String newUserGroup) {
         this(enabled, newUserGroup, Boolean.FALSE, Boolean.FALSE, null);
@@ -69,7 +63,7 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
      * Full constructor.
      *
      * @param enabled should the authentication extension be activated
-     * @param newUserGroup group specifier as already in use by {@link LdapConfig}
+     * @param newUserGroup group specifier as already in use by {@link ome.security.auth.LdapConfig}
      * @param syncGroups should the authentication extension perform groups synchronization upon login
      * @param syncUser should the authentication extension perform user synchronization upon login
      * @param configMap additional implementation-specific configuration settings
@@ -177,7 +171,7 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
     /**
      * Keys for configuration settings defined in the application context.
      *
-     * @see ConfigurableNameToGroupBean
+     * @see org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean
      * @see ExternalConfigurablePasswordProvider
      */
     public class ConfigKeys {
@@ -192,7 +186,7 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
 
         /** Behaviour for group creation.
          *
-         *  @see SimpleRoleProvider#createGroup(String, Permissions, boolean) */
+         *  @see ome.security.auth.SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean) */
         public static final String FAIL_ON_DUPLICATE_GROUPS = PREFIX + "groups.fail_duplicates";
 
         /** Constants class. */
@@ -204,8 +198,8 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
     /**
      * Values for configuration settings defined in the application context.
      *
-     * @see Permissions
-     * @see ConfigurableNameToGroupBean
+     * @see ome.model.internal.Permissions
+     * @see org.imagopole.omero.auth.impl.group.ConfigurableNameToGroupBean
      */
     public class ConfigValues {
         /** Indicates that the group is <code>Private</code> i.e. RW----. */

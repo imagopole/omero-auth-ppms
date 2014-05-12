@@ -16,7 +16,6 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
-import ome.logic.LdapImpl;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
@@ -40,11 +39,11 @@ import org.springframework.transaction.annotation.Transactional;
  * Base {@link ExternalNewUserService} class - provides implementation inheritance of common
  * functionality and lifecycle for user creation from an external source.
  *
- * Most the API and implementation have been replicated and (slightly) amended from {@link LdapImpl}.
+ * Most the API and implementation have been replicated and (slightly) amended from {@link ome.logic.LdapImpl}.
  * The main divergence points from the LDAP counterpart stem from:
  * - the ability for subclasses to define alternative groups memberships synchronisation behaviour
  * - the removal of unneeded LDAP parameters (eg. LDAP-specific groupspecs)
- * - the ability to optionally pre-seed the experimenter's LDAP DN for eventual fallback on {@link LdapImpl}
+ * - the ability to optionally pre-seed the experimenter's LDAP DN for eventual fallback on {@link ome.logic.LdapImpl}
  *
  * @author seb
  *
@@ -131,7 +130,7 @@ public abstract class BaseExternalNewUserService
     * @param omeroGroups the groups the user belongs to in the OMERO database
     * @param externalGroups the groups the user belongs to in the external database
     *
-    * @see LdapImpl#synchronizeLdapUser(String)
+    * @see ome.logic.LdapImpl#synchronizeLdapUser(String)
     */
     public abstract void synchronizeGroupsMemberships(
                    final Experimenter omeroExperimenter,
@@ -182,7 +181,7 @@ public abstract class BaseExternalNewUserService
             Long gid = groups.remove(0);
             ExperimenterGroup grp1 = new ExperimenterGroup(gid, false);
             Set<Long> otherGroupIds = new HashSet<Long>(groups);
-            ExperimenterGroup grpOther[] = new ExperimenterGroup[otherGroupIds.size() + 1];
+            ExperimenterGroup[] grpOther = new ExperimenterGroup[otherGroupIds.size() + 1];
 
             int count = 0;
             for (Long id : otherGroupIds) {
@@ -321,7 +320,7 @@ public abstract class BaseExternalNewUserService
      * @return the group identifiers for the user memberships
      * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
-     * @see LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
+     * @see ome.logic.LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
     public List<Long> loadExternalGroups(String username) throws ExternalServiceException {
         final String grpSpec = config.getNewUserGroup();
@@ -364,8 +363,8 @@ public abstract class BaseExternalNewUserService
      * the operation chosen by "add" will be run on them. This method
      * ignores all methods known by Roles.
      *
-     * Note: this method has been copied from {@link LdapImpl}, the only difference being the
-     * introduction of <code>final<code> modifiers for all arguments.
+     * Note: this method has been copied from {@link ome.logic.LdapImpl}, the only difference being the
+     * introduction of <code>final</code> modifiers for all arguments.
      *
      * @param experimenter
      * @param base

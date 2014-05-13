@@ -1,0 +1,41 @@
+= OMERO Authentication
+Imagopole
+
+:source-highlighter: coderay
+:toc:
+
+
+== OMERO auth sequence
+
+----
+  +---------------------+
+  + Blitz               +
+  +---------------------+
+  | PermissionsVerifier |
+  | #checkPermisssions  |
+  +---------------------+
+    :   +--------------------------+
+    |   | SessionManager           |
+    +-> | #executeCheckPassword    |
+        |  #executeCheckPasswordRO |
+        |  #executeCheckPasswordRW |
+        +--------------------------+
+          :   +----------------------------+
+          |   | AdminService               |
+          +-> | #checkPassword(usr,pwd,ro) |
+              +----------------------------+
+                :   +----------------------------+
+                |   | PasswordProvider           |
+                +-> | #checkPassword(usr,pwd,ro) |
+                    +----------------------------+
+----
+
+
+== Reference documentation
+
+http://www.openmicroscopy.org/site/support/omero5/developers/Server/ExtendingOmero.html
+http://www.openmicroscopy.org/site/support/omero5/developers/Server/SecuritySystem.html
+http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
+http://www.openmicroscopy.org/site/support/omero5/developers/Server/Ldap.html
+http://www.openmicroscopy.org/site/support/omero5/sysadmins/server-ldap.html
+

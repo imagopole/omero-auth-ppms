@@ -84,6 +84,19 @@ public abstract class BaseExternalNewUserService
     /** Delimiter for the experimenter's instance field names. */
     public static final String EXPERIMENTER_FIELD_DELIM = "_";
 
+    /** Criteria query field for experimenter lookup by name on synchronization.
+     * @see #synchronizeUserFromExternalSource(String) */
+    private static final String OME_NAME = "omeName";
+
+    /** HQL query to load the experimenter's groups on synchronization.
+     *  @see #synchronizeUserFromExternalSource(String) */
+    private static final String SELECT_GROUPS_IDS =
+                    "select g.id "
+                    + "from ExperimenterGroup g "
+                    + "join g.groupExperimenterMap m "
+                    + "join m.child e "
+                    + "where e.id = :id";
+
     /**
      * Full constructor.
      *
@@ -224,7 +237,7 @@ public abstract class BaseExternalNewUserService
             return;
         }
 
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, "omeName", username);
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, OME_NAME, username);
         log.debug("[external_auth] looked up synchronization candidate {} - local: {}",
                   username, omeExp);
 
@@ -233,8 +246,7 @@ public abstract class BaseExternalNewUserService
             List<Long> externalGroups = loadExternalGroups(username);
 
             List<Object[]> omeGroups = iQuery.projection(
-                    "select g.id from ExperimenterGroup g " +
-                    "join g.groupExperimenterMap m join m.child e where e.id = :id",
+                    SELECT_GROUPS_IDS,
                     new Parameters().addId(omeExp.getId()));
 
             Set<Long> omeGroupIds = new HashSet<Long>();
@@ -364,7 +376,7 @@ public abstract class BaseExternalNewUserService
      * ignores all methods known by Roles.
      *
      * Note: this method has been copied from {@link ome.logic.LdapImpl}, the only difference being the
-     * introduction of <code>final</code> modifiers for all arguments.
+     * introduction of <code>final<code> modifiers for all arguments.
      *
      * @param experimenter
      * @param base

@@ -164,8 +164,7 @@ eclipse {
     }
 }
 
-/** Note: integration tests can be run only after database has been populated with the right
- *  users/credentials by task "integrationTestDbSetup" */
+/** Note: integration tests will wipe out and reload the test database at setup time. */
 test {
     useTestNG()
 

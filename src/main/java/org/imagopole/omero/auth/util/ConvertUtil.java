@@ -35,7 +35,7 @@ public final class ConvertUtil {
 
     /**
      * RWR_RA_ : all can read, user can write, group can annotate */
-    protected static final Permissions PERMISSION_READ_ANNOTATE =
+    public static final Permissions PERMISSION_READ_ANNOTATE =
         new Permissions(Permissions.GROUP_READABLE).grant(Role.GROUP, Right.ANNOTATE);
 
     /**

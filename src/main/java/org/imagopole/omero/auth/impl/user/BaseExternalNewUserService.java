@@ -56,13 +56,13 @@ public abstract class BaseExternalNewUserService
     private final Logger log = LoggerFactory.getLogger(BaseExternalNewUserService.class);
 
     /** Configuration settings for the external accounts extension module. */
-    protected final ExternalAuthConfig config;
+    private final ExternalAuthConfig config;
 
     /** OMERO roles. */
-    protected final Roles roles;
+    private final Roles roles;
 
     /** OMERO roles service. */
-    protected final RoleProvider roleProvider;
+    private final RoleProvider roleProvider;
 
     /** OMERO Spring application context. */
     private OmeroContext appContext;

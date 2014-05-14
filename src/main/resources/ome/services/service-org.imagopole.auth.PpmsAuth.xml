@@ -12,7 +12,8 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<beans xmlns="http://www.springframework.org/schema/beans"
+<beans default-lazy-init="true"
+       xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
@@ -270,7 +271,11 @@
    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   -->
 
-  <!-- OMERO bean customization for use with ExternalNewUserService and ExternalNewUserGroupBean implementations -->
+  <!-- OMERO bean customization for use with ExternalNewUserService and ExternalNewUserGroupBean implementations
+       Note: unless the application context is already configured to lazy initialize beans by default,
+       this bean should be explicitly marked as "lazy-init" to avoid potential circular dependencies
+       when resolving the securitySystem bean.
+    -->
   <bean id="externalInfoRoleProvider" class="org.imagopole.omero.auth.impl.ExternalInfoRoleProvider">
       <description>
         RoleProvider which redefines the SimpleRoleProvider object cloning behaviour so as to enable

@@ -43,7 +43,7 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
 
         // note: PPMS authentication will fail if the user has been marked as inactive
         boolean success = getPpmsService().checkAuthentication(username, password);
-        log.debug("[external_auth ][ppms] external user authentication result for username {} : {}",
+        log.debug("[external_auth][ppms] external user authentication result for username {} : {}",
                   username, success);
 
         return success;

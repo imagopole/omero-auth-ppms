@@ -56,13 +56,13 @@ public abstract class BaseExternalNewUserService
     private final Logger log = LoggerFactory.getLogger(BaseExternalNewUserService.class);
 
     /** Configuration settings for the external accounts extension module. */
-    private final ExternalAuthConfig config;
+    private ExternalAuthConfig config;
 
     /** OMERO roles. */
-    private final Roles roles;
+    private Roles roles;
 
     /** OMERO roles service. */
-    private final RoleProvider roleProvider;
+    private RoleProvider roleProvider;
 
     /** OMERO Spring application context. */
     private OmeroContext appContext;
@@ -96,25 +96,6 @@ public abstract class BaseExternalNewUserService
                     + "join g.groupExperimenterMap m "
                     + "join m.child e "
                     + "where e.id = :id";
-
-    /**
-     * Full constructor.
-     *
-     * @param roles OMERO roles for superclass
-     * @param config external extension configuration settings
-     * @param roleProvider OMERO roles service
-     */
-    public BaseExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
-        super();
-        this.roles = roles;
-        this.config = config;
-        this.roleProvider = roleProvider;
-
-        log.debug("[external_auth] Loaded: {} with config: [enabled:{} - sync_groups:{} - sync_user:{} - new_group:{}]",
-                  getClass().getSimpleName(), config.isEnabled(),
-                  config.syncGroupsOnLogin(), config.syncUserOnLogin(), config.getNewUserGroup());
-    }
 
     /**
      * {@inheritDoc}
@@ -435,6 +416,54 @@ public abstract class BaseExternalNewUserService
                 }
             }
         }
+    }
+
+    /**
+     * Returns config.
+     * @return the config
+     */
+    public ExternalAuthConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * Sets config.
+     * @param config the config to set
+     */
+    public void setConfig(ExternalAuthConfig config) {
+        this.config = config;
+    }
+
+    /**
+     * Returns roles.
+     * @return the roles
+     */
+    public Roles getRoles() {
+        return roles;
+    }
+
+    /**
+     * Sets roles.
+     * @param roles the roles to set
+     */
+    public void setRoles(Roles roles) {
+        this.roles = roles;
+    }
+
+    /**
+     * Returns roleProvider.
+     * @return the roleProvider
+     */
+    public RoleProvider getRoleProvider() {
+        return roleProvider;
+    }
+
+    /**
+     * Sets roleProvider.
+     * @param roleProvider the roleProvider to set
+     */
+    public void setRoleProvider(RoleProvider roleProvider) {
+        this.roleProvider = roleProvider;
     }
 
 }

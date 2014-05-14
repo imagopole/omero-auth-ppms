@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.meta.Experimenter;
-import ome.security.auth.RoleProvider;
-import ome.system.Roles;
 
-import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,18 +29,6 @@ public abstract class AuthoritativeExternalNewUserService extends BaseExternalNe
 
     /** Application logs. */
     private final Logger log = LoggerFactory.getLogger(AuthoritativeExternalNewUserService.class);
-
-    /**
-     * Full constructor.
-     *
-     * @param roles OMERO roles for superclass
-     * @param config external extension configuration settings
-     * @param roleProvider OMERO roles service
-     */
-    public AuthoritativeExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
-        super(roles, config, roleProvider);
-    }
 
     /**
      * {@inheritDoc}

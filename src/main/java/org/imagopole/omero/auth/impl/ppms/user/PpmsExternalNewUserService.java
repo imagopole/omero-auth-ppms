@@ -6,10 +6,7 @@ package org.imagopole.omero.auth.impl.ppms.user;
 import ome.annotations.RolesAllowed;
 import ome.conditions.SecurityViolation;
 import ome.model.meta.Experimenter;
-import ome.security.auth.RoleProvider;
-import ome.system.Roles;
 
-import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.impl.ppms.PpmsUtil;
@@ -32,18 +29,6 @@ public class PpmsExternalNewUserService extends AdditiveExternalNewUserService {
 
     /** Service layer for PPMS/PUMAPI. */
     private PpmsService ppmsService;
-
-    /**
-     * Full constructor.
-     *
-     * @param roles OMERO roles for superclass
-     * @param config external extension configuration settings
-     * @param roleProvider OMERO roles service
-     */
-    public PpmsExternalNewUserService(
-        Roles roles, ExternalAuthConfig config, RoleProvider roleProvider) {
-        super(roles, config, roleProvider);
-    }
 
     /**
      * {@inheritDoc}

@@ -281,9 +281,9 @@
   </bean>
 
   <bean id="ppmsNewUserService" parent="level2" class="org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserService">
-      <constructor-arg name="roles" ref="roles"/>
-      <constructor-arg name="config" ref="externalAuthConfiguration"/>
-      <constructor-arg name="roleProvider" ref="externalInfoRoleProvider"/>
+      <property name="roles" ref="roles"/>
+      <property name="config" ref="externalAuthConfiguration"/>
+      <property name="roleProvider" ref="externalInfoRoleProvider"/>
       <property name="ppmsService" ref="ppmsService"/>
   </bean>
 

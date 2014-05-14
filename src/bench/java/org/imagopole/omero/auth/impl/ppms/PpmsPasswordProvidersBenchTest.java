@@ -43,7 +43,7 @@ public class PpmsPasswordProvidersBenchTest extends AbstractOmeroServerBenchTest
     public void setUp() {
         // spring beans
         ppmsStandalonePasswordProvider = (PasswordProvider) omeroContext.getBean("ppmsPasswordProvider");
-        ppmsLdapChainedPasswordProvider = (PasswordProvider) omeroContext.getBean("ppmsLdapChainedPasswordProvider");
+        ppmsLdapChainedPasswordProvider = (PasswordProvider) omeroContext.getBean("ppmsLdapChainedPasswordProvider431");
 
         // config settings
         ldapUserName = configProperties.getProperty(TestKeys.LDAP_USERNAME);

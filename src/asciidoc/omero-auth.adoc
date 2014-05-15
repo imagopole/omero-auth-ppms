@@ -1,6 +1,17 @@
 = OMERO Authentication
 Imagopole
-
+:file_pp_url:        https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/FilePasswordProvider.java
+:jdbc:               https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/JdbcPasswordProvider.java
+:h:                  https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/JdbcHashedPasswordProvider.java
+:ldap_pp_url:        https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/LdapPasswordProvider.java
+:ldap431_pp_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/providers/LdapPasswordProvider431.java
+:conf_pp_url:        https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/ConfigurablePasswordProvider.java
+:chained_pp_url:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProviders.java
+:hasPassword:        https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L27-L39[hasPassword]
+:changePassword:     https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L50-L56[changePassword]
+:checkPassword:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L41-L48[checkPassword]
+:ignoreUnknown:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/ConfigurablePasswordProvider.java#L59-L64[ignoreUnknown]
+:ldap_impl_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/logic/LdapImpl.java[LdapImpl]
 :source-highlighter: prettify
 :icons:              font
 :toc:
@@ -31,6 +42,34 @@ Imagopole
                     +----------------------------+
 ----
 
+
+== OMERO Password Providers
+
+=== Standalone
+
+[width="100%", cols="35,5,5,5,5,40", options="header"]
+|========================================================================================================================================================================
+|                                 | {file_pp_url}[File] | {jdbc}[Jdbc] {h}[JdbcHash] | {ldap_pp_url}[Ldap]   | {ldap431_pp_url}[Ldap431] | {conf_pp_url}[Configurable]
+|_Configurable_ provider subclass | Y                   | Y                          | Y                     | Y                         | N/A
+|{hasPassword} mode               | by key              | by id                      | by id + DN            | by id + DN                | always +false+
+|{changePassword} allowed         | N (inherited)       | Y                          | N (inherited)         | N (inherited)             | always +false+
+|{checkPassword} mode             | compare (inherited) | compare (inherited)        | via {ldap_impl_url}   | via {ldap_impl_url}       | compare
+|{ignoreUnknown} config           | undefined           | +true+ / +false+           | +true+                | +true+                    | +ignoreUnknown ? null : FALSE+
+|Initialize user                  | N                   | N                          | Y                     | Y                         | N
+|Initialize user groups           | N                   | N                          | Y (+new_user_group+)  | Y (+new_user_group+)      | N
+|Synchronize user attributes      | N                   | N                          | Y (+sync_on_login+)   | N                         | N
+|Synchronize user groups          | N                   | N                          | Y (+sync_on_login+)   | N                         | N
+|========================================================================================================================================================================
+
+=== Chained
+
+[width="80%", cols="3*", options="header"]
+|===================================================================================================
+|                               2+^.^| {chained_pp_url}[PasswordProviders]
+|+chainedPasswordProvider+           | {ldap_pp_url}[Ldap]       | {jdbc}[Jdbc]
+|+chainedPasswordProviderNoSalt+     | {ldap_pp_url}[Ldap]       | {jdbc}[JdbcNoSalt]
+|+chainedPasswordProvider431+        | {ldap431_pp_url}[Ldap431] | {jdbc}[Jdbc]
+|===================================================================================================
 
 == Reference documentation
 

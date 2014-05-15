@@ -1,0 +1,58 @@
+= External Authentication Extension
+Imagopole
+:ppms_pp_url:
+:extconf_pp_url:
+:extuser_svc_url:
+:ppmsuser_svc_url:
+:sync_pp_url:
+:chained_pp_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProviders.java
+:ldap431_pp_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/providers/LdapPasswordProvider431.java
+:jdbc:                https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/JdbcPasswordProvider.java
+:hasPassword:         https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L27-L39[hasPassword]
+:changePassword:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L50-L56[changePassword]
+:checkPassword:       https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProvider.java#L41-L48[checkPassword]
+:ignoreUnknown:       https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/ConfigurablePasswordProvider.java#L59-L64[ignoreUnknown]
+:source-highlighter:  prettify
+:icons:               font
+:toc:
+
+
+== External Password Providers
+
+=== Standalone
+
+[width="100%", cols="40,30,30", options="header"]
+|================================================================================================================================================
+|                                              | {ppms_pp_url}[Ppms]                                | {extconf_pp_url}[ExternalConfigurable]
+|_Configurable_ provider subclass              | Y                                                  | Y
+|_ExternalConfigurable_ provider instance      | Y                                                  | N/A
+|{hasPassword} mode                          2+| by username + id
+|{changePassword} allowed                    2+| N (inherited)
+|{checkPassword} mode                          | via {ppmsuser_svc_url}[PpmsExternalNewUserService] | via {extuser_svc_url}[ExternalNewUserService]
+|{ignoreUnknown} config                        | +true+                                             | undefined
+|Initialize user                             2+| Y
+|Initialize user groups                      2+| Y (+new_user_group+)
+|Synchronize user attributes                 2+| Y (+sync_user+)
+|Synchronize user groups                     2+| Y (+sync_groups+)
+|================================================================================================================================================
+
+=== Chained
+
+==== PPMS + LDAP pairs
+
+[width="80%", cols="4*", options="header"]
+|========================================================================================================================
+|                                     3+^.^| {sync_pp_url}[SynchronizingPasswordProviders]
+|+ppmsLdapChainedPasswordProvider431+      | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] |
+|+ppmsLdapFailoverPasswordProvider431+     | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] | {ldap431_pp_url}[Ldap431]
+|========================================================================================================================
+
+==== Chains
+
+[width="80%", cols="3*", options="header"]
+|===================================================================================================
+|                                     2+^.^| {chained_pp_url}[PasswordProviders]
+|+ppmsChainedPasswordProvider431+          | PpmsLdap431  | {jdbc}[Jdbc]
+|+ppmsChainedFailoverPasswordProvider431+  | PpmsLdap431  | {jdbc}[Jdbc]
+|===================================================================================================
+

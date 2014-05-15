@@ -1,0 +1,15 @@
+= OMERO PPMS Auth
+Imagopole
+:source-highlighter:      prettify
+:icons:                   font
+
+.Docs index
+****
+<<overview#,      OMERO + PPMS integration overview>>
+
+<<omero-auth#,    OMERO authentication options>>
+
+<<external-auth#, External authentication options>>
+
+<<config#,        PPMS authentication configuration>>
+****

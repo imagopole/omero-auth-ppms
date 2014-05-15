@@ -86,9 +86,9 @@ NOTE: The {password_provider_url}[recommended configuration] for custom password
 ----
 # Note: both chains require the default ldapPasswordProvider431 to be configured
 
-set omero.security.password_provider ppmsChainedPasswordProvider431          // <1>
+set omero.security.password_provider 'ppmsChainedPasswordProvider431'          // <1>
 # or
-set omero.security.password_provider ppmsChainedFailoverPasswordProvider431  // <2>
+set omero.security.password_provider 'ppmsChainedFailoverPasswordProvider431'  // <2>
 ----
 <1> Use the default providers chain
 <2> Use the "failover" providers chain

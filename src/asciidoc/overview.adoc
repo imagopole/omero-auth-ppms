@@ -1,0 +1,79 @@
+= OMERO PPMS Auth Overview
+Imagopole
+:source-highlighter:      prettify
+:icons:                   font
+:toc:
+
+== Functional overview
+
+=== Rationale
+
+- Reduce user management tasks for facility administrators (PPMS + OMERO).
+- Unify accounts and credentials across applications (PPMS + OMERO).
+
+=== Goals
+
+- Unified credentials for all users.
+- Ability to manage both internal and external users:
+   * LDAP central repository for the lab's users.
+   * PPMS local accounts for visiting/off-site users.
+- Improved registration workflow for both users and administrators.
+
+
+== Requirements
+
+_Prerequisite:_ use LDAP as a single authentication source for _both_ applications.
+
+- Grant OMERO access to registered users only (ie. the PPMS user base).
+- Enable non-destructive PPMS to OMERO replication for groups and users.
+- Allow easy switchover to/from LDAP-based authentication.
+- Allow flexible mapping policy for PPMS to OMERO groups replication.
+
+
+== Features
+
+=== PPMS -> OMERO groups mapping policies
+
+[width="80%", options="header"]
+|===================================================================================================
+| PPMS entity type                          | OMERO group default privileges
+| Project ^(1)^                             | +read-annotate+
+| Unit (group)                              | +read-only+
+| System (instrument)                       | +private+
+| System (instrument) with granted autonomy | +private+
+|===================================================================================================
+^(1)^ TBA
+
+Groups/memberships composition is possible (via "chaining") to allow mixing replication policies.
+Predefined groups may also be provided as a list of comma-separated names.
+
+NOTE: The current replication implementation is _append-only_: existing OMERO memberships are
+      preserved upon synchronization. An alternate implementation is available to allow an
+      _authoritative_ replication style, similar to OMERO's LDAP-based group synchronization.
+
+=== PPMS -> OMERO user mapping
+
+Experimenter attributes which may be synchronized on login:
+
+- first name
+- middle name
+- last name
+- email
+
+User privileges mapping (eg. PPMS _super user_ or OMERO _group owner_) is currently not supported.
+
+=== Usage considerations
+
+==== PPMS -> OMERO filtering
+
+NOTE: PPMS relies on a multi-tenant (ie. multi-facility) model. In order to carry over the relevant
+      groups information onto OMERO, a whitelist mechanism applies for PPMS facilities and instrument
+      types filtering.
+
+==== Renaming operations
+
+WARNING: Replication happens on a *_by-name_* basis for both users and groups. As a result,
+         any modification to an entity's name either in PPMS or OMERO (eg. group or user) may
+         trigger the creation of a new entity within OMERO, whilst bearing the same PPMS identifier.
+         All renaming operations should therefore be performed carefully.
+

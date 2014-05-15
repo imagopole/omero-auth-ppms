@@ -7,7 +7,8 @@ Imagopole
 :request_con_timeout_url: https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L239-L250
 :request_config_url:      https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L334-L344
 :password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
-:source-highlighter: coderay
+:source-highlighter:      prettify
+:icons:                   font
 :toc:
 
 

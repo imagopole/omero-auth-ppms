@@ -1,7 +1,8 @@
 = OMERO Authentication
 Imagopole
 
-:source-highlighter: coderay
+:source-highlighter: prettify
+:icons:              font
 :toc:
 
 

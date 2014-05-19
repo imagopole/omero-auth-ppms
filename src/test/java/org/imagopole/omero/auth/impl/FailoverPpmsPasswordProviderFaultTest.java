@@ -35,7 +35,7 @@ import org.imagopole.ppms.api.dto.PpmsUserPrivilege;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class FailoverPpmsPasswordProviderFaultTest extends AbstractChainedPpmsPasswordProviderTest {
+public class FailoverPpmsPasswordProviderFaultTest extends AbstractPpmsOmeroIntegrationTest {
 
     /** @TestedObject */
     private PasswordProvider passwordProvider;

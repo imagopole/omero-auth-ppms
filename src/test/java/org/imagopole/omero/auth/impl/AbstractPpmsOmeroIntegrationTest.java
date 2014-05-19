@@ -36,7 +36,7 @@ import org.testng.annotations.BeforeMethod;
 import org.unitils.mock.Mock;
 import org.unitils.mock.core.MockObject;
 
-public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOmeroIntegrationTest {
+public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroIntegrationTest {
 
     protected Mock<PumapiClient> pumapiClientMock;
 

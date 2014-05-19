@@ -23,7 +23,7 @@ import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.testng.annotations.Test;
 
-public class ChainedPpmsPasswordProviderSyncTest extends AbstractChainedPpmsPasswordProviderTest {
+public class ChainedPpmsPasswordProviderSyncTest extends AbstractPpmsOmeroIntegrationTest {
 
     /** @TestedObject */
     private PasswordProvider passwordProvider;

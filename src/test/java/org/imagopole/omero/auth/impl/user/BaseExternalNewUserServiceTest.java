@@ -19,12 +19,12 @@ import org.imagopole.omero.auth.TestsUtil.LdapUnit;
 import org.imagopole.omero.auth.TestsUtil.OmeroUnit;
 import org.imagopole.omero.auth.TestsUtil.PpmsUnit;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
-import org.imagopole.omero.auth.impl.AbstractChainedPpmsPasswordProviderTest;
+import org.imagopole.omero.auth.impl.AbstractPpmsOmeroIntegrationTest;
 import org.imagopole.ppms.api.dto.PpmsUser;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
-public class BaseExternalNewUserServiceTest extends AbstractChainedPpmsPasswordProviderTest {
+public class BaseExternalNewUserServiceTest extends AbstractPpmsOmeroIntegrationTest {
 
     /** @TestedObject */
     private ExternalNewUserService externalNewUserService;

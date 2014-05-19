@@ -13,6 +13,7 @@ import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.dto.NamedItem;
 import org.imagopole.omero.auth.api.ppms.PpmsService;
 import org.imagopole.omero.auth.api.ppms.PpmsUserDetails;
+import org.imagopole.omero.auth.util.Check;
 import org.imagopole.ppms.api.PumapiClient;
 import org.imagopole.ppms.api.PumapiException;
 import org.imagopole.ppms.api.dto.PpmsGroup;
@@ -51,6 +52,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public PpmsUser findUserByName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         PpmsUser result = null;
 
         try {
@@ -74,6 +77,9 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public boolean checkAuthentication(String userName, String password) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+        Check.notEmpty(password, "password");
+
         boolean result = false;
 
         try {
@@ -96,6 +102,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public List<NamedItem> findProjectsByUserName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         List<NamedItem> result = Collections.emptyList();
 
         try {
@@ -116,6 +124,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public PpmsGroup findGroupByUserName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         PpmsGroup result = null;
 
         try {
@@ -147,6 +157,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public PpmsUserDetails findUserAndGroupByName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         PpmsUserDetails result = null;
 
         try {
@@ -199,6 +211,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public List<PpmsSystem> findActiveSystemsByUserName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         List<PpmsSystem> result = Collections.emptyList();
 
         try {
@@ -255,6 +269,8 @@ public class DefaultPpmsService implements PpmsService {
      */
     @Override
     public List<PpmsSystem> findActiveSystemsWithAutonomyByUserName(String userName) throws ExternalServiceException {
+        Check.notEmpty(userName, "userName");
+
         List<PpmsSystem> result = Collections.emptyList();
 
         try {

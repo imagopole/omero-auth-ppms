@@ -28,6 +28,7 @@ import ome.system.Roles;
 import org.imagopole.omero.auth.api.ExternalAuthConfig;
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.user.ExternalNewUserService;
+import org.imagopole.omero.auth.util.Check;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -148,7 +149,16 @@ public abstract class BaseExternalNewUserService
      */
     @Override
     public boolean createUserFromExternalSource(String username, String password) throws ExternalServiceException {
+        Check.notEmpty(username, "username");
+        Check.notEmpty(password, "password");
+
         log.info("[external_auth] Preparing to create experimenter: {}", username);
+
+        // double check user is not already present in OMERO
+        Experimenter omeroExperimenter = iQuery.findByString(Experimenter.class, OME_NAME, username);
+        if (null != omeroExperimenter) {
+            throw new ValidationException(String.format("User already exists: %s", username));
+        }
 
         Experimenter exp = findExperimenterFromExternalSource(username);
 
@@ -196,6 +206,8 @@ public abstract class BaseExternalNewUserService
      */
     @Override
     public void synchronizeUserFromExternalSource(String username) throws ExternalServiceException {
+        Check.notEmpty(username, "username");
+
         boolean syncGroupsOnLogin = config.syncGroupsOnLogin();
         boolean syncUserOnLogin = config.syncUserOnLogin();
         log.debug("[external_auth] Synchronization settings for user:{} [groups:{} - user:{}]",
@@ -206,9 +218,17 @@ public abstract class BaseExternalNewUserService
             return;
         }
 
+        Experimenter omeExp = iQuery.findByString(Experimenter.class, OME_NAME, username);
+
+        // double check user is already present in OMERO
+        boolean isUserMissingFromOmero = (null == omeExp);
+        if (isUserMissingFromOmero) {
+            throw new ValidationException(String.format("User unknown locally: %s", username));
+        }
+
         Experimenter externalExp = findExperimenterFromExternalSource(username);
-        log.debug("[external_auth] looked up synchronization candidate {} - remote: {}",
-                  username, externalExp);
+        log.debug("[external_auth] looked up synchronization candidate {} - remote: {} - local: {}",
+                  username, externalExp, omeExp);
 
         // difference from LdapImpl here: do not attempt to synchronize a user if it is
         // local to OMERO only, or not found in the remote data source
@@ -217,10 +237,6 @@ public abstract class BaseExternalNewUserService
             log.info("[external_auth] username: {} unknown in external source - skipping sync (omero-only)", username);
             return;
         }
-
-        Experimenter omeExp = iQuery.findByString(Experimenter.class, OME_NAME, username);
-        log.debug("[external_auth] looked up synchronization candidate {} - local: {}",
-                  username, omeExp);
 
         if (syncGroupsOnLogin) {
 
@@ -277,6 +293,9 @@ public abstract class BaseExternalNewUserService
                     final Experimenter omeExp,
                     final Experimenter externalExp) {
 
+        Check.notNull(omeExp, "omeExp");
+        Check.notNull(externalExp, "externalExp");
+
         for (String field : EXPERIMENTER_FIELD_NAMES) {
             String fieldname = field.substring(field.indexOf(EXPERIMENTER_FIELD_DELIM) + 1);
             String ome = (String) omeExp.retrieve(field);
@@ -316,6 +335,8 @@ public abstract class BaseExternalNewUserService
      * @see ome.logic.LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
     public List<Long> loadExternalGroups(String username) throws ExternalServiceException {
+        Check.notEmpty(username, "username");
+
         final String grpSpec = config.getNewUserGroup();
         log.debug("[external_auth] loading externalNewUserGroup from spec: {}", grpSpec);
 
@@ -337,7 +358,7 @@ public abstract class BaseExternalNewUserService
         final String data = grpSpec.substring(grpSpec.lastIndexOf(GROUPSPEC_DELIM) + 1);
         log.debug("[external_auth] Configuring externalNewUserGroup as javabean: {}", data);
         if (null == data || data.trim().isEmpty()) {
-            throw new ValidationException(grpSpec + " spec currently not supported.");
+            throw new ValidationException(String.format("%s spec currently not supported.", grpSpec));
         }
 
         //TODO: configure once at instantiation time rather than with every method invocation?
@@ -369,6 +390,10 @@ public abstract class BaseExternalNewUserService
                     final Collection<Long> base,
                     final Collection<Long> minus,
                     final boolean add) {
+
+        Check.notNull(experimenter, "experimenter");
+        Check.notNull(base, "base");
+        Check.notNull(minus, "minus");
 
         log.debug("[external_auth] synchronizing groups for experimenter: {} - add={}", experimenter, add);
         log.debug("[external_auth] groups base: {}", base);

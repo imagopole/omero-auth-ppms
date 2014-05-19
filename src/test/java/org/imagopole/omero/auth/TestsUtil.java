@@ -371,6 +371,7 @@ public final class TestsUtil {
         public static final String UNIT_LOGIN = "some.unit.login";
 
         public static final String AUTONOMY_GROUP_BEAN = ":bean:ppmsSystemAutonomyToGroupBean";
+        public static final String SYSTEM_GROUP_BEAN = ":bean:ppmsSystemToGroupBean";
         public static final String FACILITIES_WHITELIST = "," + FACILITY_ID;
         public static final String SYSTEM_TYPES_WHITELIST = SYSTEM_TYPE + ",";
 

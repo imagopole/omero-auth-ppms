@@ -195,7 +195,7 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
     }
 
     @BeforeMethod
-    public void createOmeroRootSession() {
+    public void setupOmeroRootSession() {
         String userName = getRoles().getRootName();
         String groupName = getRoles().getSystemGroupName();
         String eventType = TestsUtil.TEST_EVENT_TYPE;
@@ -208,7 +208,7 @@ public abstract class AbstractChainedPpmsPasswordProviderTest extends AbstractOm
     }
 
     @AfterMethod
-    public void closeAllOmeroSessions() {
+    public void tearDownAllOmeroSessions() {
         getSessionManager().closeAll();
     }
 

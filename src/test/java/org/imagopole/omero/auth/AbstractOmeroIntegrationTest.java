@@ -1,5 +1,6 @@
 package org.imagopole.omero.auth;
 
+import static org.imagopole.omero.auth.util.Check.empty;
 import static org.testng.Assert.fail;
 
 import java.io.InputStream;
@@ -108,17 +109,23 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
             systemProps.getProperty(Env.FLYWAY_DB_INIT_ON_MIGRATE, "false");
         String cleanDbOnMigrateParam =
             systemProps.getProperty(Env.FLYWAY_DB_CLEAN_ON_MIGRATE, "false");
+        String targetVersionParam = systemProps.getProperty(Env.FLYWAY_DB_MIGRATION_TARGET);
 
         String jdbcUrl = MessageFormat.format(jdbcBaseUrl, dbName);
         boolean shouldInitDbOnMigrate = Boolean.valueOf(initDbOnMigrateParam);
         boolean shouldCleanDbOnMigrate = Boolean.valueOf(cleanDbOnMigrateParam);
+        String targetVersion = empty(targetVersionParam) ? null : targetVersionParam;
 
-        log.debug("Preparing to reload test database: {} [init:{} - clean:{}]",
-                  dbName, shouldInitDbOnMigrate, shouldCleanDbOnMigrate);
+        log.debug("Preparing to reload test database: {} [init:{} - clean:{} - target:{}]",
+                  dbName, shouldInitDbOnMigrate, shouldCleanDbOnMigrate, targetVersion);
 
         flyway.setDataSource(jdbcUrl, dbUser, dbPwd);
         flyway.setInitOnMigrate(shouldInitDbOnMigrate);
         flyway.setLocations(Env.FLYWAY_DEFAULT_LOCATIONS);
+
+        if (null != targetVersion) {
+            flyway.setTarget(targetVersion);
+        }
 
         if (shouldCleanDbOnMigrate) {
             flyway.clean();

@@ -7,7 +7,11 @@ ext.omeroBaseline  = 'omero50x'
 
 ext.omeVersions = [
     omero      : '5.0.1',
-    bioformats : '5.0.1'
+    bioformats : '5.0.1',
+    libs       : [
+                   slf4j   : '1.7.6',
+                   logback : '1.1.1'
+                 ]
 ]
 
 ext.iceVersions = [

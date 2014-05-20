@@ -291,9 +291,13 @@ task withDepsDistZip (type: Zip) { zipTask ->
 
     classifier = 'dist-with-dependencies'
 
+    into ("lib") {
+        from configurations.runtime
+    }
+    into ("docs") {
+        from "$buildDir/asciidoc"
+    }
     from configurations.runtime.allArtifacts.files
-    from configurations.runtime
-    from "$buildDir/asciidoc"
     from fileTree("$buildDir/distributions").include("*.jar")
     from fileTree("$projectDir").include(["*.md", "LICENSE.txt"])
 }
@@ -305,7 +309,9 @@ task serverExtDistZip(type: Zip) { zipTask ->
 
     classifier = 'dist-server-extension'
 
-    from "$buildDir/asciidoc"
+    into ("docs") {
+        from "$buildDir/asciidoc"
+    }
     from fileTree("$buildDir/distributions").include("*.jar")
     from fileTree("$projectDir").include(["*.md", "LICENSE.txt"])
 }

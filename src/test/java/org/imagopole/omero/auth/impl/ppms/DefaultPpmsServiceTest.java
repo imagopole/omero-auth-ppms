@@ -48,32 +48,34 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
 
     /**
      * Data format:
-     * { fixtureUserRights, fixtureSystem, fixtureSystemId, findActiveSystemsExpectedCount, findActiveSystemsWithAutonomyExpectedCount }
+     * { fixtureUserRights, fixtureSystem, fixtureSystemId,
+     *   findActiveSystemsExpectedCount, findActiveSystemsWithAutonomyExpectedCount,
+     *   findActiveSystemsExpectedRpc, findActiveSystemsWithAutonomyExpectedRpc }
      **/
     @DataProvider(name="systemsAndPrivilegesDataProvider")
     private Object[][] provideUserPrivileges() {
         return new Object[][] {
-            { null,                                      null,            0L, 0, 0 },
-            { null,                                      newOpenSystem(), 0L, 0, 0 },
-            { Collections.emptyList(),                   newOpenSystem(), 0L, 0, 0 },
+            { null,                                      null,            0L, 0, 0, false, false },
+            { null,                                      newOpenSystem(), 0L, 0, 0, false, false },
+            { Collections.emptyList(),                   newOpenSystem(), 0L, 0, 0, false, false },
 
             // active, "open" system
-            { inactiveRights(PpmsUnit.OPEN_SYSTEM_ID),   newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 0, 0 },
-            { noviceRights(PpmsUnit.OPEN_SYSTEM_ID),     newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1 },
-            { autonomousRights(PpmsUnit.OPEN_SYSTEM_ID), newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1 },
-            { superUserRights(PpmsUnit.OPEN_SYSTEM_ID) , newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1 },
+            { inactiveRights(PpmsUnit.OPEN_SYSTEM_ID),   newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 0, 0, false, false },
+            { noviceRights(PpmsUnit.OPEN_SYSTEM_ID),     newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1, true, true },
+            { autonomousRights(PpmsUnit.OPEN_SYSTEM_ID), newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1, true, true },
+            { superUserRights(PpmsUnit.OPEN_SYSTEM_ID) , newOpenSystem(), PpmsUnit.OPEN_SYSTEM_ID, 1, 1, true, true },
 
             // active, "restricted" system
-            { inactiveRights(PpmsUnit.RESTRICTED_SYSTEM_ID),   newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 0, 0 },
-            { noviceRights(PpmsUnit.RESTRICTED_SYSTEM_ID),     newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 0 },
-            { autonomousRights(PpmsUnit.RESTRICTED_SYSTEM_ID), newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 1 },
-            { superUserRights(PpmsUnit.RESTRICTED_SYSTEM_ID) , newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 1 },
+            { inactiveRights(PpmsUnit.RESTRICTED_SYSTEM_ID),   newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 0, 0, false, false },
+            { noviceRights(PpmsUnit.RESTRICTED_SYSTEM_ID),     newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 0, true, true },
+            { autonomousRights(PpmsUnit.RESTRICTED_SYSTEM_ID), newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 1, true, true },
+            { superUserRights(PpmsUnit.RESTRICTED_SYSTEM_ID) , newRestrictedSystem(), PpmsUnit.RESTRICTED_SYSTEM_ID, 1, 1, true, true },
 
             // inactive, "open" system
-            { inactiveRights(PpmsUnit.INACTIVE_SYSTEM_ID),   inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0 },
-            { noviceRights(PpmsUnit.INACTIVE_SYSTEM_ID),     inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0 },
-            { autonomousRights(PpmsUnit.INACTIVE_SYSTEM_ID), inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0 },
-            { superUserRights(PpmsUnit.INACTIVE_SYSTEM_ID) , inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0 }
+            { inactiveRights(PpmsUnit.INACTIVE_SYSTEM_ID),   inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0, false, false },
+            { noviceRights(PpmsUnit.INACTIVE_SYSTEM_ID),     inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0, true, true },
+            { autonomousRights(PpmsUnit.INACTIVE_SYSTEM_ID), inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0, true, true },
+            { superUserRights(PpmsUnit.INACTIVE_SYSTEM_ID) , inactiveSystem(), PpmsUnit.INACTIVE_SYSTEM_ID, 0, 0, true, true }
         };
     }
 
@@ -91,7 +93,9 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
                     PpmsSystem fixtureSystem,
                     Long fixtureSystemId,
                     int findActiveSystemsExpectedCount,
-                    int findActiveSystemsWithAutonomyExpectedCount) {
+                    int findActiveSystemsWithAutonomyExpectedCount,
+                    boolean findActiveSystemsExpectedRpc,
+                    boolean findActiveSystemsWithAutonomyExpectedRpc) {
         // define behaviour
         pumapiClientMock.returns(fixtureUserRights).getUserRights(Data.USERNAME);
         pumapiClientMock.returns(fixtureSystem).getSystem(fixtureSystemId);
@@ -104,7 +108,7 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
         assertEquals(result.size(), findActiveSystemsExpectedCount, "Incorrect results");
 
         pumapiClientMock.assertInvoked().getUserRights(Data.USERNAME);
-        if (null != fixtureUserRights && !fixtureUserRights.isEmpty()) {
+        if (findActiveSystemsExpectedRpc) {
             pumapiClientMock.assertInvoked().getSystem(fixtureSystemId);
         } else {
             pumapiClientMock.assertNotInvoked().getSystem(fixtureSystemId);
@@ -117,7 +121,9 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
                     PpmsSystem fixtureSystem,
                     Long fixtureSystemId,
                     int findActiveSystemsExpectedCount,
-                    int findActiveSystemsWithAutonomyExpectedCount) {
+                    int findActiveSystemsWithAutonomyExpectedCount,
+                    boolean findActiveSystemsExpectedRpc,
+                    boolean findActiveSystemsWithAutonomyExpectedRpc) {
         // define behaviour
         pumapiClientMock.returns(fixtureUserRights).getUserRights(Data.USERNAME);
         pumapiClientMock.returns(fixtureSystem).getSystem(fixtureSystemId);
@@ -130,7 +136,7 @@ public class DefaultPpmsServiceTest extends UnitilsTestNG {
         assertEquals(result.size(), findActiveSystemsWithAutonomyExpectedCount, "Incorrect results");
 
         pumapiClientMock.assertInvoked().getUserRights(Data.USERNAME);
-        if (null != fixtureUserRights && !fixtureUserRights.isEmpty()) {
+        if (findActiveSystemsWithAutonomyExpectedRpc) {
             pumapiClientMock.assertInvoked().getSystem(fixtureSystemId);
         } else {
             pumapiClientMock.assertNotInvoked().getSystem(fixtureSystemId);

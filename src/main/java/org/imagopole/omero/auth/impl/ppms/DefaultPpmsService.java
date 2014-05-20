@@ -7,7 +7,11 @@ import static org.imagopole.omero.auth.util.Check.empty;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.imagopole.omero.auth.api.ExternalServiceException;
 import org.imagopole.omero.auth.api.dto.NamedItem;
@@ -228,31 +232,31 @@ public class DefaultPpmsService implements PpmsService {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
-        List<PpmsUserPrivilege> grantedIntruments = getPpmsClient().getUserRights(userName);
+        Map<Long, Set<PpmsPrivilege>> privilegesBySystem = getPrivilegesIndexedBySystem(userName);
 
         // include them regardless of his/her autonomy status (may be autonomous,
         // superuser, novice or deactivated)
-        if (null != grantedIntruments && !grantedIntruments.isEmpty()) {
+        if (null != privilegesBySystem && !privilegesBySystem.isEmpty()) {
 
-            for (PpmsUserPrivilege grantedSystem : grantedIntruments) {
-                Long systemId = grantedSystem.getSystemId();
-                PpmsPrivilege systemPrivilege = grantedSystem.getPrivilege();
+            for (Long systemId : privilegesBySystem.keySet()) {
+                Set<PpmsPrivilege> systemPrivileges = privilegesBySystem.get(systemId);
 
-                // lookup the systems' details (name, description...)
-                PpmsSystem system = getPpmsClient().getSystem(systemId);
+                boolean isUserActivated = !systemPrivileges.contains(PpmsPrivilege.Deactivated);
 
-                if (null != system) {
-                    boolean isSystemActive = (null != system.getActive() && system.getActive());
-                    boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
+                // exclude deactivated users for this system
+                if (isUserActivated) {
+                    // lookup the systems' details (name, description...)
+                    PpmsSystem system = getPpmsClient().getSystem(systemId);
 
-                    if (isSystemActive) {
-                        // exclude deactivated users for this system
-                        if (isUserActivated) {
+                    if (null != system) {
+                        boolean isSystemActive = (null != system.getActive() && system.getActive());
+
+                        if (isSystemActive) {
                             result.add(system);
+                        } else {
+                            log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
+                                     system.getSystemId(), system.getName(), userName);
                         }
-                    } else {
-                        log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
-                                 system.getSystemId(), system.getName(), userName);
                     }
                 }
             }
@@ -286,61 +290,92 @@ public class DefaultPpmsService implements PpmsService {
         List<PpmsSystem> result = new ArrayList<PpmsSystem>();
 
         // get the list of PPMS "systems" IDs available to the user
-        List<PpmsUserPrivilege> grantedIntruments = getPpmsClient().getUserRights(userName);
+        Map<Long, Set<PpmsPrivilege>> privilegesBySystem = getPrivilegesIndexedBySystem(userName);
 
         // include them taking into account both his/her autonomy status and the autonomy requirements
         // defined on the instrument itself
+        if (null != privilegesBySystem && !privilegesBySystem.isEmpty()) {
+
+            for (Long systemId : privilegesBySystem.keySet()) {
+                Set<PpmsPrivilege> systemPrivileges = privilegesBySystem.get(systemId);
+
+                boolean isUserActivated = !systemPrivileges.contains(PpmsPrivilege.Deactivated);
+                boolean isAutonomyGranted =
+                    systemPrivileges.contains(PpmsPrivilege.Autonomous)
+                    || systemPrivileges.contains(PpmsPrivilege.SuperUser);
+
+                // exclude deactivated users for this system
+                if (isUserActivated) {
+                    // lookup the systems' details (name, description...)
+                    PpmsSystem system = getPpmsClient().getSystem(systemId);
+
+                    if (null != system) {
+
+                        boolean isSystemActive =
+                            (null != system.getActive() && system.getActive());
+                        boolean isAutonomyRequired =
+                            (null != system.getAutonomyRequired() && system.getAutonomyRequired());
+
+                        log.debug(
+                            "[external_auth][ppms] Autonomy filters for: {} on system: {}-{} [required:{} - granted:{} - activated:{} - active:{}]",
+                            userName, systemId, system.getName(), isAutonomyRequired, isAutonomyGranted, isUserActivated, isSystemActive);
+
+                        if (isSystemActive) {
+                            // the instrument on this facility requires autonomy before user access
+                            if (isAutonomyRequired) {
+                                if (isAutonomyGranted) {
+                                    result.add(system);
+                                }
+                            } else {
+                                // any activated user may access this instrument, regardless of whether they are autonomous
+                                result.add(system);
+                            }
+                        } else {
+                            log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
+                                     system.getSystemId(), system.getName(), userName);
+                        }
+
+                    }
+                }
+            }
+
+        } else {
+            log.warn("[external_auth][ppms] No granted rights for username: {}", userName);
+        }
+
+        return result;
+    }
+
+    /**
+     * Performs a remote lookup to retrieve the instruments granted to the user, and indexes
+     * the user privileges by instrument id.
+     *
+     * @param userName the experimenter name
+     * @return an instrument id to granted privileges map if any, or an empty map if none granted.
+     * @throws PumapiException  in case of an underlying error (API or technical)
+     */
+    private Map<Long, Set<PpmsPrivilege>> getPrivilegesIndexedBySystem(String userName) throws PumapiException {
+        Map<Long, Set<PpmsPrivilege>> result = new HashMap<Long, Set<PpmsPrivilege>>();
+
+        // get the list of PPMS "systems" IDs available to the user
+        List<PpmsUserPrivilege> grantedIntruments = getPpmsClient().getUserRights(userName);
+
         if (null != grantedIntruments && !grantedIntruments.isEmpty()) {
 
             for (PpmsUserPrivilege grantedSystem : grantedIntruments) {
                 Long systemId = grantedSystem.getSystemId();
                 PpmsPrivilege systemPrivilege = grantedSystem.getPrivilege();
 
-                // lookup the systems' details (name, description...)
-                PpmsSystem system = getPpmsClient().getSystem(systemId);
-
-                if (null != system) {
-
-                    boolean isSystemActive =
-                        (null != system.getActive() && system.getActive());
-                    boolean isAutonomyRequired =
-                        (null != system.getAutonomyRequired() && system.getAutonomyRequired());
-
-                    boolean isAutonomyGranted =
-                        PpmsPrivilege.Autonomous.equals(systemPrivilege)
-                        || PpmsPrivilege.SuperUser.equals(systemPrivilege);
-                    boolean isUserActivated = !PpmsPrivilege.Deactivated.equals(systemPrivilege);
-
-                    log.debug(
-                        "[external_auth][ppms] Autonomy filters for: {} on system: {}-{} [required:{} - granted:{} - activated:{} - active:{}]",
-                        userName, systemId, system.getName(), isAutonomyRequired, isAutonomyGranted, isUserActivated, isSystemActive);
-
-                    if (isSystemActive) {
-
-                        // the instrument on this facility requires autonomy before user access
-                        if (isAutonomyRequired) {
-                            if (isAutonomyGranted) {
-                                result.add(system);
-                            }
-                        } else {
-                            // any user may access this instrument, regardless of whether they are autonomous
-                            // we only exclude deactivated users here
-                            if (isUserActivated) {
-                                result.add(system);
-                            }
-                        }
-
-                    } else {
-                        log.warn("[external_auth][ppms] Inactive system: {}-{} granted to username: {}",
-                                 system.getSystemId(), system.getName(), userName);
-                    }
-
+                if (result.containsKey(systemId)) {
+                    Set<PpmsPrivilege> privilegesForSystem = result.get(systemId);
+                    privilegesForSystem.add(systemPrivilege);
+                } else {
+                    Set<PpmsPrivilege> privilegesForSystem = new HashSet<PpmsPrivilege>();
+                    privilegesForSystem.add(systemPrivilege);
+                    result.put(systemId, privilegesForSystem);
                 }
-
             }
 
-        } else {
-            log.warn("[external_auth][ppms] No granted rights for username: {}", userName);
         }
 
         return result;

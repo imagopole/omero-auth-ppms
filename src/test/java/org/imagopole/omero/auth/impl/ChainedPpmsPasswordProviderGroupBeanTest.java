@@ -91,10 +91,10 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractPpmsOmeroI
     @DataProvider(name="insufficientRightsDataProvider")
     private Object[][] provideInsufficientSystemPrivileges() {
         return new Object[][] {
-            { null                               },
-            { Collections.emptyList()            },
-            { inactiveRights(PpmsUnit.OPEN_SYSTEM_ID) },
-            { noviceRights(PpmsUnit.OPEN_SYSTEM_ID)   }
+            { null,                                    false },
+            { Collections.emptyList(),                 false },
+            { inactiveRights(PpmsUnit.OPEN_SYSTEM_ID), false },
+            { noviceRights(PpmsUnit.OPEN_SYSTEM_ID),   true  }
         };
     }
 
@@ -136,7 +136,7 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractPpmsOmeroI
      *    - OMERO-local + PPMS
      **/
     @Test(groups = { Groups.INTEGRATION }, dataProvider = "insufficientRightsDataProvider")
-    public void loginPpmsAuthNoRightsShouldNotCreateAccount(List<PpmsUserPrivilege> userRights) {
+    public void loginPpmsAuthNoRightsShouldNotCreateAccount(List<PpmsUserPrivilege> userRights, boolean systemLookupExpectedRpc) {
         String workDescription = "loginPpmsAuthNoRightsShouldNotCreateAccount";
 
         // test precondition: check experimenter does not exists beforehand
@@ -159,10 +159,10 @@ public class ChainedPpmsPasswordProviderGroupBeanTest extends AbstractPpmsOmeroI
         // check invocations
         pumapiClientMock.assertInvoked().authenticate(PpmsUnit.DEFAULT_USER, PpmsUnit.DEFAULT_PWD);
         pumapiClientMock.assertInvoked().getUserRights(PpmsUnit.DEFAULT_USER);
-        if (null == userRights || userRights.isEmpty()) {
-            pumapiClientMock.assertNotInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
-        } else {
+        if (systemLookupExpectedRpc) {
             pumapiClientMock.assertInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
+        } else {
+            pumapiClientMock.assertNotInvoked().getSystem(PpmsUnit.OPEN_SYSTEM_ID);
         }
     }
 

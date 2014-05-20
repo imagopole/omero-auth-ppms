@@ -44,7 +44,7 @@ ext.sharedManifest = manifest {
                'Implementation-Version': version,
                'X-Build-Profile': profile,
                'X-Omero-Version': profileVersions.omero,
-               'X-Omero-Ice-Version': iceVersions.main
+               'X-Omero-Ice-Version': profileVersions.ice.main
 }
 
 ext.versions = [

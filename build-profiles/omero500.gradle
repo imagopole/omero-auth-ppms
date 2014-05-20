@@ -1,10 +1,17 @@
 /**
  * Buildfile fragment used as a Maven-style profile to define specific OMERO dependencies
- * for the 5.0.0 server baseline.
+ * for the 5.0.x server baseline.
+ *
+ * Depends on external definition of 'omeVersions' and 'iceVersions'.
  **/
 
 ext.profileVersions = [
-    omero       : '5.0.0',
+    omero       : omeVersions.omero,
+    bioformats  : omeVersions.bioformats,
+    ice         : [
+                    main     : iceVersions.main,
+                    qualifier: iceVersions.qualifier
+                  ],
     spring      : [
                     core     : '3.0.1.RELEASE',   //--OMERO: 3.0.1.RELEASE-A
                     security : '3.0.2.RELEASE',   //--OMERO: 3.0.2.RELEASE
@@ -25,7 +32,6 @@ ext.profileVersions = [
     lucene      : '2.4.1',                        //--OMERO: 2.4.1
     javassist   : '3.9.0.GA',                     //--OMERO: 3.9.0.GA
     cglib       : '2.2',                          //--OMERO: 2.2
-    bioformats  : '5.0.0',                        //--OMER0: 5.0.0
 ]
 
 dependencies {
@@ -55,9 +61,9 @@ dependencies {
 
     //--------- OMERO + Ice profiles combined workaround ---------//
     // depends on Ice profile versions + OMERO profile versions
-    testRuntime 'zeroc:ice:' + iceVersions.main
+    testRuntime 'zeroc:ice:' + profileVersions.ice.main
     testRuntime group: 'ome.omero', name: 'omero-shares', version: profileVersions.omero,
-                                                          classifier: iceVersions.qualifier
+                                                          classifier: profileVersions.ice.qualifier
 
     testRuntime 'ome.omero:romio:' + profileVersions.omero
     testRuntime 'org.springframework:spring-context-support:' + profileVersions.spring.core

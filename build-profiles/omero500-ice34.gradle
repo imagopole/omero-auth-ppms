@@ -5,6 +5,11 @@
 
 ext.omeroBaseline  = 'omero500'
 
+ext.omeVersions = [
+    omero      : '5.0.0',
+    bioformats : '5.0.0'
+]
+
 ext.iceVersions = [
     main      : '3.4.2',       //--OMERO: ice33, 34 or 35
     qualifier : 'ice-342'      //--OMERO: server version + ice qualifier (omero-shares specific qualifier)

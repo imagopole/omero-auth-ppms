@@ -118,6 +118,7 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
 
         flyway.setDataSource(jdbcUrl, dbUser, dbPwd);
         flyway.setInitOnMigrate(shouldInitDbOnMigrate);
+        flyway.setLocations(Env.FLYWAY_DEFAULT_LOCATIONS);
 
         if (shouldCleanDbOnMigrate) {
             flyway.clean();

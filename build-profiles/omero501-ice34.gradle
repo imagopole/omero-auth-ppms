@@ -3,7 +3,7 @@
  * for the 5.0.1-ice34 server flavor.
  **/
 
-ext.omeroBaseline  = 'omero500'
+ext.omeroBaseline  = 'omero50x'
 
 ext.omeVersions = [
     omero      : '5.0.1',

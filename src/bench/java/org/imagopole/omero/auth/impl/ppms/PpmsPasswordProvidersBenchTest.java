@@ -76,7 +76,8 @@ public class PpmsPasswordProvidersBenchTest extends AbstractOmeroServerBenchTest
               timer = ConstantTimer.class, timerParams = { BenchUtil.WAIT_DEFAULT })
     @Required(max = 500, median = 500, percentile90 = 500, percentile95 = 500)
     public void chainedLdapAuth() {
-        Boolean success = ppmsLdapChainedPasswordProvider.checkPassword(ldapUserName, ldapRightPassword, true);
+        // note: "ldapUserName" _must_ exist before test
+        Boolean success = ppmsLdapChainedPasswordProvider.checkPassword(ldapUserName, ldapRightPassword, false);
         assertNotNull("config should be enabled", success);
         assertTrue("should auth ok", success);
     }
@@ -86,7 +87,8 @@ public class PpmsPasswordProvidersBenchTest extends AbstractOmeroServerBenchTest
               timer = ConstantTimer.class, timerParams = { BenchUtil.WAIT_DEFAULT })
     @Required(max = 500, median = 500, percentile90 = 500, percentile95 = 500)
     public void chainedLdapNoAuth() {
-        Boolean success = ppmsLdapChainedPasswordProvider.checkPassword(ldapUserName, ldapWrongPassword, true);
+        // note: "ldapUserName" _must_ exist before test
+        Boolean success = ppmsLdapChainedPasswordProvider.checkPassword(ldapUserName, ldapWrongPassword, false);
         assertNotNull("config should be enabled", success);
         assertFalse("should auth ko", success);
     }

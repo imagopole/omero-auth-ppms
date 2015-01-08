@@ -8,7 +8,7 @@ apply plugin: 'checkstyle'
 apply plugin: 'project-report' // gradle-1.9 feature
 apply plugin: 'jacoco'         // gradle-1.9 incubating
 apply plugin: 'org.asciidoctor.gradle.asciidoctor'
-apply plugin: 'shadow'
+apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'artifactory'
 
 
@@ -258,8 +258,9 @@ asciidoctor {
  *   - http://www.openmicroscopy.org/site/support/omero5/developers/Server/ExtendingOmero.html#java-deployment
  *   - https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/antlib/resources/lifecycle.xml#L371
  **/
-shadow {
+shadowJar {
     classifier "server-extension"
+	manifest = sharedManifest
 
     exclude 'META-INF/*.txt'
     exclude 'META-INF/*.DSA'
@@ -270,14 +271,14 @@ shadow {
     exclude 'META-INF/DEPENDENCIES'
 
     // aggregate the subset of dependencies not already present on the OMERO.server classpath
-    artifactSet {
-        include 'org.imagopole.ppms:ppms-http-client'
+    dependencies {
+        include dependency('org.imagopole.ppms:ppms-http-client')
 
         //-- runtime ppms-http-client dependencies
-        include 'org.apache.httpcomponents:fluent-hc'
-        include 'org.apache.httpcomponents:httpclient'
-        include 'org.apache.httpcomponents:httpcore'
-        include 'org.csveed:csveed'
+        include dependency('org.apache.httpcomponents:fluent-hc')
+        include dependency('org.apache.httpcomponents:httpclient')
+        include dependency('org.apache.httpcomponents:httpcore')
+        include dependency('org.csveed:csveed')
     }
 }
 
@@ -313,7 +314,7 @@ task serverExtDistZip(type: Zip) { zipTask ->
     into ("docs") {
         from "$buildDir/asciidoc"
     }
-    from fileTree("$distsDir").include("*.jar")
+    from fileTree("$libsDir").include("*-server-extension.jar")
     from fileTree("$projectDir").include(["*.md", "LICENSE.txt"])
 }
 
@@ -343,7 +344,7 @@ task benchTest(type: Test) {
 buildscript {
     ext.pluginsVersions = [
         asciidoctor : '1.5.0',
-        shadow      : '0.8',
+        shadow      : '1.2.0',
         artifactory : '2.2.5',
     ]
 

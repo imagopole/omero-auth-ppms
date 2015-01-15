@@ -24,7 +24,7 @@ def applyProfile(aProfile) {
 }
 
 /** usage: gradle build -Pprofile=omero500-ice34 */
-ext.profile = hasProperty("profile") ? profile : 'omero502-ice34' // default profile: omero-5.0.2 + ice-3.4.2
+ext.profile = hasProperty("profile") ? profile : 'omero503-ice34' // default profile: omero-5.0.3 + ice-3.4.2
 applyProfile(profile)
 
 
@@ -44,7 +44,7 @@ ext.sharedManifest = manifest {
                'Implementation-Version': version,
                'X-Build-Profile': profile,
                'X-Omero-Version': profileVersions.omero,
-               'X-Omero-Ice-Version': profileVersions.ice.main
+               'X-Omero-Ice-Version': profileVersions.ice
 }
 
 /** Omero server flavor classifier for distribution packages (no ice dependency) */

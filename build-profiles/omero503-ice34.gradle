@@ -6,14 +6,13 @@
 ext.omeroBaseline  = 'omero50x'
 
 ext.omeVersions = [
-    omero      : '5.0.3',
+    omeroRelease : '5.0.3-ice34-b41',
     bioformats : '5.0.3',
     qualifier  : 'ome503',                   //-- short server flavor classifier for distribution packages
 ]
 
 ext.iceVersions = [
     main      : '3.4.2',       //--OMERO: ice33, 34 or 35
-    qualifier : 'ice-342',     //--OMERO: server version + ice qualifier (omero-shares specific qualifier)
 ]
 
 applyProfile(omeroBaseline)

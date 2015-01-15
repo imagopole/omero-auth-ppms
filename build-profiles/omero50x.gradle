@@ -6,12 +6,9 @@
  **/
 
 ext.profileVersions = [
-    omero       : omeVersions.omero,
+    omero       : omeVersions.omeroRelease,
     bioformats  : omeVersions.bioformats,
-    ice         : [
-                    main     : iceVersions.main,
-                    qualifier: iceVersions.qualifier
-                  ],
+    ice         : iceVersions.main,
     spring      : [
                     core     : '3.0.1.RELEASE',   //--OMERO: 3.0.1.RELEASE-A
                     security : '3.0.2.RELEASE',   //--OMERO: 3.0.2.RELEASE
@@ -32,16 +29,17 @@ ext.profileVersions = [
     lucene      : '2.4.1',                        //--OMERO: 2.4.1
     javassist   : '3.9.0.GA',                     //--OMERO: 3.9.0.GA
     cglib       : '2.2',                          //--OMERO: 2.2
+    metrics     : '3.0.2',                        //--OMERO: 3.0.2
 ]
 
 dependencies {
 
     // OMERO 5 server API
-    compile 'ome.omero:server:' + profileVersions.omero
-    compile 'ome.omero:common:' + profileVersions.omero
+    compile group: 'omero', name: 'server', version: profileVersions.omero, transitive: false
+    compile group: 'omero', name: 'common', version: profileVersions.omero, transitive: false
 
     // required OMERO transitive dependencies
-    compile 'ome.omero:model-psql:' + profileVersions.omero
+    compile group: 'omero', name: 'model-psql', version: profileVersions.omero, transitive: false
     compile 'org.springframework:spring-context:' + profileVersions.spring.core
     compile 'org.springframework:spring-tx:' + profileVersions.spring.core
     compile (group:'org.springframework.ldap', name:'spring-ldap-core', version: profileVersions.spring.ldap) {
@@ -61,11 +59,12 @@ dependencies {
 
     //--------- OMERO + Ice profiles combined workaround ---------//
     // depends on Ice profile versions + OMERO profile versions
-    testRuntime 'zeroc:ice:' + profileVersions.ice.main
-    testRuntime group: 'ome.omero', name: 'omero-shares', version: profileVersions.omero,
-                                                          classifier: profileVersions.ice.qualifier
-
-    testRuntime 'ome.omero:romio:' + profileVersions.omero
+    testRuntime 'zeroc:ice:' + profileVersions.ice
+    testRuntime group: 'omero', name: 'omero-shares', version: profileVersions.ice
+    testRuntime group: 'omero', name: 'romio', version: profileVersions.omero, transitive: false
+    testRuntime 'com.codahale.metrics:metrics-core:' + profileVersions.metrics
+    testRuntime 'com.codahale.metrics:metrics-jvm:' + profileVersions.metrics
+    testRuntime 'com.codahale.metrics:metrics-logback:' + profileVersions.metrics
     testRuntime 'org.springframework:spring-context-support:' + profileVersions.spring.core
     testRuntime 'org.springframework:spring-jdbc:' + profileVersions.spring.core
     testRuntime 'org.springframework.security:spring-security-ldap:' + profileVersions.spring.security

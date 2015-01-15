@@ -57,7 +57,7 @@ dependencies {
     compile 'net.sf.ehcache:ehcache-core:' + profileVersions.ehcache
 
     testCompile 'org.hibernate:hibernate-core:' + profileVersions.hibernate.core
-    testCompile 'org.springframework:spring-orm:' + profileVersions.spring.core
+    testRuntime 'org.springframework:spring-orm:' + profileVersions.spring.core
 
     //--------- OMERO + Ice profiles combined workaround ---------//
     // depends on Ice profile versions + OMERO profile versions

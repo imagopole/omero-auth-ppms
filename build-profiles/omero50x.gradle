@@ -78,11 +78,6 @@ dependencies {
     testRuntime 'org.apache.lucene:lucene-analyzers:' + profileVersions.lucene
     testRuntime 'javassist:javassist:' + profileVersions.javassist
     testRuntime 'cglib:cglib:' + profileVersions.cglib
-    testRuntime (group: 'ome', name: 'bioformats_package', version: profileVersions.bioformats) {
-        exclude group: 'org.slf4j'
-        exclude group: 'ch.qos.logback'
-        exclude group: 'edu.ucar'
-        exclude group: 'gov.nih.imagej'
-    }
+    testRuntime group: 'ome', name: 'formats-bsd', version: profileVersions.bioformats
 
 }

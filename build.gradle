@@ -52,6 +52,8 @@ ext.omeClassifier = omeVersions.qualifier
 
 ext.versions = [
     ppmsClient   : '0.4',           //--OMERO: n/a
+    slf4j        : '1.7.6',         //--OMERO: 1.7.6
+    logback      : '1.1.1',         //--OMERO: 1.1.1
     testng       : '6.8',           //--OMERO: n/p (5.14.10)
     unitils      : '3.3',           //--OMERO: n/a
     postgresJdbc : '9.3-1102-jdbc4', //--OMERO: 9.1-901.jdbc3
@@ -122,7 +124,7 @@ sourceSets {
  **/
 dependencies {
 
-    compile 'org.slf4j:slf4j-api:' + omeVersions.libs.slf4j
+    compile 'org.slf4j:slf4j-api:' + versions.slf4j
     compile 'org.imagopole.ppms:ppms-http-client:' + versions.ppmsClient
 
     // pumapiClient transitive dependencies
@@ -130,9 +132,9 @@ dependencies {
     runtime 'org.csveed:csveed:' + versions.csveed
 
     // logback slf4j binding
-    runtime 'ch.qos.logback:logback-classic:' + omeVersions.libs.logback
+    runtime 'ch.qos.logback:logback-classic:' + versions.logback
     // slf4j bound to logback-classic + redirection of ACL to slf4j (ie. slf4j replaces commons-logging - see http://www.slf4j.org/legacy.html)
-    runtime 'org.slf4j:jcl-over-slf4j:' + omeVersions.libs.slf4j
+    runtime 'org.slf4j:jcl-over-slf4j:' + versions.slf4j
 
     testCompile 'org.testng:testng:' + versions.testng
     testCompile 'org.unitils:unitils-core:' + versions.unitils

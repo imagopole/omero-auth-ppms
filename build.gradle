@@ -345,7 +345,7 @@ task benchTest(type: Test) {
 
 buildscript {
     ext.pluginsVersions = [
-        asciidoctor : '1.5.0',
+        asciidoctor : '1.5.2',
         shadow      : '1.2.0',
         artifactory : '2.2.5',
     ]

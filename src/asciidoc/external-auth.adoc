@@ -14,6 +14,7 @@ Imagopole
 :ignoreUnknown:       https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/ConfigurablePasswordProvider.java#L59-L64[ignoreUnknown]
 :source-highlighter:  prettify
 :icons:               font
+:revnumber:           {project-version}
 :toc:
 
 

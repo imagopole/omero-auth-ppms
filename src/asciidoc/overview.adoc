@@ -2,6 +2,7 @@
 Imagopole
 :source-highlighter:      prettify
 :icons:                   font
+:revnumber:               {project-version}
 :toc:
 
 == Functional overview

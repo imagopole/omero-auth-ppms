@@ -9,6 +9,7 @@ Imagopole
 :password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
 :source-highlighter:      prettify
 :icons:                   font
+:revnumber:               {project-version}
 :toc:
 
 

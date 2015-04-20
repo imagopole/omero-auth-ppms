@@ -14,6 +14,7 @@ Imagopole
 :ldap_impl_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/logic/LdapImpl.java[LdapImpl]
 :source-highlighter: prettify
 :icons:              font
+:revnumber:          {project-version}
 :toc:
 
 

@@ -23,14 +23,14 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 [width="100%", cols="25,25,50" options="header"]
 |============================================================================================================================
 |Setting                            |Format                     |Description
-|+omero.ppms.config+                |true,false                 |(De)activate the PPMS auth extension
-|+omero.ppms.new_user_group+        |_:bean:_ or string literal |{bean_group_spec_url}[GroupSpec] for memberships assignment
-|+omero.ppms.sync_groups+           |true,false                 |Synchronize groups upon login
-|+omero.ppms.sync_user+             |true,false                 |Synchronize user fields upon login
-|+omero.ppms.include_facilities+    |1,2,3                      |PPMS facilities IDs whitelist
-|+omero.ppms.include_system_types+  |confocal,biphoton          |PPMS instrument types names whitelist
-|+omero.ppms.add_user_groups+       |Default,Shared             |CSV groups for _:bean:listToGroupsBean_ GroupSpec
-|+omero.ppms.client_impl+           |spring bean name           |PUMAPI client implementation bean
+|`omero.ppms.config`                |true,false                 |(De)activate the PPMS auth extension
+|`omero.ppms.new_user_group`        |_:bean:_ or string literal |{bean_group_spec_url}[GroupSpec] for memberships assignment
+|`omero.ppms.sync_groups`           |true,false                 |Synchronize groups upon login
+|`omero.ppms.sync_user`             |true,false                 |Synchronize user fields upon login
+|`omero.ppms.include_facilities`    |1,2,3                      |PPMS facilities IDs whitelist
+|`omero.ppms.include_system_types`  |confocal,biphoton          |PPMS instrument types names whitelist
+|`omero.ppms.add_user_groups`       |Default,Shared             |CSV groups for _:bean:listToGroupsBean_ GroupSpec
+|`omero.ppms.client_impl`           |spring bean name           |PUMAPI client implementation bean
 |============================================================================================================================
 
 === PPMS HTTP client
@@ -38,19 +38,19 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 [width="100%", cols="25,25,50", options="header"]
 |==========================================================================================================================================
 |Setting                            |Format                        |Description
-|+omero.ppms.endpoint+              |https://some.host.tld/pumapi/ |PUMAPI service URL
-|+omero.ppms.api_key+               |string                        |PUMAPI multi-facilities API key
-|+omero.ppms.proxy_host+            |localhost                     |HTTP(S) proxy hostname
-|+omero.ppms.proxy_port+            |8080                          |HTTP(S) proxy port number
-|+omero.ppms.connect_timeout+       |3000                          |HTTP request {request_con_timeout_url}[connect timeout] in milliseconds
-|+omero.ppms.socket_timeout+        |1000                          |HTTP request {request_so_timeout_url}[socket timeout] in milliseconds
+|`omero.ppms.endpoint`              |https://some.host.tld/pumapi/ |PUMAPI service URL
+|`omero.ppms.api_key`               |string                        |PUMAPI multi-facilities API key
+|`omero.ppms.proxy_host`            |localhost                     |HTTP(S) proxy hostname
+|`omero.ppms.proxy_port`            |8080                          |HTTP(S) proxy port number
+|`omero.ppms.connect_timeout`       |3000                          |HTTP request {request_con_timeout_url}[connect timeout] in milliseconds
+|`omero.ppms.socket_timeout`        |1000                          |HTTP request {request_so_timeout_url}[socket timeout] in milliseconds
 |==========================================================================================================================================
 
 NOTE: The underlying fluent HttpClient uses an
-      {pool_client_cnx_mgr_url}[+org.apache.http.impl.conn.PoolingHttpClientConnectionManager+]
+      {pool_client_cnx_mgr_url}[`org.apache.http.impl.conn.PoolingHttpClientConnectionManager`]
       by default, with a maximum of 100 connections per route and 200 maximum total number of connections,
       and default system timeouts.
-      See: {fluent_hc_executor_url}[Executor] and {request_config_url}[RequestConfig].
+      See: {fluent_hc_executor_url}[`Executor`] and {request_config_url}[`RequestConfig`].
 
 === Logging
 
@@ -73,11 +73,11 @@ NOTE: The underlying fluent HttpClient uses an
 
 === Jar deployment
 
-Copy +omero-auth-ppms-<VERSION>-server-extension.jar+ to +$OMERO_PREFIX/lib/server/extensions.jar+ with
+Copy `omero-auth-ppms-<VERSION>-server-extension.jar` to `$OMERO_PREFIX/lib/server/extensions.jar` with
 the right ownership and permissions for the OMERO.server user.
 
 NOTE: The {password_provider_url}[recommended configuration] for custom password providers deployment
-      via +classpath\*:ome/services/db-*.xml+ allows the extension to be dynamically loaded by
+      via `classpath\*:ome/services/db-*.xml` allows the extension to be dynamically loaded by
       all OMERO.server components (Blitz, full-text indexer and pixel data processor).
 
 === Configuration

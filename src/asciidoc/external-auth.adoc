@@ -30,11 +30,11 @@ Imagopole
 |{hasPassword} mode                          2+| by username + id
 |{changePassword} allowed                    2+| N (inherited)
 |{checkPassword} mode                          | via {ppmsuser_svc_url}[PpmsExternalNewUserService] | via {extuser_svc_url}[ExternalNewUserService]
-|{ignoreUnknown} config                        | +true+                                             | undefined
+|{ignoreUnknown} config                        | `true`                                             | undefined
 |Initialize user                             2+| Y
-|Initialize user groups                      2+| Y (+new_user_group+)
-|Synchronize user attributes                 2+| Y (+sync_user+)
-|Synchronize user groups                     2+| Y (+sync_groups+)
+|Initialize user groups                      2+| Y (`new_user_group`)
+|Synchronize user attributes                 2+| Y (`sync_user`)
+|Synchronize user groups                     2+| Y (`sync_groups`)
 |================================================================================================================================================
 
 === Chained
@@ -44,8 +44,8 @@ Imagopole
 [width="100%", cols="4*", options="header"]
 |========================================================================================================================
 |                                     3+^.^| {sync_pp_url}[SynchronizingPasswordProviders]
-|+ppmsLdapChainedPasswordProvider431+      | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] |
-|+ppmsLdapFailoverPasswordProvider431+     | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] | {ldap431_pp_url}[Ldap431]
+|`ppmsLdapChainedPasswordProvider431`      | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] |
+|`ppmsLdapFailoverPasswordProvider431`     | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] | {ldap431_pp_url}[Ldap431]
 |========================================================================================================================
 
 ==== Chains
@@ -53,7 +53,7 @@ Imagopole
 [width="100%", cols="3*", options="header"]
 |===================================================================================================
 |                                     2+^.^| {chained_pp_url}[PasswordProviders]
-|+ppmsChainedPasswordProvider431+          | Ppms + Ldap431 pair          | {jdbc}[Jdbc]
-|+ppmsChainedFailoverPasswordProvider431+  | Ppms + Ldap431 failover pair | {jdbc}[Jdbc]
+|`ppmsChainedPasswordProvider431`          | Ppms + Ldap431 pair          | {jdbc}[Jdbc]
+|`ppmsChainedFailoverPasswordProvider431`  | Ppms + Ldap431 failover pair | {jdbc}[Jdbc]
 |===================================================================================================
 

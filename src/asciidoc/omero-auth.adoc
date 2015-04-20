@@ -52,14 +52,14 @@ Imagopole
 |========================================================================================================================================================================
 |                                 | {file_pp_url}[File] | {jdbc}[Jdbc] {h}[JdbcHash] | {ldap_pp_url}[Ldap]   | {ldap431_pp_url}[Ldap431] | {conf_pp_url}[Configurable]
 |_Configurable_ provider subclass | Y                   | Y                          | Y                     | Y                         | N/A
-|{hasPassword} mode               | by key              | by id                      | by id + DN            | by id + DN                | always +false+
-|{changePassword} allowed         | N (inherited)       | Y                          | N (inherited)         | N (inherited)             | always +false+
+|{hasPassword} mode               | by key              | by id                      | by id + DN            | by id + DN                | always `false`
+|{changePassword} allowed         | N (inherited)       | Y                          | N (inherited)         | N (inherited)             | always `false`
 |{checkPassword} mode             | compare (inherited) | compare (inherited)        | via {ldap_impl_url}   | via {ldap_impl_url}       | compare
-|{ignoreUnknown} config           | undefined           | +true+ / +false+           | +true+                | +true+                    | +ignoreUnknown ? null : FALSE+
+|{ignoreUnknown} config           | undefined           | `true` / `false`           | `true`                | `true`                    | `ignoreUnknown ? null : FALSE`
 |Initialize user                  | N                   | N                          | Y                     | Y                         | N
-|Initialize user groups           | N                   | N                          | Y (+new_user_group+)  | Y (+new_user_group+)      | N
-|Synchronize user attributes      | N                   | N                          | Y (+sync_on_login+)   | N                         | N
-|Synchronize user groups          | N                   | N                          | Y (+sync_on_login+)   | N                         | N
+|Initialize user groups           | N                   | N                          | Y (`new_user_group`)  | Y (`new_user_group`)      | N
+|Synchronize user attributes      | N                   | N                          | Y (`sync_on_login`)   | N                         | N
+|Synchronize user groups          | N                   | N                          | Y (`sync_on_login`)   | N                         | N
 |========================================================================================================================================================================
 
 === Chained
@@ -67,9 +67,9 @@ Imagopole
 [width="80%", cols="3*", options="header"]
 |===================================================================================================
 |                               2+^.^| {chained_pp_url}[PasswordProviders]
-|+chainedPasswordProvider+           | {ldap_pp_url}[Ldap]       | {jdbc}[Jdbc]
-|+chainedPasswordProviderNoSalt+     | {ldap_pp_url}[Ldap]       | {jdbc}[JdbcNoSalt]
-|+chainedPasswordProvider431+        | {ldap431_pp_url}[Ldap431] | {jdbc}[Jdbc]
+|`chainedPasswordProvider`           | {ldap_pp_url}[Ldap]       | {jdbc}[Jdbc]
+|`chainedPasswordProviderNoSalt`     | {ldap_pp_url}[Ldap]       | {jdbc}[JdbcNoSalt]
+|`chainedPasswordProvider431`        | {ldap431_pp_url}[Ldap431] | {jdbc}[Jdbc]
 |===================================================================================================
 
 == Reference documentation

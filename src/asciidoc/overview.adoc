@@ -38,10 +38,10 @@ _Prerequisite:_ use LDAP as a single authentication source for _both_ applicatio
 [width="80%", options="header"]
 |===================================================================================================
 | PPMS entity type                          | OMERO group default privileges
-| Project ^(1)^                             | +read-annotate+
-| Unit (group)                              | +read-only+
-| System (instrument)                       | +private+
-| System (instrument) with granted autonomy | +private+
+| Project ^(1)^                             | `read-annotate`
+| Unit (group)                              | `read-only`
+| System (instrument)                       | `private`
+| System (instrument) with granted autonomy | `private`
 |===================================================================================================
 ^(1)^ TBA
 

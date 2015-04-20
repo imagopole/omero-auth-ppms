@@ -182,16 +182,14 @@ test {
 
     // for integration tests only
     // either one or the other:
-    // - ICE_CONFIG has priority
-    // - if not set, then fallback on a default 'omero.config.location' in $HOME/omero-local.properties
-    systemProperty 'OMERO_CONFIG',          System.getenv("OMERO_CONFIG")
-    systemProperty 'omero.config.location', System.getProperty("user.home") + '/omero-local.properties'
+    // - OMERO_CONFIG has priority eg. OMERO_CONFIG=~/omero-local.properties ./gradlew test
+    // - if not set, then fallback on a default 'omero.config.location' in $buildDir
+    systemProperty 'omero.config.location', "$sourceSets.test.output.resourcesDir/omero-local.properties"
 }
 
 artifacts {
 // archives distributionZip
 }
-
 
 /********************************/
 /**** Plugins configuration ****/

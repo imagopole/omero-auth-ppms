@@ -1,10 +1,10 @@
 = External Authentication Extension
 Imagopole
-:ppms_pp_url:
-:extconf_pp_url:
-:extuser_svc_url:
-:ppmsuser_svc_url:
-:sync_pp_url:
+:ppms_pp_url:         https://github.com/imagopole/omero-auth-ppms/blob/master/src/main/java/org/imagopole/omero/auth/impl/ExternalConfigurablePasswordProvider.java
+:extconf_pp_url:      https://github.com/imagopole/omero-auth-ppms/blob/master/src/main/java/org/imagopole/omero/auth/impl/ExternalConfigurablePasswordProvider.java
+:extuser_svc_url:     https://github.com/imagopole/omero-auth-ppms/blob/master/src/main/java/org/imagopole/omero/auth/api/user/ExternalNewUserService.java
+:ppmsuser_svc_url:    https://github.com/imagopole/omero-auth-ppms/blob/master/src/main/java/org/imagopole/omero/auth/impl/ppms/user/PpmsExternalNewUserService.java
+:sync_pp_url:         https://github.com/imagopole/omero-auth-ppms/blob/master/src/main/java/org/imagopole/omero/auth/impl/SynchronizingPasswordProviders.java
 :chained_pp_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/PasswordProviders.java
 :ldap431_pp_url:      https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/providers/LdapPasswordProvider431.java
 :jdbc:                https://github.com/openmicroscopy/openmicroscopy/blob/v.5.0.0/components/server/src/ome/security/auth/JdbcPasswordProvider.java
@@ -41,7 +41,7 @@ Imagopole
 
 ==== PPMS + LDAP pairs
 
-[width="80%", cols="4*", options="header"]
+[width="100%", cols="4*", options="header"]
 |========================================================================================================================
 |                                     3+^.^| {sync_pp_url}[SynchronizingPasswordProviders]
 |+ppmsLdapChainedPasswordProvider431+      | {ldap431_pp_url}[Ldap431] | {ppms_pp_url}[Ppms] |
@@ -50,10 +50,10 @@ Imagopole
 
 ==== Chains
 
-[width="80%", cols="3*", options="header"]
+[width="100%", cols="3*", options="header"]
 |===================================================================================================
 |                                     2+^.^| {chained_pp_url}[PasswordProviders]
-|+ppmsChainedPasswordProvider431+          | PpmsLdap431  | {jdbc}[Jdbc]
-|+ppmsChainedFailoverPasswordProvider431+  | PpmsLdap431  | {jdbc}[Jdbc]
+|+ppmsChainedPasswordProvider431+          | Ppms + Ldap431 pair          | {jdbc}[Jdbc]
+|+ppmsChainedFailoverPasswordProvider431+  | Ppms + Ldap431 failover pair | {jdbc}[Jdbc]
 |===================================================================================================
 

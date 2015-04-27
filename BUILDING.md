@@ -75,3 +75,12 @@ system property to the relevant file location within the build directory.
     # Delete database
     ./src/test/resources/db/teardown-db.sh ome508 ome508
 
+
+## Publishing
+
+Upload and publish released deliverables with:
+
+    # Default OMERO profile, all artifacts
+    ORG_GRADLE_PROJECT_bintray_user=user_name ORG_GRADLE_PROJECT_bintray_key=api_key \
+    ./gradlew -Pbintray_org=imagopole -Pbintray_dryRun=false -Pbintray_publish=true \
+    clean dist bintrayUpload --info

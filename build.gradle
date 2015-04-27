@@ -64,8 +64,22 @@ ext.versions = [
     ldapSdk      : '2.3.6',         //--OMERO: n/a (apache-ds)
 ]
 
-ext.testResourcesFilterTokens = [
+ext.integrationTests = [
+    db : [
+        name           : omeVersions.qualifier,    //eg. ome508
+        owner          : omeVersions.qualifier,
+        pwd            : omeVersions.qualifier,
+    ],
+    resources : [
+        omeroServerDataDir  : sprintf("$buildDir/%s.data", profile),
+    ]
+]
 
+ext.testResourcesFilterTokens = [
+    'omero_db_name'   : integrationTests.db.name,
+    'omero_db_user'   : integrationTests.db.owner,
+    'omero_db_pass'   : integrationTests.db.pwd,
+    'omero_data_dir'  : integrationTests.resources.omeroServerDataDir
 ]
 
 

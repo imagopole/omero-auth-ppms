@@ -92,6 +92,12 @@ ext.integrationTests = [
     ]
 ]
 
+ext.benchTests = [
+    resources : [
+        benchConfigLocation : "$sourceSets.bench.output.resourcesDir/omero-local.bench.properties"
+    ]
+]
+
 ext.testResourcesFilterTokens = [
     'omero_db_name'   : integrationTests.db.name,
     'omero_db_user'   : integrationTests.db.owner,
@@ -405,8 +411,11 @@ task benchTest(type: Test) {
     testClassesDir = sourceSets.bench.output.classesDir
     classpath      = sourceSets.bench.runtimeClasspath
 
-    systemProperty 'BENCH_CONFIG',          System.getenv("BENCH_CONFIG")
-    systemProperty 'bench.config.location', System.getProperty("user.home") + '/omero-auth-bench-local.properties'
+    // for bench integration tests only
+    // either one or the other:
+    // - BENCH_CONFIG has priority eg. BENCH_CONFIG=~/omero-local.bench.properties ./gradlew benchTest
+    // - if not set, then fallback on a default 'bench.config.location' in $buildDir
+    systemProperty 'bench.config.location', benchTests.resources.benchConfigLocation
 }
 
 /**************************************/

@@ -10,6 +10,10 @@ apply plugin: 'jacoco'         // gradle-1.9 incubating
 apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'artifactory'
+apply plugin: 'info-broker'
+apply plugin: 'info-jar'
+apply plugin: 'info-basic'
+apply plugin: 'info-java'
 
 
 /********************************/
@@ -44,9 +48,7 @@ ext.buildConfig = [
 ]
 
 ext.sharedManifest = manifest {
-    attributes 'Implementation-Title': 'OMERO server extension for PPMS auth',
-               'Implementation-Version': version,
-               'X-Build-Profile': profile,
+    attributes 'X-Build-Profile': profile,
                'X-Omero-Version': profileVersions.omero,
                'X-Omero-Ice-Version': profileVersions.ice
 }
@@ -408,6 +410,7 @@ buildscript {
         asciidoctorjPdf  : '1.5.0-alpha.6',
         shadow           : '1.2.0',
         artifactory      : '2.2.5',
+        info             : '2.2.0',
     ]
 
     repositories {
@@ -420,6 +423,7 @@ buildscript {
         classpath 'org.asciidoctor:asciidoctorj-pdf:' + pluginsVersions.asciidoctorjPdf
         classpath 'com.github.jengelman.gradle.plugins:shadow:' + pluginsVersions.shadow
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:' + pluginsVersions.artifactory
+        classpath 'com.netflix.nebula:gradle-info-plugin:' + pluginsVersions.info
     }
 }
 

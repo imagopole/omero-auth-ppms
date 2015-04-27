@@ -39,6 +39,10 @@ description = """OMERO server extension for PPMS auth"""
 /********************************/
 /**** Custom properties     ****/
 
+ext.buildConfig = [
+    generatedTestResourcesDir : "$buildDir/generated-resources/test"
+]
+
 ext.sharedManifest = manifest {
     attributes 'Implementation-Title': 'OMERO server extension for PPMS auth',
                'Implementation-Version': version,
@@ -135,6 +139,11 @@ artifactory {
 
 sourceSets {
     bench
+
+    test {
+        // register an output folder on the test SourceSet for inclusion on the classpath
+        output.dir(buildConfig.generatedTestResourcesDir, builtBy: 'generateTestResources')
+    }
 }
 
 /**
@@ -308,6 +317,13 @@ shadowJar {
 
 /*********************************************/
 /**** Custom tasks/project configuration ****/
+
+task generateTestResources {
+
+    doLast {
+        new File(buildConfig.generatedTestResourcesDir).mkdirs()
+    }
+}
 
 /** Create a distribution bundle with runtime dependencies + OMERO server extension uber-jar */
 task withDepsDistZip (type: Zip) { zipTask ->

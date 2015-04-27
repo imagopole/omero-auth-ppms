@@ -75,7 +75,8 @@ ext.integrationTests = [
         pwd            : omeVersions.qualifier,
     ],
     resources : [
-        omeroServerDataDir  : sprintf("$buildDir/%s.data", profile),
+        omeroServerDataDir        : sprintf("$buildDir/%s.data", profile),
+        omeroServerConfigLocation : "$sourceSets.test.output.resourcesDir/omero-local.properties"
     ]
 ]
 
@@ -207,7 +208,7 @@ test {
     // either one or the other:
     // - OMERO_CONFIG has priority eg. OMERO_CONFIG=~/omero-local.properties ./gradlew test
     // - if not set, then fallback on a default 'omero.config.location' in $buildDir
-    systemProperty 'omero.config.location', "$sourceSets.test.output.resourcesDir/omero-local.properties"
+    systemProperty 'omero.config.location', integrationTests.resources.omeroServerConfigLocation
 }
 
 artifacts {

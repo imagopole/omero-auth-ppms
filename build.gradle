@@ -64,6 +64,10 @@ ext.versions = [
     ldapSdk      : '2.3.6',         //--OMERO: n/a (apache-ds)
 ]
 
+ext.testResourcesFilterTokens = [
+
+]
+
 
 /*********************************/
 /**** Builfile configuration ****/
@@ -176,10 +180,6 @@ test {
 
     //testLogging.showStandardStreams = true
 
-    // provide a default local output directory for omero.data.dir
-    // may be overriden by settings pulled from OMERO_CONFIG/omero.config.location
-    systemProperty 'omero.data.dir',       "$buildDir/omero.data"
-
     // for integration tests only
     // either one or the other:
     // - OMERO_CONFIG has priority eg. OMERO_CONFIG=~/omero-local.properties ./gradlew test
@@ -189,6 +189,10 @@ test {
 
 artifacts {
 // archives distributionZip
+}
+
+processTestResources {
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens : testResourcesFilterTokens)
 }
 
 /********************************/

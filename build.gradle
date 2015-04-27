@@ -196,10 +196,6 @@ test {
     systemProperty 'omero.config.location', integrationTests.resources.omeroServerConfigLocation
 }
 
-artifacts {
-// archives distributionZip
-}
-
 processTestResources {
     filter(org.apache.tools.ant.filters.ReplaceTokens, tokens : testResourcesFilterTokens)
 }
@@ -391,6 +387,11 @@ task serverExtDistZip(type: Zip) { zipTask ->
 /** Create all distribution bundles */
 task distributionZip {
     dependsOn serverExtDistZip, withDepsDistZip
+}
+
+artifacts {
+    archives file(withDepsDistZip.archivePath)
+    archives file(serverExtDistZip.archivePath)
 }
 
 task benchTest(type: Test) {

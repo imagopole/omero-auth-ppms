@@ -122,24 +122,6 @@ repositories {
     }
 }
 
-artifactory {
-    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
-    publish {
-        repository {
-            repoKey = 'ome.snapshots'
-            maven = true
-
-        }
-    }
-    resolve {
-        repository {
-            repoKey = 'repo'
-            maven = true
-
-        }
-    }
-}
-
 sourceSets {
     bench
 

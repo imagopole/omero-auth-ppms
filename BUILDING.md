@@ -24,6 +24,7 @@ Produce deliverables with:
 
 - Flyway: database schema migration + database fixtures loading
 - Gradle/TestNG: test configuration generation & tests execution/reporting
+- Gradle/JUnit/ContiPerf: benchmark tests execution/reporting
 
 #### Resources generation
 
@@ -71,6 +72,43 @@ system property to the relevant file location within the build directory.
 
     # Generate coverage report
     ./gradlew test jacocoTestReport
+
+    # Delete database
+    ./src/test/resources/db/teardown-db.sh ome508 ome508
+
+### Benchmarks reporting
+
+Prerequisites:
+
+  - Integration database started
+  - Integration PPMS server started and LDAP-enabled, with test PUMAPI endpoint
+
+    # Create database
+    ./src/test/resources/db/setup-db.sh ome508 ome508 ome508
+
+    # Initialize db schema
+    ./gradlew integrationTestDbMigrate
+
+    # Prepare bench configuration
+    ./gradlew processBenchResources
+    cp -pvi ./build/resources/bench/omero-local.bench.properties ~/omero-local.bench.properties
+    cp -pvi ./build/resources/bench/db/ldap_user.template.sql    ~/omero_ldap_user.bench.sql
+
+    # Edit ~/omero-local.bench.properties (environment-specific LDAP and PPMS settings)
+    vim ~/omero-local.bench.properties
+
+    # Edit LDAP user OMERO SQL fixture (environment-specific LDAP and user settings)
+    vim ~/omero_ldap_user.bench.sql
+
+    # Load db fixture
+    psql -h localhost -U ome508 ome508 < ~/omero_ldap_user.bench.sql
+
+    # Generate bench report
+    BENCH_CONFIG=~/omero-local.bench.properties ./gradlew benchTest
+
+    # Cleanup bench resources
+    rm ~/omero-local.bench.properties
+    rm ~/omero_ldap_user.bench.sql
 
     # Delete database
     ./src/test/resources/db/teardown-db.sh ome508 ome508

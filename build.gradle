@@ -206,6 +206,11 @@ processTestResources {
     filter(org.apache.tools.ant.filters.ReplaceTokens, tokens : testResourcesFilterTokens)
 }
 
+processBenchResources {
+    // reuse the testResourcesFilterTokens for bench tests
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens : testResourcesFilterTokens)
+}
+
 /********************************/
 /**** Plugins configuration ****/
 

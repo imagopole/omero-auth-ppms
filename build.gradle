@@ -11,6 +11,7 @@ apply plugin: 'org.asciidoctor.gradle.asciidoctor'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'artifactory'
+apply plugin: 'flyway'
 apply plugin: 'info-broker'
 apply plugin: 'info-jar'
 apply plugin: 'info-basic'
@@ -432,6 +433,7 @@ buildscript {
         asciidoctorjPdf  : '1.5.0-alpha.6',
         shadow           : '1.2.0',
         artifactory      : '2.2.5',
+        flyway           : '3.1',
         bintray          : '1.1',
         info             : '2.2.0',
     ]
@@ -446,6 +448,7 @@ buildscript {
         classpath 'org.asciidoctor:asciidoctorj-pdf:' + pluginsVersions.asciidoctorjPdf
         classpath 'com.github.jengelman.gradle.plugins:shadow:' + pluginsVersions.shadow
         classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:' + pluginsVersions.artifactory
+        classpath 'org.flywaydb:flyway-gradle-plugin:' + pluginsVersions.flyway
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:' + pluginsVersions.bintray
         classpath 'com.netflix.nebula:gradle-info-plugin:' + pluginsVersions.info
     }

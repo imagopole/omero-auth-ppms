@@ -48,6 +48,15 @@ ext.buildConfig = [
     generatedTestResourcesDir : "$buildDir/generated-resources/test"
 ]
 
+sourceSets {
+    bench
+
+    test {
+        // register an output folder on the test SourceSet for inclusion on the classpath
+        output.dir(buildConfig.generatedTestResourcesDir, builtBy: 'generateTestResources')
+    }
+}
+
 ext.sharedManifest = manifest {
     attributes 'X-Build-Profile': profile,
                'X-Omero-Version': profileVersions.omero,
@@ -120,15 +129,6 @@ repositories {
     maven {
         name 'Maven Databene repo'
         url  'http://databene.org/m2'
-    }
-}
-
-sourceSets {
-    bench
-
-    test {
-        // register an output folder on the test SourceSet for inclusion on the classpath
-        output.dir(buildConfig.generatedTestResourcesDir, builtBy: 'generateTestResources')
     }
 }
 

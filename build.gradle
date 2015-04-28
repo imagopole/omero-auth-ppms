@@ -86,6 +86,7 @@ ext.integrationTests = [
         name           : omeVersions.qualifier,    //eg. ome508
         owner          : omeVersions.qualifier,
         pwd            : omeVersions.qualifier,
+        jdbcUrl        : sprintf("jdbc:postgresql://%s:%s/%s", "localhost", "5432", omeVersions.qualifier)
     ],
     resources : [
         omeroServerDataDir        : sprintf("$buildDir/%s.data", profile),
@@ -361,6 +362,28 @@ task generateTestResources {
         new File(buildConfig.generatedTestResourcesDir).mkdirs()
 
         generateIntegrationTestInfo()
+    }
+}
+
+/** Convenience wrapper around the flywayClean task, with database properties set */
+task integrationTestDbClean() {
+
+    finalizedBy flywayClean
+    doFirst {
+        project.ext.set('flyway.url',       integrationTests.db.jdbcUrl)
+        project.ext.set('flyway.user',      integrationTests.db.owner)
+        project.ext.set('flyway.password',  integrationTests.db.pwd)
+    }
+}
+
+/** Convenience wrapper around the flywayMigrate task, with database properties set */
+task integrationTestDbMigrate() {
+
+    finalizedBy flywayMigrate
+    doFirst {
+        project.ext.set('flyway.url',       integrationTests.db.jdbcUrl)
+        project.ext.set('flyway.user',      integrationTests.db.owner)
+        project.ext.set('flyway.password',  integrationTests.db.pwd)
     }
 }
 

@@ -87,8 +87,8 @@ ext.integrationTests = [
         owner          : omeVersions.qualifier,
         pwd            : omeVersions.qualifier,
         jdbcUrl        : sprintf("jdbc:postgresql://%s:%s/%s", "localhost", "5432", omeVersions.qualifier),
-        schemaLocation   : "db/migration",
-        fixturesLocation : "db/fixtures",
+        schemaLocation   : sprintf("db/schemas/%s", omeroBaseline),
+        fixturesLocation : sprintf("db/fixtures/%s", omeroBaseline),
     ],
     resources : [
         omeroServerDataDir        : sprintf("$buildDir/%s.data", profile),

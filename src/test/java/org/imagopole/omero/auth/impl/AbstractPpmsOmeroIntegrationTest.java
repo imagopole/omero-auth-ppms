@@ -200,9 +200,10 @@ public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroInte
         String groupName = getRoles().getSystemGroupName();
         String eventType = TestsUtil.TEST_EVENT_TYPE;
         String agentName = getClass().getSimpleName();
+        String agentIp = TestsUtil.LOOPBACK_IPV4;
 
         Principal principal = new Principal(userName, groupName, eventType);
-        Session omeroSession = getSessionManager().createWithAgent(principal, agentName);
+        Session omeroSession = getSessionManager().createWithAgent(principal, agentName, agentIp);
 
         setLoginPrincipal(new Principal(omeroSession.getUuid(), groupName, eventType));
     }

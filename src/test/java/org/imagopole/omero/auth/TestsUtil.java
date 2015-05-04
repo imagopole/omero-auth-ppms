@@ -27,6 +27,9 @@ public final class TestsUtil {
     /** Test cases OMERO event. */
     public static final String TEST_EVENT_TYPE = "Test";
 
+    /** Test cases agents source IP adress. */
+    public static final String LOOPBACK_IPV4 = "127.0.0.1";
+
     /** Default naming prefix for PPMS instruments fixtures. */
     public static final String SYSTEM_PREFIX = "ppms_system_";
 

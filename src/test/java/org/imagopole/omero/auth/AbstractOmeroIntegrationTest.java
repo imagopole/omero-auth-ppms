@@ -110,18 +110,21 @@ public abstract class AbstractOmeroIntegrationTest extends AbstractOmeroServerTe
         String cleanDbOnMigrateParam =
             systemProps.getProperty(Env.FLYWAY_DB_CLEAN_ON_MIGRATE, "false");
         String targetVersionParam = systemProps.getProperty(Env.FLYWAY_DB_MIGRATION_TARGET);
+        String dbLocationsParam =
+            systemProps.getProperty(Env.FLYWAY_DB_LOCATIONS, Env.FLYWAY_DEFAULT_LOCATIONS);
 
         String jdbcUrl = MessageFormat.format(jdbcBaseUrl, dbName);
         boolean shouldInitDbOnMigrate = Boolean.valueOf(initDbOnMigrateParam);
         boolean shouldCleanDbOnMigrate = Boolean.valueOf(cleanDbOnMigrateParam);
         String targetVersion = empty(targetVersionParam) ? null : targetVersionParam;
+        String [] dbLocations = dbLocationsParam.split(Env.FLYWAY_LOCATIONS_SEPARATOR);
 
-        log.debug("Preparing to reload test database: {} [init:{} - clean:{} - target:{}]",
-                  dbName, shouldInitDbOnMigrate, shouldCleanDbOnMigrate, targetVersion);
+        log.debug("Preparing to reload test database: {} [init:{} - clean:{} - target:{} - locations:{}]",
+                  dbName, shouldInitDbOnMigrate, shouldCleanDbOnMigrate, targetVersion, dbLocationsParam);
 
         flyway.setDataSource(jdbcUrl, dbUser, dbPwd);
         flyway.setInitOnMigrate(shouldInitDbOnMigrate);
-        flyway.setLocations(Env.FLYWAY_DEFAULT_LOCATIONS);
+        flyway.setLocations(dbLocations);
 
         if (null != targetVersion) {
             flyway.setTarget(targetVersion);

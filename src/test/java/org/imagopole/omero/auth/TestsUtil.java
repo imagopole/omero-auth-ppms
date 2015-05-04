@@ -281,7 +281,11 @@ public final class TestsUtil {
         public static final String FLYWAY_DB_INIT_ON_MIGRATE  = "flyway.db.init_on_migrate";
         public static final String FLYWAY_DB_CLEAN_ON_MIGRATE = "flyway.db.clean_on_migrate";
         public static final String FLYWAY_DB_MIGRATION_TARGET = "flyway.db.migration_target";
-        public static final String[] FLYWAY_DEFAULT_LOCATIONS = { "db.migration", "db.fixtures" };
+        public static final String FLYWAY_DB_LOCATIONS        = "flyway.db.locations";
+        public static final String FLYWAY_LOCATIONS_SEPARATOR = ",";
+        public static final String FLYWAY_DEFAULT_LOCATIONS   = "db/migration"
+                                                                + FLYWAY_LOCATIONS_SEPARATOR
+                                                                + "db/fixtures";
 
         public static final String PPMS_CONFIG               = "omero.ppms.config";
         public static final String PPMS_NEW_USER_GROUP       = "omero.ppms.new_user_group";

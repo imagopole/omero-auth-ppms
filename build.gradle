@@ -86,7 +86,9 @@ ext.integrationTests = [
         name           : omeVersions.qualifier,    //eg. ome508
         owner          : omeVersions.qualifier,
         pwd            : omeVersions.qualifier,
-        jdbcUrl        : sprintf("jdbc:postgresql://%s:%s/%s", "localhost", "5432", omeVersions.qualifier)
+        jdbcUrl        : sprintf("jdbc:postgresql://%s:%s/%s", "localhost", "5432", omeVersions.qualifier),
+        schemaLocation   : "db/migration",
+        fixturesLocation : "db/fixtures",
     ],
     resources : [
         omeroServerDataDir        : sprintf("$buildDir/%s.data", profile),
@@ -104,7 +106,10 @@ ext.testResourcesFilterTokens = [
     'omero_db_name'   : integrationTests.db.name,
     'omero_db_user'   : integrationTests.db.owner,
     'omero_db_pass'   : integrationTests.db.pwd,
-    'omero_data_dir'  : integrationTests.resources.omeroServerDataDir
+    'omero_data_dir'  : integrationTests.resources.omeroServerDataDir,
+    'flyway_db_locations' : sprintf("classpath:%s,%s",
+                                    integrationTests.db.schemaLocation,
+                                    integrationTests.db.fixturesLocation)
 ]
 
 

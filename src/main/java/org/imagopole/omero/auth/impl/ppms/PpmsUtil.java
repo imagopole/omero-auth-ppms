@@ -136,6 +136,7 @@ public final class PpmsUtil {
         person.setLastName(ppmsUser.getLname());
         // person.setInstitution(null);
         person.setEmail(ppmsUser.getEmail());
+        person.setLdap(Boolean.FALSE); // @since omero 5.1.0 (non-null 'ldap' boolean replaces 'dn' string)
 
         // note: could be interesting to define some extra external info here
         // ExternalInfo ppmsInfo = new ExternalInfo();

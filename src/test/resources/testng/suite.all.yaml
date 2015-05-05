@@ -21,6 +21,7 @@ tests:
       - org.imagopole.omero.auth.impl.ppms.user.PpmsExternalNewUserServiceTest
       - org.imagopole.omero.auth.impl.ppms.CachingPumapiClientTest
       - org.imagopole.omero.auth.impl.ppms.DefaultPpmsServiceTest
+      - org.imagopole.omero.auth.impl.ppms.PpmsUtilTest
 
   - name: Config
     classes:

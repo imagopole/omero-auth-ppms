@@ -69,6 +69,7 @@ public class PpmsExternalNewUserServiceTest extends AbstractOmeroServerTest {
         assertEquals(result.getFirstName(), PpmsUnit.DEFAULT_USER_GN, "Incorrect results");
         assertEquals(result.getLastName(), PpmsUnit.DEFAULT_USER_SN, "Incorrect results");
         assertEquals(result.getEmail(), PpmsUnit.DEFAULT_USER_EMAIL, "Incorrect results");
+        assertEquals(result.getLdap(), Boolean.FALSE, "Incorrect results");
         assertNull(result.getInstitution(), "Null expected");
         ppmsServiceMock.assertInvoked().findUserByName(PpmsUnit.DEFAULT_USER);
     }

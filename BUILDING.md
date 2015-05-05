@@ -53,10 +53,11 @@ Example "quick testing" steps for `5.0.8` profile:
 Prerequisites:
 
   - Integration database server started (both schema and fixtures are initialized at testing time)
+  - Test resources filters applied (eg. via `./gradlew processTestResources -Pprofile=omero508-ice34`)
 
 Run via TestNG plugin with either of:
 
-  - JVM argument: `-Domero.config.location=${project_loc:omero-auth-ppms}/bin/omero-local.properties`
+  - JVM argument: `-Domero.config.location=${project_loc:omero-auth-ppms}/build/resources/test/omero-local.properties`
   - environment variable: `OMERO_CONFIG=omero-local.properties`
 
 Note: this step is unnecessary in a Gradle environment, as the `test` build target sets the `omero.config.location`

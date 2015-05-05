@@ -94,7 +94,7 @@ public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroInte
     }
 
     protected void checkLdapDnAbsent(String username) {
-       String expectedExceptionMessage = "^Cannot find unique DistinguishedName: found=0";
+       String expectedExceptionMessage = "^Cannot find unique user DistinguishedName: found=0";
 
        try {
            iLdap.findDN(username);

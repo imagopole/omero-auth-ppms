@@ -20,7 +20,10 @@ ext.profileVersions = [
                     search        : '3.1.1.GA',     //--OMERO: 3.1.1.GA
                     commonsannot  : '3.2.0.Final'   //--OMERO:
                   ],
-    guava       : '13.0',                         //--OMERO: jdk5-13.0
+    commons     : [
+                    beanutils  : '1.8.0'            //--OMERO: 1.8.0
+                  ],
+    guava       : '17.0',                         //--OMERO: 17.0
     perf4j      : '0.9.16',                       //--OMERO: 0.9.16
     bitronix    : '2.1.3',                        //--OMERO: 2.1.3
     quartz      : '1.5.2',                        //--OMERO: 1.5.2
@@ -79,5 +82,6 @@ dependencies {
     testRuntime 'javassist:javassist:' + profileVersions.javassist
     testRuntime 'cglib:cglib:' + profileVersions.cglib
     testRuntime group: 'ome', name: 'formats-bsd', version: profileVersions.bioformats
+    testRuntime 'commons-beanutils:commons-beanutils:' + profileVersions.commons.beanutils
 
 }

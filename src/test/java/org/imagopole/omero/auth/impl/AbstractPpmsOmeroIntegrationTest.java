@@ -83,7 +83,8 @@ public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroInte
         } catch(ApiUsageException e) {
             boolean passTest = e.getMessage().matches(expectedExceptionMessage);
 
-            assertTrue(passTest, "Wrong api usage exception");
+            assertTrue(passTest, String.format("Wrong api usage exception: '%s' [pattern: '%s']",
+                                               e.getMessage(), expectedExceptionMessage));
         }
     }
 
@@ -102,7 +103,8 @@ public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroInte
        } catch(ApiUsageException e) {
            boolean passTest = e.getMessage().matches(expectedExceptionMessage);
 
-           assertTrue(passTest, "Wrong api usage exception");
+           assertTrue(passTest, String.format("Wrong api usage exception: '%s' [pattern: '%s']",
+                                              e.getMessage(), expectedExceptionMessage));
        }
     }
 

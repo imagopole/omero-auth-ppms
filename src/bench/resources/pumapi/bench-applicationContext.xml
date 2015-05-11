@@ -25,8 +25,8 @@
           <list>
             <value>classpath*:pumapi/bench-template.properties</value><!-- Nullify all properties -->
             <value>classpath*:pumapi-bench.properties</value>
-            <value>file:#{ T(java.lang.System).getenv('BENCH_CONFIG') }</value>
             <value>file:#{ systemProperties[ 'bench.config.location' ] }</value>
+            <value>file:#{ T(java.lang.System).getenv('BENCH_CONFIG') }</value>
           </list>
         </property>
   </bean>

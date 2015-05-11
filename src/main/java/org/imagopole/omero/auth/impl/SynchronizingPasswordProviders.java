@@ -30,9 +30,12 @@ import org.slf4j.LoggerFactory;
  * the second provider.
  *
  * This chaining logic differs from the default {@link ome.security.auth.PasswordProviders} mostly
- * ome.security.auth.PasswordProviders separation of authentication and synchronization - which are
- * typically performed together at authentication time in {@link ome.security.auth.LdapPasswordProvider}
+ * in:
+ * - the separation of authentication and synchronization - which are typically performed
+ * together at authentication time in {@link ome.security.auth.LdapPasswordProvider}
  * and {@link ome.security.auth.providers.LdapPasswordProvider431}.
+ * - the absence of support for case insensitive password checks, which is togglable in the default
+ * chain via a <code>ignoreCaseLookup</code> attribute.
  *
  * Note: if the first provider supports account synchronization as part of its
  * {@link #checkPassword(String, String, boolean)} operation, it may require disabling to avoid

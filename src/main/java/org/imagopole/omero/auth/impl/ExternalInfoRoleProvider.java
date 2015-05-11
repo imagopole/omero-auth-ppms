@@ -3,6 +3,8 @@
  */
 package org.imagopole.omero.auth.impl;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -21,6 +23,10 @@ import org.slf4j.LoggerFactory;
  * This implementation overrides the <code>copyUser</code> and <code>copyGroup</code> methods
  * to include cloning of the user or group's {@link ExternalInfo} data (if it is present).
  *
+ * Unlike {@link SimpleRoleProvider}, this specialization does not currently allow case-sensitivity
+ * to be overridden at instantiation time: {@link #isIgnoreCaseLookup()} is expected to default to false.
+ * See https://github.com/openmicroscopy/openmicroscopy/blob/v5.1.0/etc/omero.properties#L73-L81
+ *
  * @author seb
  *
  */
@@ -30,7 +36,7 @@ public class ExternalInfoRoleProvider extends SimpleRoleProvider {
     private final Logger log = LoggerFactory.getLogger(ExternalInfoRoleProvider.class);
 
     /**
-     * Paremeterized constructor.
+     * Parameterized constructor (case-sensitive).
      *
      * @param sec OMERO security system
      * @param sf Hibernate session factory

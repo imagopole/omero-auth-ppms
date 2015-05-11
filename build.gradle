@@ -308,8 +308,6 @@ shadowJar {
 
         //-- runtime ppms-http-client dependencies
         include dependency('org.apache.httpcomponents:fluent-hc')
-        include dependency('org.apache.httpcomponents:httpclient')
-        include dependency('org.apache.httpcomponents:httpcore')
         include dependency('org.csveed:csveed')
     }
 }

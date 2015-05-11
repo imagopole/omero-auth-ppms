@@ -4,9 +4,9 @@
 ---
 
 -- pre-existing OMERO user, supposed known to both LDAP and PPMS
-insert into experimenter (id,permissions,version,omename,firstname,lastname)
-        values (ome_nextval('seq_experimenter'),0,0,'${bench.ppms.ldap_user}','Bench-User','PPMS-LDAP');
+insert into experimenter (id,permissions,version,omename,firstname,lastname,ldap)
+        values (ome_nextval('seq_experimenter'),0,0,'${bench.ppms.ldap_user}','Bench-User','PPMS-LDAP',true);
 
--- LDAP enabled user
-insert into password (experimenter_id, hash, dn)
-        values (currval('seq_experimenter'),null,'uid=${bench.ppms.ldap_user},${omero.ldap.base}');
+-- LDAP enabled user: no password entry required
+--insert into password (experimenter_id, hash)
+--        values (currval('seq_experimenter'),null);

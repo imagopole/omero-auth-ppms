@@ -387,6 +387,7 @@ task integrationTestDbMigrate() {
         project.ext.set('flyway.url',       integrationTests.db.jdbcUrl)
         project.ext.set('flyway.user',      integrationTests.db.owner)
         project.ext.set('flyway.password',  integrationTests.db.pwd)
+        project.ext.set('flyway.locations', integrationTests.db.schemaLocation)
     }
 }
 

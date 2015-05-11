@@ -70,16 +70,18 @@ public class ExternalConfigurablePasswordProvider
 
         super(util, ignoreUnknown);
 
+        Check.notNull(util, "util");
         Check.notNull(externalNewUserService, "externalNewUserService");
         Check.notNull(config, "config");
 
         this.externalNewUserService = externalNewUserService;
         this.config = config;
 
-        log.info("[external_auth] ExternalNewUserService impl: {} [enabled:{} - ignoreUnknown:{}]",
+        log.info("[external_auth] ExternalNewUserService impl: {} [enabled:{} - ignoreUnknown:{} - isPwdRequired:{}]",
                  externalNewUserService.getClass().getSimpleName(),
                  externalNewUserService.isEnabled(),
-                 ignoreUnknown);
+                 ignoreUnknown,
+                 util.isPasswordRequired(null));
     }
 
     /**

@@ -1,0 +1,18 @@
+/**
+ * Buildfile fragment used as a Maven-style profile to define specific OMERO dependencies
+ * for the 5.1.4-ice35 server flavor.
+ **/
+
+ext.omeroBaseline  = 'omero51x'
+
+ext.omeVersions = [
+    omeroRelease : '5.1.4-ice35-b55',
+    bioformats   : '5.1.4',
+    qualifier    : 'ome514',            //-- short server flavor classifier for distribution packages
+]
+
+ext.iceVersions = [
+    main      : '3.5.1',               //--OMERO: ice33, 34 or 35
+]
+
+applyProfile(omeroBaseline)

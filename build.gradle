@@ -29,8 +29,8 @@ def applyProfile(aProfile) {
     apply from: profilesDir + '/' + aProfile + '.gradle'
 }
 
-/** usage: gradle build -Pprofile=omero500-ice34 */
-ext.profile = hasProperty("profile") ? profile : 'omero510-ice34' // default profile: omero-5.1.0 + ice-3.4.2
+/** usage: gradle build -Pprofile=omero520-ice35 */
+ext.profile = hasProperty("profile") ? profile : 'omero520-ice35' // default profile: omero-5.2.0 + ice-3.5.1
 applyProfile(profile)
 
 

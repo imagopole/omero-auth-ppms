@@ -45,6 +45,7 @@ public class PpmsUnitToGroupBeanTest extends UnitilsTestNG {
     @Test
     public void shouldReturnEmptyGroupsListForUnknownUnit() {
        // define behaviour
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_ENABLED).isEnabled();
        ppmsServiceMock.returns(null).findGroupByUserName(Data.USERNAME);
 
        // run test
@@ -59,6 +60,30 @@ public class PpmsUnitToGroupBeanTest extends UnitilsTestNG {
                        null,
                        Permissions.USER_PRIVATE,
                        Data.GROUPS_STRICT_MODE);
+       authConfigMock.assertInvoked().isEnabled();
+       authConfigMock.assertNotInvoked().failOnDuplicateGroups();
+       authConfigMock.assertNotInvoked().listExcludedGroups();
+    }
+
+    @Test
+    public void shouldReturnEmptyGroupsListWhenConfigDisabled() {
+       // define behaviour
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_DISABLED).isEnabled();
+       ppmsServiceMock.returns(null).findGroupByUserName(Data.USERNAME);
+
+       // run test
+       List<Long> result =
+          newUserGroupBean.groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
+
+       // assert results + invocations
+       assertNotNull(result, "Non null results expected");
+       assertTrue(result.isEmpty(), "Empty results expected");
+       ppmsServiceMock.assertNotInvoked().findGroupByUserName(Data.USERNAME);
+       roleProviderMock.assertNotInvoked().createGroup(
+                       null,
+                       Permissions.USER_PRIVATE,
+                       Data.GROUPS_STRICT_MODE);
+       authConfigMock.assertInvoked().isEnabled();
        authConfigMock.assertNotInvoked().failOnDuplicateGroups();
        authConfigMock.assertNotInvoked().listExcludedGroups();
     }

@@ -67,6 +67,22 @@ public abstract class ConfigurableNameToGroupBean extends NewUserGroupBeanAdapte
 
         List<Long> result = new ArrayList<Long>();
 
+        if (isEnabled()) {
+            result = loadExternalGroups(username, config, provider);
+        } else {
+            log.debug("[external_auth] config not enabled - skipping groups lookup for bean: {}", getClass().getSimpleName());
+        }
+
+        return result;
+    }
+
+    private  List<Long> loadExternalGroups(
+            String username,
+            ExternalAuthConfig config,
+            RoleProvider provider) throws ExternalServiceException{
+
+        List<Long> result = new ArrayList<Long>();
+
         // let the subclass retrieve the group names from the appropriate data source
         List<NamedItem> items = listItemsByUserName(username, config);
 

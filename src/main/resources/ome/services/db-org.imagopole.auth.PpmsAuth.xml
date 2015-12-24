@@ -214,6 +214,26 @@
      </constructor-arg>
   </bean>
 
+  <!-- Project + predefined optional predefined names -->
+  <bean id="ppmsChainedGroupBeanP" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsProjectToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- Unit + predefined optional predefined names -->
+  <bean id="ppmsChainedGroupBeanU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
   <!-- System + Unit + optional predefined names -->
   <bean id="ppmsChainedGroupBeanSU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
      <constructor-arg>

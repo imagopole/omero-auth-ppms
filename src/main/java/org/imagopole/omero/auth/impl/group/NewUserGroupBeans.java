@@ -5,7 +5,7 @@ package org.imagopole.omero.auth.impl.group;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -58,7 +58,7 @@ public class NewUserGroupBeans implements NewUserGroupBean {
                     RoleProvider provider,
                     AttributeSet attrSet) {
 
-        Set<Long> allGroups = new HashSet<Long>();
+        Set<Long> allGroups = new LinkedHashSet<Long>();
 
         for (NewUserGroupBean bean : groupBeans) {
             log.debug("[external_auth] Invoking chained newUserGroupBean: {}", bean);

@@ -39,6 +39,15 @@ public abstract class NewUserGroupBeanAdapter implements NewUserGroupBean, Exter
     private ExternalAuthConfig externalConfig;
 
     /**
+     * Is the external authentication module active?
+     *
+     * @see org.imagopole.omero.auth.api#isEnabled()
+     */
+    protected boolean isEnabled() {
+        return null != externalConfig && externalConfig.isEnabled();
+    }
+
+    /**
      * Adapts the {@link NewUserGroupBean} group retrieval method to
      * the {@link ExternalNewUserGroupBean} API.
      *

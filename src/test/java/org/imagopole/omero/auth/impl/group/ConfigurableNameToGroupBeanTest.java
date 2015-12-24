@@ -45,6 +45,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
     @Test
     public void shouldIgnoreNullGroupNamesList() {
        // define behaviour
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_ENABLED).isEnabled();
        newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(null).listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
 
@@ -67,6 +68,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
     public void shouldIgnoreOmeroSystemGroupsNames(String groupName) {
        // define behaviour
        List<NamedItem> items = Arrays.asList(new NamedItem[] { NamedItem.newItem(groupName) } );
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_ENABLED).isEnabled();
        newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(items).listItemsByUserName(Data.USERNAME, null);
 
@@ -89,6 +91,7 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        // define behaviour
        String groupName = "some.group.name";
        List<NamedItem> items = Arrays.asList(new NamedItem[] { NamedItem.newItem(groupName) } );
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_ENABLED).isEnabled();
        newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
        newUserGroupBeanMock.returns(items).listItemsByUserName(Data.USERNAME, null);
 
@@ -104,6 +107,30 @@ public class ConfigurableNameToGroupBeanTest extends UnitilsTestNG {
        roleProviderMock.assertInvoked().createGroup(groupName, Permissions.USER_PRIVATE, Data.GROUPS_STRICT_MODE);
        authConfigMock.assertInvoked().failOnDuplicateGroups();
        authConfigMock.assertInvoked().listExcludedGroups();
+    }
+
+    @Test
+    public void shouldSkipGroupsLookupWhenConfigDisabled() {
+       // define behaviour
+       String groupName = "some.group.name";
+       List<NamedItem> items = Arrays.asList(new NamedItem[] { NamedItem.newItem(groupName) } );
+       authConfigMock.returns(Data.EXTERNAL_CONFIG_DISABLED).isEnabled();
+       newUserGroupBeanMock.returns(ConfigValues.PRIVATE).getPermissionLevel();
+       newUserGroupBeanMock.returns(items).listItemsByUserName(Data.USERNAME, null);
+
+       // run test
+       List<Long> result =
+          newUserGroupBeanMock.getMock().groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
+
+       // assert results + invocations
+       assertNotNull(result, "Non null results expected");
+       assertTrue(result.isEmpty(), "Empty results expected");
+       newUserGroupBeanMock.assertInvoked().groups(Data.USERNAME, authConfigMock.getMock(), roleProviderMock.getMock());
+       newUserGroupBeanMock.assertNotInvoked().listItemsByUserName(Data.USERNAME, authConfigMock.getMock());
+       roleProviderMock.assertNotInvoked().createGroup(groupName, Permissions.USER_PRIVATE, Data.GROUPS_STRICT_MODE);
+       authConfigMock.assertInvoked().isEnabled();
+       authConfigMock.assertNotInvoked().failOnDuplicateGroups();
+       authConfigMock.assertNotInvoked().listExcludedGroups();
     }
 
     @DataProvider(name="protected-group-names-data-provider")

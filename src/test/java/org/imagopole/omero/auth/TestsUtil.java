@@ -241,6 +241,8 @@ public final class TestsUtil {
         public static final String USERNAME = "some.username";
         public static final String PASSWORD = "some.password";
         public static final boolean GROUPS_STRICT_MODE = true;
+        public static final boolean EXTERNAL_CONFIG_ENABLED = true;
+        public static final boolean EXTERNAL_CONFIG_DISABLED = false;
 
         /** Private constructor (utility class) */
         private Data() {

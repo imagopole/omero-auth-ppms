@@ -38,7 +38,7 @@ applyProfile(profile)
 /**** Project configuration ****/
 
 group       = 'org.imagopole.omero'
-version     = '0.3.1'
+version     = '0.3.2-SNAPSHOT'
 description = """OMERO server extension for PPMS auth"""
 
 

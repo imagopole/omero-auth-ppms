@@ -40,6 +40,16 @@ public class ListToGroupsBean extends ConfigurableNameToGroupBean {
      * {@inheritDoc}
      */
     @Override
+    protected boolean isEnabled() {
+        // since this GroupBean implementation does not rely on a remote endpoint's availability,
+        // allow to be configured and executed regardless of the external auth config flag
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected List<NamedItem> listItemsByUserName(String username, ExternalAuthConfig config) {
         log.debug("[external_auth ] looking up configured group names for username: {}", username);
 

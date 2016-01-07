@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import ome.annotations.RolesAllowed;
 import ome.api.ServiceInterface;
@@ -175,7 +177,8 @@ public abstract class BaseExternalNewUserService
 
         if (access) {
 
-            List<Long> groups = loadExternalGroups(username);
+            String grpSpec = config.getNewUserGroup();
+            List<Long> groups = loadExternalGroups(username, grpSpec);
 
             if (null == groups || groups.isEmpty()) {
                 throw new ValidationException(String.format("No group found for: %s", username));
@@ -209,11 +212,12 @@ public abstract class BaseExternalNewUserService
         Check.notEmpty(username, "username");
 
         boolean syncGroupsOnLogin = config.syncGroupsOnLogin();
+        boolean syncDefaultGroupOnLogin = config.syncDefaultGroupOnLogin();
         boolean syncUserOnLogin = config.syncUserOnLogin();
-        log.debug("[external_auth] Synchronization settings for user:{} [groups:{} - user:{}]",
-                   username, syncGroupsOnLogin, syncUserOnLogin);
+        log.debug("[external_auth] Synchronization settings for user:{} [groups:{}/{} - user:{}]",
+                   username, syncGroupsOnLogin, syncDefaultGroupOnLogin, syncUserOnLogin);
 
-        boolean noSyncOnLogin = !syncGroupsOnLogin && !syncUserOnLogin;
+        boolean noSyncOnLogin = !syncGroupsOnLogin && !syncDefaultGroupOnLogin && !syncUserOnLogin;
         if (noSyncOnLogin) {
             return;
         }
@@ -240,7 +244,8 @@ public abstract class BaseExternalNewUserService
 
         if (syncGroupsOnLogin) {
 
-            List<Long> externalGroups = loadExternalGroups(username);
+            String grpSpec = config.getNewUserGroup();
+            List<Long> externalGroups = loadExternalGroups(username, grpSpec);
 
             List<Object[]> omeGroups = iQuery.projection(
                     SELECT_GROUPS_IDS,
@@ -260,6 +265,16 @@ public abstract class BaseExternalNewUserService
 
         }
 
+        // also reset the default experimenter group's if configured accordingly
+        if (syncDefaultGroupOnLogin) {
+
+            String defaultGroupSpec = config.getDefaultGroup();
+            String defaultGroupSyncPattern = config.getDefaultGroupPattern();
+
+            synchronizeDefaultGroup(omeExp, defaultGroupSpec, defaultGroupSyncPattern);
+
+        }
+
         if (syncUserOnLogin) {
 
             // provide a default implementation for user details synchronization
@@ -268,6 +283,80 @@ public abstract class BaseExternalNewUserService
         }
 
         iUpdate.flush();
+    }
+
+    /**
+     * Synchronize the experimenter's default group from the external source to OMERO.
+     *
+     * The default group is redefined conditionally: the current default group's name is matched
+     * against the configured regex pattern before update, so as to avoid authoritatively overriding
+     * the choice of user-defined default group on every login.
+     *
+     * @param experimenter the OMERO user
+     * @param defaultGroupSpec the group spec to be used for default group definition
+     * @param defaultGroupSyncPattern the pattern to be matched in order for the current default group to be overwritten
+     * @throws ExternalServiceException in case of an underlying error during the remote service call
+     */
+    public void synchronizeDefaultGroup(
+            final Experimenter experimenter,
+            String defaultGroupSpec,
+            String defaultGroupSyncPattern) throws ExternalServiceException {
+
+        Check.notNull(experimenter, "experimenter");
+        String username = experimenter.getOmeName();
+
+        if (null == defaultGroupSyncPattern || defaultGroupSyncPattern.trim().isEmpty()) {
+            log.warn("[external_auth] empty defaultGroup sync pattern - skipping");
+            return;
+        }
+
+        try {
+            Pattern.compile(defaultGroupSyncPattern);
+        } catch (PatternSyntaxException pse) {
+            log.error("[external_auth] invalid defaultGroup sync pattern - skipping", pse);
+            return;
+        }
+
+        ExperimenterGroup experimenterDefaultGroup = getDefaultGroupOrNull(experimenter);
+        if (null == experimenterDefaultGroup) {
+            log.warn("[external_auth] no current defaultGroup for experimenter:{} - skipping", username);
+            return;
+        }
+
+        String currentDefaultGroupName = experimenterDefaultGroup.getName();
+        Long currentDefaultGroupId = experimenterDefaultGroup.getId();
+
+        boolean shouldOverrideDefaultGroup =
+            null != currentDefaultGroupName
+            && currentDefaultGroupName.matches(defaultGroupSyncPattern);
+
+        log.debug("[external_auth] Should override defaultGroup [{}-{}] for user:{}? {}",
+                  currentDefaultGroupId, currentDefaultGroupName, username, shouldOverrideDefaultGroup);
+
+        if (shouldOverrideDefaultGroup) {
+
+            // let the group beans mechanism lookup and create the new default group
+            List<Long> newDefaultGroups = loadExternalGroups(username, defaultGroupSpec);
+
+            if (null != newDefaultGroups && !newDefaultGroups.isEmpty()) {
+
+                // pick the first item in the list as the new default group
+                Long defaultGroupId = newDefaultGroups.get(0);
+                ExperimenterGroup newDefaultGroup = new ExperimenterGroup(defaultGroupId, false);
+
+                log.info("[external_auth] Overriding defaultGroup to:{} for user:{} [was:{}-{}]",
+                         defaultGroupId, username, currentDefaultGroupId, currentDefaultGroupName);
+
+                // make sure the new default group is linked to the experimenter
+                roleProvider.addGroups(experimenter, newDefaultGroup);
+
+                // override the previous default group
+                roleProvider.setDefaultGroup(experimenter, newDefaultGroup);
+
+            }
+
+        }
+
     }
 
     /**
@@ -329,15 +418,15 @@ public abstract class BaseExternalNewUserService
      * Groups will be created in the OMERO database if needed.
      *
      * @param username the OMERO username
+     * @param grpSpec the group spec to be used for new groups definition
      * @return the group identifiers for the user memberships
      * @throws ExternalServiceException in case of an underlying error during the remote service call
      *
      * @see ome.logic.LdapImpl#loadLdapGroups(String, org.springframework.ldap.core.DistinguishedName)
      */
-    public List<Long> loadExternalGroups(String username) throws ExternalServiceException {
+    public List<Long> loadExternalGroups(String username, String grpSpec) throws ExternalServiceException {
         Check.notEmpty(username, "username");
 
-        final String grpSpec = config.getNewUserGroup();
         log.debug("[external_auth] loading externalNewUserGroup from spec: {}", grpSpec);
 
         final List<Long> groups = new ArrayList<Long>();
@@ -441,6 +530,18 @@ public abstract class BaseExternalNewUserService
                 }
             }
         }
+    }
+
+    private ExperimenterGroup getDefaultGroupOrNull(final Experimenter experimenter) {
+        Check.notNull(experimenter, "experimenter");
+
+        ExperimenterGroup result = null;
+
+        if (experimenter.sizeOfGroupExperimenterMap() > 0) {
+            result = experimenter.getGroupExperimenterMap(0).parent();
+        }
+
+        return result;
     }
 
     /**

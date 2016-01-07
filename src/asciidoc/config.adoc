@@ -7,6 +7,7 @@ Imagopole
 :request_con_timeout_url: https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L239-L250
 :request_config_url:      https://github.com/apache/httpclient/blob/4.3.3/httpclient/src/main/java/org/apache/http/client/config/RequestConfig.java#L334-L344
 :password_provider_url:   http://www.openmicroscopy.org/site/support/omero5/developers/Server/PasswordProvider.html
+:java_pattern_url:        https://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
 :source-highlighter:      prettify
 :icons:                   font
 :revnumber:               {project-version}
@@ -21,17 +22,20 @@ WARNING: Plenty of options are available. Use caution if mixing PPMS + LDAP, as 
 === OMERO auth extension
 
 [width="100%", cols="25,25,50" options="header"]
-|============================================================================================================================
+|==============================================================================================================================================
 |Setting                            |Format                     |Description
 |`omero.ppms.config`                |true,false                 |(De)activate the PPMS auth extension
 |`omero.ppms.new_user_group`        |_:bean:_ or string literal |{bean_group_spec_url}[GroupSpec] for memberships assignment
 |`omero.ppms.sync_groups`           |true,false                 |Synchronize groups upon login
+|`omero.ppms.sync_default_group`    |true,false                 |Synchronize default group upon login
 |`omero.ppms.sync_user`             |true,false                 |Synchronize user fields upon login
 |`omero.ppms.include_facilities`    |1,2,3                      |PPMS facilities IDs whitelist
 |`omero.ppms.include_system_types`  |confocal,biphoton          |PPMS instrument types names whitelist
 |`omero.ppms.add_user_groups`       |Default,Shared             |CSV groups for _:bean:listToGroupsBean_ GroupSpec
+|`omero.ppms.default_group`         |_:bean:_ or string literal |{bean_group_spec_url}[GroupSpec] for default group overriding
+|`omero.ppms.default_group_pattern` |regular expression string  |{java_pattern_url}[Pattern] to be matched against for default group overriding
 |`omero.ppms.client_impl`           |spring bean name           |PUMAPI client implementation bean
-|============================================================================================================================
+|==============================================================================================================================================
 
 === PPMS HTTP client
 

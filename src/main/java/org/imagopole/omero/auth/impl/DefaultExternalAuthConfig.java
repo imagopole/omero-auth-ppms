@@ -103,6 +103,34 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
      * {@inheritDoc}
      */
     @Override
+    public String getDefaultGroup() {
+        String result = null;
+
+        if (null != getConfigMap() && getConfigMap().containsKey(ConfigKeys.DEFAULT_GROUP_SYNC_SPEC)) {
+            result = (String) getConfigMap().get(ConfigKeys.DEFAULT_GROUP_SYNC_SPEC);
+        }
+
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDefaultGroupPattern() {
+         String result = null;
+
+         if (null != getConfigMap() && getConfigMap().containsKey(ConfigKeys.DEFAULT_GROUP_SYNC_PATTERN)) {
+             result = (String) getConfigMap().get(ConfigKeys.DEFAULT_GROUP_SYNC_PATTERN);
+         }
+
+         return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @SuppressWarnings("unchecked")
     public List<String> listExcludedGroups() {
         List<String> result = Collections.emptyList();
@@ -156,6 +184,21 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
      * {@inheritDoc}
      */
     @Override
+    public boolean syncDefaultGroupOnLogin() {
+        boolean result = false;
+
+        if (null != getConfigMap() && getConfigMap().containsKey(ConfigKeys.DEFAULT_GROUP_SYNC_FLAG)) {
+            String configValue = (String) getConfigMap().get(ConfigKeys.DEFAULT_GROUP_SYNC_FLAG);
+            result =  Boolean.valueOf(configValue);
+        }
+
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean syncUserOnLogin() {
         return this.syncUser;
     }
@@ -188,6 +231,15 @@ public class DefaultExternalAuthConfig implements ExternalAuthConfig {
          *
          *  @see ome.security.auth.SimpleRoleProvider#createGroup(String, ome.model.internal.Permissions, boolean) */
         public static final String FAIL_ON_DUPLICATE_GROUPS = PREFIX + "groups.fail_duplicates";
+
+        /** Boolean flag to toggle default group synchronization on login. */
+        public static final String DEFAULT_GROUP_SYNC_FLAG    = PREFIX + "groups.default.sync";
+
+        /** {@link ome.security.auth.NewUserGroupBean} spec for default group synchronization. */
+        public static final String DEFAULT_GROUP_SYNC_SPEC    = PREFIX + "groups.default.sync_spec";
+
+        /** {@link java.util.regex.Pattern} to be matched against the current default group to trigger the overriding behaviour. */
+        public static final String DEFAULT_GROUP_SYNC_PATTERN = PREFIX + "groups.default.sync_pattern";
 
         /** Constants class. */
         private ConfigKeys() {

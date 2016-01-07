@@ -98,6 +98,18 @@
             </util:list>
           </entry>
 
+          <!-- Flag for default group synchronization -->
+          <entry key="omero.external_auth.groups.default.sync"
+                 value="#{ systemProperties[ 'omero.ppms.sync_default_group' ] }"/>
+
+          <!-- Group spec for default group synchronization -->
+          <entry key="omero.external_auth.groups.default.sync_spec"
+                 value="#{ systemProperties[ 'omero.ppms.default_group' ] }"/>
+
+          <!-- Regexp matched against the current default group's name for default group synchronization -->
+          <entry key="omero.external_auth.groups.default.sync_pattern"
+                 value="#{ systemProperties[ 'omero.ppms.default_group_pattern' ] }"/>
+
           <!-- Protected user names to be filtered out of the external password provider -->
           <entry key="omero.external_auth.users.exclude_names">
             <util:list>

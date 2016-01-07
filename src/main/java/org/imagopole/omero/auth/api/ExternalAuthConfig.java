@@ -35,6 +35,19 @@ public interface ExternalAuthConfig {
      *  @see ome.security.auth.LdapConfig#getNewUserGroup() */
     String getNewUserGroup();
 
+    /**
+     * Group specifier for default group overriding at user profile synchronization time.
+     * Only supports literal group name and <code>:bean:<spring_bean_name></code> constructs.
+     * @see #getNewUserGroup()
+     */
+    String getDefaultGroup();
+
+    /**
+     * Regular expression for conditional default group overriding - default group name
+     * shall be synchronized only if it matches the configured pattern.
+     */
+    String getDefaultGroupPattern();
+
    /**
     * Returns the list of group names to be filtered out from the external to OMERO synchronization, if any.
     * @return empty list if no group exclusions were configured.
@@ -57,6 +70,11 @@ public interface ExternalAuthConfig {
      * Indicates whether the groups and memberships for this user should be synchronized upon login.
      * @see ome.security.auth.LdapConfig#isSyncOnLogin() */
     boolean syncGroupsOnLogin();
+
+    /**
+     * Indicates whether the default group for this user should be synchronized upon login.
+     */
+    boolean syncDefaultGroupOnLogin();
 
     /**
      * Indicates whether the attributes (first name, last name, email, etc.) for this user should

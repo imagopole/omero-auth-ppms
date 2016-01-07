@@ -126,6 +126,16 @@ public abstract class AbstractPpmsOmeroIntegrationTest extends AbstractOmeroInte
         assertEquals(experimenter.getEmail(), expectedEmail, "Incorrect results");
     }
 
+    protected void checkDefaultGroup(Experimenter experimenter, String expectedName) {
+
+        int sizeOfGroupExperimenterMap = experimenter.sizeOfGroupExperimenterMap();
+        assertTrue(sizeOfGroupExperimenterMap > 0, "Incorrect default group count: " + sizeOfGroupExperimenterMap);
+
+        ExperimenterGroup defaultGroup = experimenter.getGroupExperimenterMap(0).parent();
+        assertNotNull(defaultGroup, "Non null default group expected");
+        assertEquals(defaultGroup.getName(), expectedName, "Incorrect default group name");
+    }
+
     protected void checkMemberships(
                     Experimenter experimenter,
                     int expectedCount,

@@ -295,6 +295,9 @@ public final class TestsUtil {
         public static final String PPMS_CONFIG               = "omero.ppms.config";
         public static final String PPMS_NEW_USER_GROUP       = "omero.ppms.new_user_group";
         public static final String PPMS_SYNC_GROUPS          = "omero.ppms.sync_groups";
+        public static final String PPMS_SYNC_DEFAULT_GROUP   = "omero.ppms.sync_default_group";
+        public static final String PPMS_DEFAULT_GROUP        = "omero.ppms.default_group";
+        public static final String PPMS_DEFAULT_GROUP_PATTERN = "omero.ppms.default_group_pattern";
         public static final String PPMS_SYNC_USER            = "omero.ppms.sync_user";
         public static final String PPMS_INCLUDE_FACILITIES   = "omero.ppms.include_facilities";
         public static final String PPMS_INCLUDE_SYSTEM_TYPES = "omero.ppms.include_system_types";
@@ -380,8 +383,11 @@ public final class TestsUtil {
         public static final long FACILITY_ID = 22L;
         public static final String SYSTEM_TYPE = "some.system.type";
         public static final String UNIT_LOGIN = "some.unit.login";
+        public static final String TRAINING_GROUP = "training";
+        public static final String DEFAULT_GROUP_PATTERN = "^.*UnitDefault$";
 
         public static final String AUTONOMY_GROUP_BEAN = ":bean:ppmsSystemAutonomyToGroupBean";
+        public static final String UNIT_GROUP_BEAN = ":bean:ppmsUnitToGroupBean";
         public static final String SYSTEM_GROUP_BEAN = ":bean:ppmsSystemToGroupBean";
         public static final String FACILITIES_WHITELIST = "," + FACILITY_ID;
         public static final String SYSTEM_TYPES_WHITELIST = SYSTEM_TYPE + ",";

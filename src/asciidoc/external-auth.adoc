@@ -35,6 +35,7 @@ Imagopole
 |Initialize user groups                      2+| Y (`new_user_group`)
 |Synchronize user attributes                 2+| Y (`sync_user`)
 |Synchronize user groups                     2+| Y (`sync_groups`)
+|Synchronize default user group              2+| Y (`sync_default_group`)
 |================================================================================================================================================
 
 === Chained

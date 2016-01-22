@@ -257,6 +257,17 @@
      </constructor-arg>
   </bean>
 
+  <!-- Unit + System + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanUS" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="ppmsSystemToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
   <!-- System + Project + Unit + optional predefined names -->
   <bean id="ppmsChainedGroupBeanSPU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
      <constructor-arg>
@@ -269,12 +280,35 @@
      </constructor-arg>
   </bean>
 
-  <!-- System with autonomy + Project + Unit + optional predefined names -->
+  <!-- Unit + System + Project + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanUSP" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="ppmsSystemToGroupBean"/>
+         <ref bean="ppmsProjectToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- System with autonomy + Unit + optional predefined names -->
   <bean id="ppmsChainedGroupBeanSAU" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
      <constructor-arg>
        <list>
          <ref bean="ppmsSystemAutonomyToGroupBean"/>
          <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- Unit + System with autonomy + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanUSA" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="ppmsSystemAutonomyToGroupBean"/>
          <ref bean="listToGroupsBean"/>
        </list>
      </constructor-arg>
@@ -287,6 +321,18 @@
          <ref bean="ppmsSystemAutonomyToGroupBean"/>
          <ref bean="ppmsProjectToGroupBean"/>
          <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="listToGroupsBean"/>
+       </list>
+     </constructor-arg>
+  </bean>
+
+  <!-- + Unit + System with autonomy + Project + optional predefined names -->
+  <bean id="ppmsChainedGroupBeanUSAP" class="org.imagopole.omero.auth.impl.group.NewUserGroupBeans">
+     <constructor-arg>
+       <list>
+         <ref bean="ppmsUnitToGroupBean"/>
+         <ref bean="ppmsSystemAutonomyToGroupBean"/>
+         <ref bean="ppmsProjectToGroupBean"/>
          <ref bean="listToGroupsBean"/>
        </list>
      </constructor-arg>
